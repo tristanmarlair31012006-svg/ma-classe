@@ -1,6 +1,6 @@
 /* Mode hors ligne : l'app est gardée sur l'iPad.
    À CHAQUE MISE À JOUR DE L'APP, augmenter VERSION (ex. "v2" → "v3") pour que les iPad téléchargent la nouvelle version. */
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = "ma-classe-" + VERSION;
 const FICHIERS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -34,6 +34,11 @@ self.addEventListener("fetch", e => {
     return;
   }
   if (url.origin !== location.origin) return; // serveur de discussion, etc. : jamais en cache
+  // Contenu du jour : toujours la version en ligne si possible, sinon la dernière gardée
+  if (url.pathname.endsWith("/jour.json")) {
+    e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(CACHE).then(k => k.put("./jour.json", c)); return r; }).catch(() => caches.match("./jour.json")));
+    return;
+  }
   // Fichiers de l'app : d'abord le cache (rapide, hors ligne), sinon le réseau
   e.respondWith(caches.match(e.request, { ignoreSearch: true }).then(r => r || fetch(e.request).then(rep => {
     if (rep.ok && url.pathname.includes("/pictos/")) caches.open("ma-classe-pictos").then(c => c.put(e.request, rep.clone()));

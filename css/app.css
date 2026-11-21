@@ -435,3 +435,44 @@ a.btn { text-decoration: none; }
 .story.grande .story-phrase { font-size: 46px; line-height: 56px; }
 .story.grande .story-trad { font-size: 28px; line-height: 38px; }
 @media (max-width: 900px) { .humeur, .hier { grid-template-columns: 1fr; } .hier-story { max-width: 380px; } }
+
+/* ---------- Accueil : message, aujourd'hui, question, mot, semaine, classe ---------- */
+.message-prof { display: flex; gap: var(--s-3); align-items: flex-start; margin-top: var(--s-4); padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--social-clair); border: 2px solid var(--social); }
+.message-prof > svg { color: var(--social); margin-top: 4px; }
+.message-prof > div { flex: 1; }
+.aujourdhui h2 { display: flex; gap: 10px; align-items: center; }
+.programme { list-style: none; display: grid; gap: var(--s-2); margin-top: var(--s-3); }
+.programme li { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); background: var(--espace-clair, var(--creme)); border-left: 6px solid var(--espace, var(--ink)); }
+.num-prog { width: 32px; height: 32px; border-radius: 50%; background: var(--espace, var(--ink)); color: #fff; font: 700 17px/32px var(--font-fr); text-align: center; flex-shrink: 0; }
+.txt-prog { flex: 1; }
+.objectif-jour { display: flex; gap: var(--s-3); align-items: flex-start; margin-top: var(--s-3); padding: var(--s-3); border: 2px dashed var(--ink); border-radius: var(--r-md); }
+.objectif-jour > span { display: grid; gap: 2px; }
+.reprendre { margin-top: var(--s-3); text-decoration: none; }
+.question-jour { font: 700 24px/32px var(--font-fr); display: flex; gap: var(--s-2); align-items: center; flex-wrap: wrap; }
+.reponse-dite { display: flex; gap: var(--s-3); align-items: center; margin-top: var(--s-3); padding: var(--s-3) var(--s-4); background: var(--creme); border-radius: var(--r-md); }
+.reponse-dite p { flex: 1; }
+.champ-reponse { flex: 1; min-height: var(--cible); border: var(--trait-fort); border-radius: var(--r-md); padding: 0 var(--s-3); font: var(--t-texte); background: var(--papier); }
+.deux-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+.deux-cartes h2 { margin-bottom: var(--s-3); }
+.ligne-mot { display: flex; gap: var(--s-3); align-items: center; margin-top: var(--s-3); }
+.mot-jour-fr { font: 700 30px/38px var(--font-fr); }
+.phrase-utile { font: 700 24px/32px var(--font-fr); margin-top: var(--s-3); }
+.semaine { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-2); }
+.jour-sem { display: grid; justify-items: center; gap: 8px; padding: var(--s-2) 4px; border-radius: var(--r-md); border: 2px solid var(--bordure); }
+.jour-sem.auj { border-color: var(--ink); background: var(--creme); }
+.nom-jour { font: 700 16px/1 var(--font-fr); }
+.pastilles-jour { display: grid; gap: 6px; }
+.pastilles-jour i { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: var(--fond); color: var(--bordure); border: 2px solid var(--bordure); }
+.pastilles-jour i svg { width: 16px; height: 16px; }
+.pastilles-jour i.on { background: var(--ok); color: #fff; border-color: var(--ok); }
+.reussites { list-style: none; display: grid; gap: var(--s-2); }
+.reussites li { display: flex; gap: var(--s-2); align-items: center; font: 700 17px/22px var(--font-fr); }
+.reussites li svg { color: var(--attention); }
+.langues-classe { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.langue-classe { display: grid; gap: 6px; text-align: left; padding: var(--s-3) var(--s-4); min-width: 180px; border-radius: var(--r-md); border: var(--trait-fort); background: var(--papier); box-shadow: var(--ombre); }
+.langue-classe:active { transform: translate(4px, 4px); box-shadow: none; }
+.nom-langue { font: 700 18px/1 var(--font-trad); }
+.bonjour-langue { font: 400 22px/28px var(--font-trad); color: var(--social); }
+.points-langue { display: flex; gap: 4px; flex-wrap: wrap; }
+.points-langue i { width: 12px; height: 12px; border-radius: 50%; background: var(--social); }
+@media (max-width: 900px) { .deux-cartes { grid-template-columns: 1fr; } }

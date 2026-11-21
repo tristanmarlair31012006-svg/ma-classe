@@ -170,6 +170,7 @@
     if (!S.profil) return ecranSansProfil();
     if (!deverrouille) return ecranCode();
     if (r === "lecons") return ecranLecons();
+    if ((r.startsWith("act-") || (r.startsWith("atelier-"))) && (!S.dernier || S.dernier.r !== r)) { S.dernier = { r, t: Date.now() }; sauver(); }
     if (r === "atelier" || r.startsWith("atelier-")) return window.ATELIER ? window.ATELIER.ecran(r) : ecranAtelier();
     if (r === "mots") return ecranMots();
     if (r === "discuter") return ecranDiscuter();
@@ -223,23 +224,14 @@
         <h1>${esc(fr(D.ui.bonjour))} ${esc(S.profil.prenom)} !${l !== "fr" && tr(D.ui.bonjour) ? `<span class="trad" lang="${l}">${esc(tr(D.ui.bonjour))} ${esc(S.profil.prenom)}!</span>` : ""}</h1>
       </div>
 
-      ${window.ACCUEIL ? window.ACCUEIL.blocHumeur() + window.ACCUEIL.blocHier() : ""}
+      ${window.ACCUEIL ? window.ACCUEIL.page() : ""}
 
       <section class="bloc" data-espace="eco">
         <h2>${esc(fr(D.ui.continuer))}${ligneTrad(D.ui.continuer)}</h2>
         <div class="tuiles">${D.activites.map(a => tuileActivite(a)).join("")}</div>
       </section>
 
-      <section class="bloc">
-        <h2>${esc(fr(D.ui.progres))}${ligneTrad(D.ui.progres)}</h2>
-        <div class="badges">
-          ${D.activites.map(a => S.progres[a.id] && S.progres[a.id].fini
-            ? `<span class="badge">${ic("etoile")} ${esc(fr(a.titre))}</span>`
-            : `<span class="badge verrou">${ic("etoile")} ${esc(fr(a.titre))}</span>`).join("")}
-          <span class="badge">${ic("dico")} ${S.dico.length} mot${S.dico.length > 1 ? "s" : ""}</span>
-        </div>
-        <p class="petit" style="margin-top:8px">${nbFinies} activité${nbFinies > 1 ? "s" : ""} terminée${nbFinies > 1 ? "s" : ""}</p>
-      </section>`, "", "accueil");
+`, "", "accueil");
     if (window.ACCUEIL) window.ACCUEIL.brancher();
   }
 

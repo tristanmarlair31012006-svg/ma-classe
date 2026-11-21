@@ -1,0 +1,28 @@
+{
+  "_aide": "Fichier du jour. Modifie-le sur GitHub (crayon ✏️), puis « Commit changes ». Les iPad le récupèrent dès qu'ils ont du wifi. Laisse une traduction vide (\"\") si tu ne l'as pas.",
+
+  "message": {
+    "fr": "Bienvenue ! Aujourd'hui, on découvre l'argent en Belgique.",
+    "uk": "Ласкаво просимо! Сьогодні ми знайомимося з грошима в Бельгії.",
+    "pl": "Witamy! Dziś poznajemy pieniądze w Belgii.",
+    "es": "¡Bienvenidos! Hoy descubrimos el dinero en Bélgica."
+  },
+
+  "programme": [
+    { "discipline": "eco", "texte": { "fr": "L'argent en Belgique", "uk": "Гроші в Бельгії", "pl": "Pieniądze w Belgii", "es": "El dinero en Bélgica" }, "lien": "act-euro" },
+    { "discipline": "geo", "texte": { "fr": "Atelier : ma carte de l'Europe", "uk": "Майстерня: моя карта Європи", "pl": "Pracownia: moja mapa Europy", "es": "Taller: mi mapa de Europa" }, "lien": "atelier" }
+  ],
+
+  "objectif": {
+    "fr": "Je sais reconnaître et compter les euros.",
+    "uk": "Я вмію розпізнавати й рахувати євро.",
+    "pl": "Umiem rozpoznawać i liczyć euro.",
+    "es": "Sé reconocer y contar euros."
+  },
+
+  "question": "",
+  "motDuJour": "",
+  "phraseUtile": { "fr": "", "uk": "", "pl": "", "es": "" },
+
+  "langues": { "uk": 0, "pl": 0, "es": 0, "rn": 0, "fr": 0 }
+}

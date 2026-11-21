@@ -1,0 +1,61 @@
+/* Tokens – App DASPA (voir DESIGN.md) */
+:root {
+  /* Neutres */
+  --fond: #fbf7ef;
+  --papier: #ffffff;
+  --creme: #fff6e5;
+  --ink: #2b2b2b;
+  --ink-muted: #62666b;
+  --bordure: #d9d4cc;
+
+  /* Espaces de l'app */
+  --histoire: #8a4b14;  --histoire-clair: #f6e7cf;
+  --geo: #2b6e45;       --geo-clair: #e3f1ea;
+  --social: #6a4c96;    --social-clair: #efe8f7;
+  --eco: #b93a26;       --eco-clair: #fde3dc;
+  --atelier: #a85d00;   --atelier-clair: #fde9cc;
+  --mots: #1d5f91;      --mots-clair: #dceaf7;
+
+  /* Couleur de l'espace courant (réassignée par écran) */
+  --espace: var(--histoire);
+  --espace-clair: var(--histoire-clair);
+
+  /* États (toujours avec icône + mot) */
+  --ok: #2e7d32;
+  --erreur: #c62828;
+  --attention: #8a5a00;
+
+  /* Typo */
+  --font-fr: "Comic Neue", "Comic Sans MS", "Chalkboard SE", system-ui, sans-serif;
+  --font-trad: "Andika", system-ui, sans-serif;
+  --t-titre-ecran: 700 32px/40px var(--font-fr);
+  --t-titre-carte: 700 24px/32px var(--font-fr);
+  --t-consigne: 400 22px/32px var(--font-fr);
+  --t-texte: 400 20px/30px var(--font-fr);
+  --t-traduction: 400 18px/27px var(--font-trad);
+  --t-bouton: 700 20px/24px var(--font-fr);
+  --t-petit: 400 16px/22px var(--font-fr);
+
+  /* Espacement (base 8) */
+  --s-1: 4px; --s-2: 8px; --s-3: 16px; --s-4: 24px;
+  --s-5: 32px; --s-6: 48px; --s-7: 64px;
+  --cible: 56px;
+
+  /* Forme */
+  --r-sm: 6px; --r-md: 12px; --r-lg: 18px; --r-pill: 999px;
+  --trait: 2px solid var(--bordure);
+  --trait-fort: 2px solid var(--ink);
+  --ombre: 4px 4px 0 var(--ink);
+  --focus: 0 0 0 3px var(--fond), 0 0 0 6px var(--mots);
+}
+
+[data-espace="histoire"] { --espace: var(--histoire); --espace-clair: var(--histoire-clair); }
+[data-espace="geo"]      { --espace: var(--geo);      --espace-clair: var(--geo-clair); }
+[data-espace="social"]   { --espace: var(--social);   --espace-clair: var(--social-clair); }
+[data-espace="eco"]      { --espace: var(--eco);      --espace-clair: var(--eco-clair); }
+[data-espace="atelier"]  { --espace: var(--atelier);  --espace-clair: var(--atelier-clair); }
+[data-espace="mots"]     { --espace: var(--mots);     --espace-clair: var(--mots-clair); }
+
+/* Traductions : toujours Andika (Comic Neue n'a ni cyrillique ni lettres polonaises) */
+.trad { font: var(--t-traduction); color: var(--ink-muted); }
+:lang(uk), :lang(pl), :lang(es), :lang(rn) { font-family: var(--font-trad) !important; }

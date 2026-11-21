@@ -1,0 +1,25 @@
+name = "daspa-discussion"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+# Aucun journal des requêtes (les messages des élèves ne sont jamais enregistrés).
+[observability]
+enabled = false
+
+[[durable_objects.bindings]]
+name = "CLASSE"
+class_name = "Classe"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Classe"]
+
+[vars]
+# Adresse de l'app sur GitHub Pages (à remplacer). Plusieurs adresses : séparer par des virgules.
+ORIGINES = "https://tristanmarlair31012006-svg.github.io"
+
+# Secrets à créer avec « npx wrangler secret put NOM » (jamais dans ce fichier) :
+#   AZURE_CLE     clé de la ressource Translator
+#   AZURE_REGION  région de la ressource (ex. westeurope)
+#   CODE_CLASSE   code donné aux élèves (ex. 6 chiffres)
+#   CLE_PROF      clé du prof pour modérer

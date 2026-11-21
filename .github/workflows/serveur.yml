@@ -1,0 +1,36 @@
+# Met en ligne le serveur de discussion sur Cloudflare.
+# Se lance tout seul quand le dossier serveur/ change, ou à la main (onglet Actions → « Run workflow »).
+# Les clés ne sont jamais dans le code : elles viennent des Secrets du dépôt (Settings → Secrets and variables → Actions).
+name: Serveur de discussion
+
+on:
+  push:
+    branches: [main]
+    paths: ["serveur/**", ".github/workflows/serveur.yml"]
+  workflow_dispatch:
+
+jobs:
+  deployer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+        working-directory: serveur
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: serveur
+          secrets: |
+            AZURE_CLE
+            AZURE_REGION
+            CODE_CLASSE
+            CLE_PROF
+        env:
+          AZURE_CLE: ${{ secrets.AZURE_CLE }}
+          AZURE_REGION: ${{ secrets.AZURE_REGION }}
+          CODE_CLASSE: ${{ secrets.CODE_CLASSE }}
+          CLE_PROF: ${{ secrets.CLE_PROF }}

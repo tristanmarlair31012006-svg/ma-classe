@@ -1,11 +1,11 @@
 /* Mode hors ligne : l'app est gardée sur l'iPad.
    À CHAQUE MISE À JOUR DE L'APP, augmenter VERSION (ex. "v2" → "v3") pour que les iPad téléchargent la nouvelle version. */
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = "ma-classe-" + VERSION;
 const FICHIERS = [
   "./", "./index.html", "./manifest.webmanifest",
   "./css/fonts.css", "./css/tokens.css", "./css/app.css",
-  "./js/data.js", "./js/app.js", "./js/cartes.js", "./js/atelier.js",
+  "./js/data.js", "./js/app.js", "./js/accueil.js", "./js/cartes.js", "./js/atelier.js",
   "./icones/icone-192.png", "./icones/icone-512.png", "./icones/apple-touch-icon.png",
   "./fonts/comic-neue-latin-400-normal.woff2", "./fonts/comic-neue-latin-700-normal.woff2",
   "./fonts/andika-latin-400-normal.woff2", "./fonts/andika-latin-700-normal.woff2",

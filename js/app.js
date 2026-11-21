@@ -223,23 +223,7 @@
         <h1>${esc(fr(D.ui.bonjour))} ${esc(S.profil.prenom)} !${l !== "fr" && tr(D.ui.bonjour) ? `<span class="trad" lang="${l}">${esc(tr(D.ui.bonjour))} ${esc(S.profil.prenom)}!</span>` : ""}</h1>
       </div>
 
-      <section class="bloc">
-        <h2>${esc(fr(D.ui.humeur))}${ligneTrad(D.ui.humeur)}</h2>
-        <div class="choix-grille">${D.humeurs.map(h => `
-          <button class="choix" data-humeur="${h.id}" aria-pressed="${j.humeur === h.id}"><span class="icone-choix">${ic(h.icone)}</span><span>${esc(fr(h.t))}${ligneTrad(h.t)}</span></button>`).join("")}
-        </div>
-      </section>
-
-      <section class="bloc">
-        <h2>${esc(fr(D.ui.hier))}${ligneTrad(D.ui.hier)}</h2>
-        <div class="choix-grille">${D.hier.map(h => `
-          <button class="choix" data-hier="${h.id}" aria-pressed="${j.hier === h.id}"><span class="icone-choix">${ic(h.icone)}</span><span>${esc(fr(h.t))}${ligneTrad(h.t)}</span></button>`).join("")}
-        </div>
-        ${hierChoisi ? `<div class="phrase-dite">
-          <div class="consigne-texte">« Hier, ${esc(fr(hierChoisi.t))} »<span class="petit" style="display:block">${texte(D.ui.hierDire, { gras: true })}</span></div>
-          <button class="rond" data-dire="Hier, ${esc(fr(hierChoisi.t))}" data-lg="fr" aria-label="Écouter la phrase">${ic("son")}</button>
-        </div>` : ""}
-      </section>
+      ${window.ACCUEIL ? window.ACCUEIL.blocHumeur() + window.ACCUEIL.blocHier() : ""}
 
       <section class="bloc" data-espace="eco">
         <h2>${esc(fr(D.ui.continuer))}${ligneTrad(D.ui.continuer)}</h2>
@@ -256,6 +240,7 @@
         </div>
         <p class="petit" style="margin-top:8px">${nbFinies} activité${nbFinies > 1 ? "s" : ""} terminée${nbFinies > 1 ? "s" : ""}</p>
       </section>`, "", "accueil");
+    if (window.ACCUEIL) window.ACCUEIL.brancher();
   }
 
   function tuileActivite(a) {

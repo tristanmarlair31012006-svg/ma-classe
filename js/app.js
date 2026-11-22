@@ -227,10 +227,10 @@
 
       ${window.ACCUEIL ? window.ACCUEIL.page() : ""}
 
-      <section class="bloc" data-espace="eco">
+      ${window.LECONS ? window.LECONS.blocAccueil() : `<section class="bloc" data-espace="eco">
         <h2>${esc(fr(D.ui.continuer))}${ligneTrad(D.ui.continuer)}</h2>
         <div class="tuiles">${D.activites.map(a => tuileActivite(a)).join("")}</div>
-      </section>
+      </section>`}
 
 `, "", "accueil");
     if (window.ACCUEIL) window.ACCUEIL.brancher();
@@ -435,7 +435,7 @@
       <p class="bloc consigne-texte">${texte(act.objectif)}</p>
       <h2 class="bloc">${texte(D.ui.motsAppris)}</h2>
       <div class="mots-gagnes">${mots.map(m => `<span class="badge">${ic("dico")} ${esc(fr(m.t))}</span>`).join("")}</div>
-      <div class="ligne-boutons bloc"><a class="btn btn-principal" href="#${ret}">${ic("droite")} ${ret.startsWith("seq-") ? "Retour à la séquence" : esc(fr(D.ui.continuer))}</a></div>
+      <div class="ligne-boutons bloc"><a class="btn btn-principal" href="#${ret}">${ic("droite")} ${esc(fr(ret.startsWith("seq-") ? D.ui.retourSeq : D.ui.continuer))}</a></div>
       <p class="bloc"><button class="btn-discret" data-recommencer="${act.id}">Recommencer l'activité</button></p>
     </div>`;
     return `<div class="carte fin bloc">

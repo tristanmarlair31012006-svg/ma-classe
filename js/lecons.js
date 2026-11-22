@@ -488,8 +488,32 @@
       ${jours ? `<p class="petit"><b>Matières choisies (10 derniers jours)</b><br>${jours}</p>` : ""}`;
   }
 
+  /* Bloc de l'accueil : la prochaine étape de chaque matière. */
+  function blocAccueil() {
+    const items = A.D.disciplines.map(d => {
+      if (!avDisc(d.id)) return "";
+      const pr = prochaine(d.id);
+      if (!pr) return "";
+      const href = pr.bilan ? "test-" + pr.bilan : lienEtape(pr.s, pr.i);
+      const titre = pr.bilan ? fr(T.bilan) : titreEtape(pr.e);
+      const sous = pr.bilan ? fr(pr.ch.titre) : fr(pr.s.titre);
+      const retour = pr.bilan ? "disc-" + d.id : "seq-" + pr.s.id;
+      const av = avDisc(d.id);
+      return `<a class="tuile" href="#${href}" data-retour="${retour}" data-espace="${d.id}">
+        <span class="bande"></span>
+        <span style="flex:1;display:grid;gap:6px"><span class="etiquette" style="justify-self:start">${esc(fr(d.t))}</span>
+          <h2>${esc(titre)}</h2><span class="petit">${ic(pr.bilan ? "trophee" : TYPE_ICONE[pr.e.type])} ${esc(sous)}</span>
+          <span class="ligne-av">${barre(av.pct)}<b>${av.pct} %</b></span></span>${ic("droite")}</a>`;
+    }).join("");
+    return `<section class="bloc">
+      <h2>${esc(fr(T.prochaine))}${ligneTrad(T.prochaine)}</h2>
+      ${items ? `<div class="tuiles">${items}</div>` : ""}
+      <p style="margin-top:16px"><a class="btn btn-secondaire" href="#lecons">${ic("book")} ${esc(fr(T.choisis))}</a></p>
+    </section>`;
+  }
+
   const titreSeq = id => { const s = seq(id); return s ? fr(s.titre) : ""; };
   const espaceSeq = id => { const ch = chapitreDeSeq(id); return ch ? ch.discipline : ""; };
 
-  window.LECONS = { ecran, gere, resumeProf, titreSeq, espaceSeq };
+  window.LECONS = { ecran, gere, resumeProf, titreSeq, espaceSeq, blocAccueil };
 })();

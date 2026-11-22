@@ -56,6 +56,7 @@ window.DATA = {
     mauvaisCode: { fr: "Ce n'est pas le bon code. Essaie encore.", uk: "Це не той код. Спробуй ще раз.", pl: "To nie jest dobry kod. Spróbuj jeszcze raz.", es: "No es el código correcto. Inténtalo otra vez.", rn: null },
     passer: { fr: "Passer", uk: "Пропустити", pl: "Pomiń", es: "Saltar", rn: null },
     reessaie: { fr: "Essaie encore", uk: "Спробуй ще", pl: "Spróbuj jeszcze", es: "Inténtalo otra vez", rn: null },
+    retourSeq: { fr: "Retour à la séquence", uk: "Назад до теми", pl: "Wróć do tematu", es: "Volver al tema", rn: null },
     etape: { fr: "Étape", uk: "Крок", pl: "Krok", es: "Paso", rn: null }
   },
 

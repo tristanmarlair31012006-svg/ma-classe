@@ -308,6 +308,7 @@
   function dernier() {
     const d = A.S.dernier; if (!d) return null;
     if (d.r.startsWith("act-")) { const a = A.D.activites.find(x => "act-" + x.id === d.r); if (a && !(A.S.progres[a.id] || {}).fini) return { r: d.r, titre: fr(a.titre), icone: "book" }; }
+    if (d.r.startsWith("seq-") && window.LECONS) { const t = window.LECONS.titreSeq(d.r.slice(4)); if (t) return { r: d.r, titre: t, icone: "book", espace: window.LECONS.espaceSeq(d.r.slice(4)) }; }
     if (d.r.startsWith("atelier-")) { const c = (A.S.creations || []).find(x => d.r.slice(8).split("--")[0] === x.id); if (c) return { r: "atelier-" + c.id, titre: c.titre, icone: "palette" }; }
     return null;
   }
@@ -325,7 +326,7 @@
           ${p.lien ? `<a class="rond mini" href="#${esc(p.lien)}" aria-label="Ouvrir">${ic("droite")}</a>` : ""}
         </li>`).join("")}</ol>` : ""}
       ${obj ? `<p class="objectif-jour">${ic("cible")} <span><span class="petit">${esc(fr(T2.objectif))}</span><b>${esc(obj.fr)}</b>${ligneTrad(obj)}</span></p>` : ""}
-      ${rep ? `<a class="btn btn-principal reprendre" data-espace="${rep.icone === "palette" ? "atelier" : "eco"}" href="#${rep.r}">${ic("jouer")} ${esc(fr(T2.reprendre))} : ${esc(rep.titre)}</a>` : ""}
+      ${rep ? `<a class="btn btn-principal reprendre" data-espace="${rep.espace || (rep.icone === "palette" ? "atelier" : "eco")}" href="#${rep.r}">${ic("jouer")} ${esc(fr(T2.reprendre))} : ${esc(rep.titre)}</a>` : ""}
     </section>`;
   }
 

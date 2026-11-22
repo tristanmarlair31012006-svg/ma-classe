@@ -169,6 +169,7 @@
     if (r === "prof") return ecranProf(); // le prof peut toujours entrer (élève qui a oublié son code…)
     if (!S.profil) return ecranSansProfil();
     if (!deverrouille) return ecranCode();
+    if (window.LECONS && window.LECONS.gere(r)) return window.LECONS.ecran(r);
     if (r === "lecons") return ecranLecons();
     if ((r.startsWith("act-") || (r.startsWith("atelier-"))) && (!S.dernier || S.dernier.r !== r)) { S.dernier = { r, t: Date.now() }; sauver(); }
     if (r === "atelier" || r.startsWith("atelier-")) return window.ATELIER ? window.ATELIER.ecran(r) : ecranAtelier();
@@ -302,7 +303,7 @@
     const fin = pr.etape >= act.etapes.length;
     const pastilles = act.etapes.map((_, i) => `<i class="${i < pr.etape ? "fait" : i === pr.etape ? "actuel" : ""}"></i>`).join("");
     const tete = `<div class="bandeau">
-        <a class="rond retour" href="#accueil" aria-label="Retour">${ic("gauche")}</a>
+        <a class="rond retour" href="#${retourActivite(id) || "accueil"}" aria-label="Retour">${ic("gauche")}</a>
         <div><h1>${esc(fr(act.titre))}</h1>${ligneTrad(act.titre)}</div>
         <div class="etapes" aria-label="${fin ? "Terminé" : `Étape ${pr.etape + 1} sur ${act.etapes.length}`}">${pastilles}</div>
       </div>`;
@@ -422,8 +423,21 @@
     rendre();
   }
 
+  // Activité ouverte depuis une séquence : on y revient.
+  function retourActivite(id) { const r = S.retour; return r && r.cible === "act-" + id ? r.r : null; }
+
   function ecranFin(act) {
     const mots = act.motsAppris.map(id => D.mots.find(m => m.id === id)).filter(Boolean);
+    const ret = retourActivite(act.id);
+    if (ret) return `<div class="carte fin bloc">
+      <div class="etoile">${ic("ok")}</div>
+      <h1>${texte(D.ui.bravo)}</h1>
+      <p class="bloc consigne-texte">${texte(act.objectif)}</p>
+      <h2 class="bloc">${texte(D.ui.motsAppris)}</h2>
+      <div class="mots-gagnes">${mots.map(m => `<span class="badge">${ic("dico")} ${esc(fr(m.t))}</span>`).join("")}</div>
+      <div class="ligne-boutons bloc"><a class="btn btn-principal" href="#${ret}">${ic("droite")} ${ret.startsWith("seq-") ? "Retour à la séquence" : esc(fr(D.ui.continuer))}</a></div>
+      <p class="bloc"><button class="btn-discret" data-recommencer="${act.id}">Recommencer l'activité</button></p>
+    </div>`;
     return `<div class="carte fin bloc">
       <div class="etoile">${ic("ok")}</div>
       <h1>${texte(D.ui.bravo)}</h1>
@@ -607,6 +621,7 @@
         <button type="button" class="btn btn-secondaire" id="demo">Profil de démonstration</button>
         <button class="btn btn-principal" style="--espace:var(--ink)">Enregistrer</button>
       </div>
+      ${window.LECONS && S.profil ? window.LECONS.resumeProf() : ""}
       <h2 style="margin-top:8px">Sauvegarde</h2>
       <p class="petit">À faire de temps en temps : si l'iPad est réinitialisé, tu pourras tout remettre (profil, créations, dico, progrès).</p>
       <div class="ligne-boutons">
@@ -748,7 +763,7 @@
 
   // Outils partagés avec les autres modules (atelier.js)
   window.APP = {
-    D, get S() { return S; }, sauver, ic, esc, fr, tr, ligneTrad, texte, cadre, aller, route, langue, parler, boutonsSon, rendre,
+    D, get S() { return S; }, sauver, ic, esc, fr, tr, ligneTrad, texte, cadre, aller, route, langue, parler, boutonsSon, rendre, argent, picto,
     ajouterIcones: o => Object.assign(ICONES, o)
   };
 

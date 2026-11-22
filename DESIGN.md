@@ -109,3 +109,12 @@ La signature visuelle reprend celle des leçons : **une ombre décalée nette** 
 ## 8. À éviter
 
 Dégradés violet-bleu, verre dépoli, sections toutes centrées, trois cartes identiques côte à côte, texte en dégradé, mascotte, emoji décoratifs, police sous 16 px, couleur sans icône pour dire juste ou faux.
+
+## 9. Leçons (séquences)
+
+- **Choix libre** : l'onglet Leçons s'ouvre sur « Aujourd'hui, je travaille… » avec les 4 matières et « Un peu de tout » (une prochaine étape par matière).
+- **Matière** : chapitres → séquences, avec l'encadré « Déjà vu en classe » (prérequis), puis le test de fin de chapitre (verrouillé tant que les séquences ne sont pas finies).
+- **Séquence** : objectif, étapes (ressource · activité · mini-test · synthèse) à gauche, guide de maîtrise à droite (« Moi » = autoévaluation, « Test » = résultat du mini-test).
+- **Niveaux** : vert « Je maîtrise » (≥ 80 %), orange « Presque » (≥ 50 %), rouge « Pas encore ». Toujours icône + mot.
+- **Évaluation** : avancement (étapes faites) + critères maîtrisés, visibles dans le mode prof.
+- Le contenu se met dans `js/parcours.js`.

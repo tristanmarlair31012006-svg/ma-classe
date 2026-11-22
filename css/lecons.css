@@ -1,0 +1,144 @@
+/* Leçons : choix de la matière, parcours, séquence, ressources, tests (voir DESIGN.md) */
+
+/* Choix de la matière */
+.tuile.matiere { min-height: 168px; }
+.tuile.matiere .corps-tuile { flex: 1; display: grid; gap: 8px; }
+.tuile.matiere.vide { background: var(--papier); }
+.tuile.matiere.tout { --espace: var(--ink); --espace-clair: var(--creme); grid-column: 1 / -1; min-height: 112px; }
+.ligne-av { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.ligne-av .barre { flex: 1; min-width: 120px; }
+.ligne-av b { font: 700 18px/1 var(--font-fr); }
+
+/* Bandeau : résumé d'avancement */
+.resume-av { margin-left: auto; display: grid; gap: 8px; font: 700 16px/20px var(--font-fr); min-width: 260px; }
+.resume-av > span { display: flex; align-items: center; gap: var(--s-2); }
+.resume-av .barre { flex: 1; border-color: #fff; background: rgba(255,255,255,.25); }
+.resume-av .barre i { background: #fff; }
+
+/* Chapitre et parcours */
+.chapitre > h2 { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
+.chapitre > h2 .petit { font-weight: 700; }
+.etiquette.exemple { background: var(--creme); border-style: dashed; color: var(--attention); }
+.deja-vu { margin-top: var(--s-3); background: var(--creme); border: 2px dashed var(--ink); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
+.deja-vu h3 { font: 700 18px/24px var(--font-fr); display: flex; align-items: center; gap: var(--s-2); }
+.deja-vu h3 svg { color: var(--ok); }
+.deja-vu ul { margin: var(--s-2) 0 0 var(--s-4); display: grid; gap: 6px; }
+
+.parcours { list-style: none; margin-top: var(--s-4); display: grid; gap: var(--s-3); position: relative; }
+.parcours::before { content: ""; position: absolute; left: 27px; top: 28px; bottom: 28px; border-left: 3px dotted var(--bordure); }
+.ligne-seq { position: relative; display: flex; align-items: center; gap: var(--s-4); padding: var(--s-3) var(--s-4) var(--s-3) var(--s-2);
+  min-height: 84px; border-radius: var(--r-md); border: var(--trait-fort); background: var(--papier); box-shadow: var(--ombre); color: var(--ink); text-decoration: none; }
+a.ligne-seq:active { transform: translate(4px, 4px); box-shadow: none; }
+.ligne-seq .txt { flex: 1; display: grid; gap: 6px; }
+.ligne-seq .txt b { font: 700 20px/26px var(--font-fr); }
+.num-seq { width: 40px; height: 40px; margin-left: 8px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--papier); border: 3px solid var(--espace); color: var(--espace); font: 700 18px/1 var(--font-fr); }
+.ligne-seq.en-cours .num-seq { background: var(--espace-clair); }
+.ligne-seq.fini .num-seq { background: var(--espace); color: #fff; }
+.ligne-seq.fini { background: var(--espace-clair); }
+.ligne-seq.bientot, .ligne-seq.verrou { box-shadow: none; border-style: dashed; color: var(--ink-muted); }
+.ligne-seq.bientot .num-seq, .ligne-seq.verrou .num-seq { border-color: var(--bordure); color: var(--ink-muted); }
+.ligne-seq.bilan .num-seq { border-radius: var(--r-md); }
+.ligne-seq.bilan:not(.verrou) { border-width: 3px; }
+.lampes { display: inline-flex; gap: 6px; }
+
+/* Ressources de la matière */
+.ressources { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--s-3); }
+.ressource-lien { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3); min-height: 72px; border-radius: var(--r-md);
+  border: var(--trait); background: var(--papier); color: var(--ink); text-decoration: none; }
+.ressource-lien > svg { color: var(--espace); }
+.ressource-lien span { display: grid; gap: 2px; }
+
+/* Séquence */
+.objectif-seq { display: flex; gap: var(--s-3); align-items: center; background: var(--espace-clair); border: var(--trait-fort); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
+.objectif-seq > svg { width: 36px; height: 36px; color: var(--espace); }
+.objectif-seq > div:nth-child(2) { flex: 1; }
+.sons { display: flex; gap: var(--s-2); flex-shrink: 0; }
+.seq-colonnes { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--s-5); align-items: start; }
+.seq-colonnes > section > h2 { margin-bottom: var(--s-2); }
+.liste-etapes { list-style: none; display: grid; gap: var(--s-3); }
+.ligne-etape { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border-radius: var(--r-md); border: var(--trait); background: var(--papier); }
+.ligne-etape.actuelle { border: var(--trait-fort); box-shadow: var(--ombre); background: var(--creme); }
+.ligne-etape.fait { background: var(--espace-clair); }
+.ico-etape { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; border: 2px solid var(--espace); color: var(--espace); background: var(--papier); }
+.ligne-etape.fait .ico-etape { background: var(--espace); color: #fff; }
+.ligne-etape .txt { flex: 1; display: grid; gap: 2px; }
+.ligne-etape .txt b { font: 700 19px/24px var(--font-fr); }
+.btn-etape { min-height: 52px; padding: 0 var(--s-3); font-size: 18px; flex-shrink: 0; }
+
+/* Guide de maîtrise */
+.guide { position: sticky; top: var(--s-3); }
+.criteres { list-style: none; display: grid; gap: var(--s-3); }
+.critere { display: grid; gap: var(--s-2); padding-bottom: var(--s-3); border-bottom: var(--trait); }
+.critere:last-child { border-bottom: 0; padding-bottom: 0; }
+.txt-crit { display: flex; gap: var(--s-3); align-items: flex-start; }
+.txt-crit p { flex: 1; font: 700 19px/26px var(--font-fr); }
+.txt-crit p .trad { font-weight: 400; }
+.txt-crit .rond { width: 48px; height: 48px; box-shadow: none; }
+.evals { display: flex; gap: var(--s-4); flex-wrap: wrap; align-items: center; }
+.eval { display: flex; align-items: center; gap: var(--s-2); }
+.mini-feux { display: flex; gap: 8px; }
+.mini-feu { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 22px/1 var(--font-fr); background: var(--papier); }
+.mini-feu svg { width: 22px; height: 22px; }
+.mini-feu.vert { color: var(--ok); } .mini-feu.orange { color: var(--attention); } .mini-feu.rouge { color: var(--erreur); }
+.mini-feu[aria-pressed="true"] { color: #fff; outline: 3px solid var(--ink); outline-offset: 2px; }
+.mini-feu.vert[aria-pressed="true"] { background: var(--ok); }
+.mini-feu.orange[aria-pressed="true"] { background: #e0a100; color: var(--ink); }
+.mini-feu.rouge[aria-pressed="true"] { background: var(--erreur); }
+
+.lampe-niv { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--ink); display: inline-grid; place-items: center; color: #fff; font: 700 16px/1 var(--font-fr); flex-shrink: 0; }
+.lampe-niv.p { width: 24px; height: 24px; }
+.lampe-niv svg { width: 14px; height: 14px; stroke-width: 3; }
+.lampe-niv.vert { background: var(--ok); }
+.lampe-niv.orange { background: #e0a100; color: var(--ink); }
+.lampe-niv.rouge { background: var(--erreur); }
+.lampe-niv.vide { background: var(--papier); border-style: dashed; border-color: var(--ink-muted); }
+.niv { display: inline-flex; align-items: center; gap: 8px; font: 700 16px/20px var(--font-fr); padding: 6px 12px 6px 6px; border-radius: var(--r-pill); border: 2px solid var(--ink); background: var(--papier); }
+.niv.vide { border-style: dashed; color: var(--ink-muted); font-weight: 400; }
+
+/* Ressource / synthèse */
+.ressource-corps { display: grid; gap: var(--s-4); background: var(--papier); border: var(--trait-fort); border-radius: var(--r-md); padding: var(--s-5); box-shadow: var(--ombre); }
+.ressource-corps .etiquette { justify-self: start; }
+.ressource-corps.synthese { background: var(--creme); }
+.paragraphe { display: flex; gap: var(--s-3); align-items: flex-start; }
+.paragraphe p { flex: 1; max-width: 60ch; }
+.liste-res { list-style: none; display: grid; gap: var(--s-3); }
+.liste-res li { display: flex; gap: var(--s-3); align-items: center; padding: var(--s-3); border-left: 6px solid var(--espace); background: var(--espace-clair); border-radius: var(--r-sm); font: var(--t-texte); }
+.liste-res li > div:first-child { flex: 1; }
+.liste-res .rond { width: 48px; height: 48px; box-shadow: none; }
+
+/* Un peu de tout */
+.grille-prochaines { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-4); }
+.prochaine { display: grid; gap: var(--s-2); align-content: start; border: var(--trait-fort); border-top: 10px solid var(--espace); box-shadow: var(--ombre); }
+.prochaine .btn { justify-self: start; margin-top: var(--s-2); }
+.pastille-disc { justify-self: start; background: var(--espace); color: #fff; border-color: var(--espace); }
+.type-etape { display: flex; align-items: center; gap: 8px; color: var(--ink-muted); }
+.type-etape svg { color: var(--espace); }
+
+/* Tests */
+.intro-test { text-align: center; display: grid; gap: var(--s-3); justify-items: center; max-width: 640px; margin-left: auto; margin-right: auto; }
+.rond-test { width: 96px; height: 96px; border-radius: 50%; background: var(--espace-clair); border: var(--trait-fort); display: grid; place-items: center; color: var(--espace); }
+.rond-test svg { width: 48px; height: 48px; }
+.meilleur { font: var(--t-texte); }
+.visuel-test { margin-top: var(--s-4); }
+.option[disabled] { cursor: default; }
+.option[disabled]:active { transform: none; box-shadow: var(--ombre); }
+.score { font: 700 56px/1 var(--font-fr); margin-top: var(--s-3); }
+.score .petit { font-weight: 400; }
+.bilan-crit { list-style: none; display: grid; gap: var(--s-3); text-align: left; max-width: 640px; margin: 0 auto; }
+.bilan-crit li { display: flex; gap: var(--s-3); align-items: center; justify-content: space-between; padding: var(--s-3); border: var(--trait); border-radius: var(--r-md); background: var(--papier); }
+
+/* Mode prof */
+.tableau-prof { width: 100%; border-collapse: collapse; font: var(--t-petit); }
+.tableau-prof th, .tableau-prof td { border: 2px solid var(--bordure); padding: 8px; text-align: left; vertical-align: top; }
+.tableau-prof thead th { background: var(--creme); }
+
+@media (max-width: 900px) {
+  .seq-colonnes, .grille-prochaines { grid-template-columns: 1fr; }
+  .guide { position: static; }
+  .resume-av { min-width: 0; width: 100%; margin-left: 0; }
+  .bandeau:has(.resume-av) { flex-wrap: wrap; }
+}
+.tuile.matiere .corps-tuile > .etiquette { justify-self: start; }
+.bandeau.neutre { background: var(--ink); }
+.fin h2.bloc { justify-content: center; }

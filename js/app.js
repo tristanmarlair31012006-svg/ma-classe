@@ -173,6 +173,7 @@
     if (r === "lecons") return ecranLecons();
     if ((r.startsWith("act-") || (r.startsWith("atelier-"))) && (!S.dernier || S.dernier.r !== r)) { S.dernier = { r, t: Date.now() }; sauver(); }
     if (r === "groupes" && window.GROUPES) return window.GROUPES.ecran();
+    if (r === "suivi" && window.SUIVI) return window.SUIVI.ecran();
     if (r === "atelier" || r.startsWith("atelier-")) return window.ATELIER ? window.ATELIER.ecran(r) : ecranAtelier();
     if (r === "mots") return ecranMots();
     if (r === "discuter") return ecranDiscuter();
@@ -225,6 +226,8 @@
       <div class="accueil-tete">
         <h1>${esc(fr(D.ui.bonjour))} ${esc(S.profil.prenom)} !${l !== "fr" && tr(D.ui.bonjour) ? `<span class="trad" lang="${l}">${esc(tr(D.ui.bonjour))} ${esc(S.profil.prenom)}!</span>` : ""}</h1>
       </div>
+
+      ${window.SUIVI ? window.SUIVI.blocAccueil() : ""}
 
       ${window.ACCUEIL ? window.ACCUEIL.page() : ""}
 
@@ -614,14 +617,17 @@
       <label>Accords en français (content / contente)<select name="genre"><option value="m" ${p.genre !== "f" ? "selected" : ""}>masculin</option><option value="f" ${p.genre === "f" ? "selected" : ""}>féminin</option></select></label>
       <label>Code secret de l'élève (4 chiffres)<input name="code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required value="${esc(p.code)}"></label>
       <label>Nouveau code prof (laisser vide pour garder)<input name="codeProf" inputmode="numeric" autocomplete="off"></label>
-      <h2 style="margin-top:8px">Discussion de la classe</h2>
+      <h2 style="margin-top:8px">Serveur de la classe (discussion et suivi)</h2>
       <label>Adresse du serveur<input name="serveur" placeholder="https://daspa-discussion.….workers.dev" value="${esc((S.discussion || {}).serveur || "")}"></label>
       <label>Code de la classe<input name="codeClasse" autocomplete="off" value="${esc((S.discussion || {}).codeClasse || "")}"></label>
-      <label>Clé prof (uniquement sur la tablette du prof, pour modérer)<input name="clePof" type="password" autocomplete="off" value="${esc((S.discussion || {}).clePof || "")}"></label>
+      <label>Clé prof (uniquement sur la tablette du prof : modération et suivi)<input name="clePof" type="password" autocomplete="off" value="${esc((S.discussion || {}).clePof || "")}"></label>
       <div class="ligne-boutons">
         <button type="button" class="btn btn-secondaire" id="demo">Profil de démonstration</button>
         <button class="btn btn-principal" style="--espace:var(--ink)">Enregistrer</button>
       </div>
+      <h2 style="margin-top:8px">Suivi de la classe</h2>
+      <p class="petit">La progression de chaque élève, tes feedbacks et le cahier de cotes. Il faut l'adresse du serveur, le code de la classe et la clé prof.</p>
+      <div class="ligne-boutons"><a class="btn btn-principal" style="--espace:var(--ink)" href="#suivi">Ouvrir le suivi de la classe</a></div>
       ${window.LECONS && S.profil ? window.LECONS.resumeProf() : ""}
       <h2 style="margin-top:8px">Sauvegarde</h2>
       <p class="petit">À faire de temps en temps : si l'iPad est réinitialisé, tu pourras tout remettre (profil, créations, dico, progrès).</p>
@@ -634,7 +640,7 @@
         <button type="button" class="btn-discret" id="reinit">Effacer toutes les données de cette tablette</button>
         <a class="btn-discret" href="#accueil">Fermer</a>
       </div>
-      <p class="petit">Les données restent sur cette tablette. Rien n'est envoyé sur Internet.<br>Pictogrammes : ARASAAC (Gobierno de Aragón, Sergio Palao), licence CC BY-NC-SA.</p>
+      <p class="petit">${S.discussion && S.discussion.serveur && S.discussion.codeClasse ? "Envoyé au serveur de la classe (Europe) : prénom, numéro de tablette et avancement dans les leçons, pour le suivi du prof. Le reste (créations, humeur, réponses, dico) reste sur cette tablette." : "Les données restent sur cette tablette. Rien n'est envoyé sur Internet."}<br>Pictogrammes : ARASAAC (Gobierno de Aragón, Sergio Palao), licence CC BY-NC-SA.</p>
     </form></div></main>`;
   }
 

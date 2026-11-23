@@ -512,8 +512,26 @@
     </section>`;
   }
 
+  /* Bilan envoyé au prof (suivi de la classe). Rien de personnel : seulement l'avancement. */
+  function bilan() {
+    const disciplines = {};
+    let f = 0, n = 0, crit = 0, critOk = 0;
+    A.D.disciplines.forEach(d => {
+      const a = avDisc(d.id);
+      if (!a) return;
+      disciplines[d.id] = a; f += a.f; n += a.n; crit += a.crit; critOk += a.critOk;
+    });
+    const tests = {};
+    P.tests.forEach(t => { const r = E().tests[t.id]; if (r) tests[t.id] = { titre: fr(t.titre), meilleurNb: r.meilleurNb, total: r.total, essais: r.essais, bilan: !!chapitreDeBilan(t.id) }; });
+    let enCours = null;
+    const dern = A.S.dernier && A.S.dernier.r;
+    if (dern && dern.startsWith("seq-")) { const s = seq(dern.slice(4)); if (s) enCours = { titre: fr(s.titre), discipline: espaceSeq(s.id) }; }
+    const jours = Object.fromEntries(Object.entries(E().jours).sort().slice(-7));
+    return { global: n ? { f, n, pct: Math.round((f / n) * 100), crit, critOk } : null, disciplines, tests, enCours, jours };
+  }
+
   const titreSeq = id => { const s = seq(id); return s ? fr(s.titre) : ""; };
   const espaceSeq = id => { const ch = chapitreDeSeq(id); return ch ? ch.discipline : ""; };
 
-  window.LECONS = { ecran, gere, resumeProf, titreSeq, espaceSeq, blocAccueil };
+  window.LECONS = { ecran, gere, resumeProf, titreSeq, espaceSeq, blocAccueil, bilan };
 })();

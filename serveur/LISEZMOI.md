@@ -1,10 +1,15 @@
-# Mettre en ligne la discussion de la classe
+# Mettre en ligne le serveur de la classe
 
-Le serveur fait deux choses :
-1. il fait passer les messages d'un iPad à l'autre ;
-2. il demande la traduction de chaque message à Microsoft Translator.
+Le serveur fait trois choses :
+1. il fait passer les messages de la discussion d'un iPad à l'autre ;
+2. il demande la traduction de chaque message à Microsoft Translator ;
+3. **suivi de la classe** : chaque tablette lui envoie son bilan (prénom, n° de tablette, avancement dans les leçons, résultats aux tests), et il garde les feedbacks du prof jusqu'à ce que l'élève les lise.
 
-Il n'enregistre aucun message sur disque. Les messages restent en mémoire pendant le cours, puis ils disparaissent quand tu cliques sur « Tout effacer » ou quand le serveur se met en veille. Le serveur tourne dans un centre de données de l'Union européenne.
+Le suivi marche **sans Azure** : seule la traduction de la discussion a besoin de la clé Azure. On peut donc brancher le suivi tout de suite et ajouter Azure plus tard.
+
+Ce qui est enregistré pour le suivi : prénom, numéro de tablette, langue, avancement, résultats aux tests, feedbacks. Rien d'autre (pas d'humeur, pas de réponses, pas de créations). Le cahier de cotes reste sur la tablette du prof. Pour effacer : le prof peut retirer un feedback ; une tablette entière s'efface par la route `/prof/oublier`.
+
+La discussion, elle, n'enregistre aucun message sur disque. Les messages restent en mémoire pendant le cours, puis ils disparaissent quand tu cliques sur « Tout effacer » ou quand le serveur se met en veille. Le serveur tourne dans un centre de données de l'Union européenne.
 
 Temps total : environ 30 minutes, à faire une seule fois.
 

@@ -124,3 +124,10 @@ Dégradés violet-bleu, verre dépoli, sections toutes centrées, trois cartes i
 - Liste de la classe saisie par le prof (code prof), **gardée sur la tablette uniquement** (jamais dans le dépôt).
 - Présents du jour à cocher, groupes de 2, 3 ou 4 ; les élèves en trop rejoignent un groupe existant.
 - « On garde ces groupes » enregistre le tirage : les suivants évitent au maximum de remettre ensemble les mêmes élèves (les tirages récents comptent plus).
+
+## 11. Suivi de la classe (mode prof → « Ouvrir le suivi de la classe », route `#suivi`)
+
+- **Progression** : une carte par élève (n° de tablette, prénom, vu il y a…, avancement global, barres par matière, séquence en cours, tests). Carte en pointillés + alerte si aucune activité depuis plus de 2 jours. Tri : avancement, activité, prénom, n° de tablette.
+- **Feedback** : 9 messages prêts et traduits (bravo · conseil · attention) ou texte libre en français. L'élève le voit en haut de son accueil et touche « J'ai lu » ; le prof voit « lu ».
+- **Cahier de cotes** : travail en classe (3 couleurs), proposition /20 (moitié avancement, moitié critères), cote, remarque. Reste sur la tablette du prof ; « Copier le tableau » pour Excel.
+- Envoyé au serveur par les tablettes élèves : prénom, n° de tablette, langue, avancement, tests. Rien d'autre.

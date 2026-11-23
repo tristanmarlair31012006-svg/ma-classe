@@ -1,7 +1,7 @@
 # Met en ligne le serveur de discussion sur Cloudflare.
 # Se lance tout seul quand le dossier serveur/ change, ou à la main (onglet Actions → « Run workflow »).
 # Les clés ne sont jamais dans le code : elles viennent des Secrets du dépôt (Settings → Secrets and variables → Actions).
-name: Serveur de discussion
+name: Serveur de la classe
 
 on:
   push:
@@ -24,13 +24,19 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: serveur
-          secrets: |
-            AZURE_CLE
-            AZURE_REGION
-            CODE_CLASSE
-            CLE_PROF
+          command: deploy
+      # Les secrets vides sont ignorés : le suivi des élèves marche sans Azure (seule la traduction en a besoin).
+      - name: Secrets du serveur
+        working-directory: serveur
         env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           AZURE_CLE: ${{ secrets.AZURE_CLE }}
           AZURE_REGION: ${{ secrets.AZURE_REGION }}
           CODE_CLASSE: ${{ secrets.CODE_CLASSE }}
           CLE_PROF: ${{ secrets.CLE_PROF }}
+        run: |
+          for NOM in CODE_CLASSE CLE_PROF AZURE_CLE AZURE_REGION; do
+            VALEUR="${!NOM}"
+            if [ -n "$VALEUR" ]; then printf '%s' "$VALEUR" | npx wrangler secret put "$NOM"; else echo "$NOM vide : ignoré"; fi
+          done

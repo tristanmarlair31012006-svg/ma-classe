@@ -111,6 +111,13 @@
     return `<${tag} class="argent ${cls}" ${attrs || ""}>${esc(valeur)}</${tag}>`;
   }
 
+  // Élément à classer : de l'argent (valeur) ou un jeton (texte traduit, image facultative).
+  function jeton(x, bouton, attrs) {
+    if (x.valeur) return argent(x.valeur, bouton, attrs);
+    const tag = bouton ? "button" : "span";
+    return `<${tag} class="argent jeton" ${attrs || ""}>${x.img ? `<img src="${esc(x.img)}" alt="">` : ""}<span>${esc(fr(x.label))}${bouton ? ligneTrad(x.label) : ""}</span></${tag}>`;
+  }
+
   /* ---------- Voix ---------- */
   function parler(txt, lg) {
     try {
@@ -322,6 +329,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">${boutonsSon(e.consigne)}</div>
       </div>
+      ${e.image ? `<div class="doc-cadre bloc"><img src="${esc(e.image)}" alt=""></div>` : ""}
       <div class="zone">${zoneEtape(e)}</div>
       ${retourEtape(e)}
       ${A.aides ? `<div class="aides">${e.aides.slice(0, A.aides).map((a, i) => `<div class="aide">${ic("ampoule")}<div><span class="n">${esc(fr(D.ui.coupDePouce))} ${i + 1}</span><p>${texte(a)}</p></div></div>`).join("")}</div>` : ""}
@@ -338,29 +346,29 @@
       return `<div class="options">${e.options.map(o => {
         let etat = "";
         if (A.resultat && e.type === "choix" && A.choix === o.id) etat = o.correct ? "juste" : "faux";
-        return `<button class="option ${etat}" data-option="${o.id}" aria-pressed="${A.choix === o.id}"><span class="symb">${esc(o.symbole)}</span><span>${esc(o.label)}${o.pays ? `<small>${esc(o.pays)}</small>` : ""}</span></button>`;
+        return `<button class="option ${etat}" data-option="${o.id}" aria-pressed="${A.choix === o.id}">${o.symbole ? `<span class="symb">${esc(o.symbole)}</span>` : ""}<span>${typeof o.label === "string" ? esc(o.label) : texte(o.label)}${o.pays ? `<small>${esc(o.pays)}</small>` : ""}</span></button>`;
       }).join("")}</div>`;
     }
     if (e.type === "classer") {
       const restants = e.elements.filter(x => !A.place[x.id]);
       return `<div class="classer">
-        <div class="stock" aria-label="Argent à classer">${restants.map(x => argent(x.valeur, true, `data-element="${x.id}" aria-pressed="${A.selection === x.id}"`)).join("") || `<span class="petit">${ic("ok")}</span>`}</div>
+        <div class="stock" aria-label="À classer">${restants.map(x => jeton(x, true, `data-element="${x.id}" aria-pressed="${A.selection === x.id}"`)).join("") || `<span class="petit">${ic("ok")}</span>`}</div>
         <div class="bacs">${e.bacs.map(b => `<button class="bac ${A.selection ? "cible" : ""}" data-bac="${b.id}">
           <span class="titre-bac">${esc(fr(b.label))}</span>${ligneTrad(b.label)}
           <span class="contenu">${e.elements.filter(x => A.place[x.id] === b.id).map(x => {
             const etat = A.resultat ? (x.bac === b.id ? "bien" : "mal") : "";
-            return argent(x.valeur, false, "").replace('class="argent ', `class="argent ${etat} `);
+            return jeton(x, false, "").replace('class="argent ', `class="argent ${etat} `);
           }).join("")}</span>
         </button>`).join("")}</div>
       </div>`;
     }
     if (e.type === "nombre") {
-      return `<div class="carte-plate"><div class="visuel">${e.visuel.map((v, i) => (i ? '<span class="plus">+</span>' : "") + argent(v)).join("")}</div>
+      return `<div class="carte-plate">${(e.visuel || []).length ? `<div class="visuel">${e.visuel.map((v, i) => (i ? '<span class="plus">+</span>' : "") + argent(v)).join("")}</div>` : ""}
         <div class="saisie-nombre"><span>=</span><input id="nombre" inputmode="numeric" pattern="[0-9]*" aria-label="Ta réponse" value="${A.choix != null ? esc(A.choix) : ""}"><span>${esc(e.unite)}</span></div></div>`;
     }
     if (e.type === "ecrire") {
       return `<div class="amorces">${e.amorces.map(a => `<button class="amorce" data-amorce="${esc(a)}">${esc(a)}…</button>`).join("")}</div>
-        <textarea class="ecrit" id="ecrit" aria-label="Ta phrase" placeholder="Avec 9 €, j'achète…"></textarea>
+        <textarea class="ecrit" id="ecrit" aria-label="Ta phrase" placeholder="${esc(e.placeholder || "Avec 9 €, j'achète…")}"></textarea>
         <p class="petit" style="margin-top:8px">${texte(e.astuce)}</p>`;
     }
     if (e.type === "auto") {
@@ -437,8 +445,8 @@
       <div class="etoile">${ic("ok")}</div>
       <h1>${texte(D.ui.bravo)}</h1>
       <p class="bloc consigne-texte">${texte(act.objectif)}</p>
-      <h2 class="bloc">${texte(D.ui.motsAppris)}</h2>
-      <div class="mots-gagnes">${mots.map(m => `<span class="badge">${ic("dico")} ${esc(fr(m.t))}</span>`).join("")}</div>
+      ${mots.length ? `<h2 class="bloc">${texte(D.ui.motsAppris)}</h2>
+      <div class="mots-gagnes">${mots.map(m => `<span class="badge">${ic("dico")} ${esc(fr(m.t))}</span>`).join("")}</div>` : ""}
       <div class="ligne-boutons bloc"><a class="btn btn-principal" href="#${ret}">${ic("droite")} ${esc(fr(ret.startsWith("seq-") ? D.ui.retourSeq : D.ui.continuer))}</a></div>
       <p class="bloc"><button class="btn-discret" data-recommencer="${act.id}">Recommencer l'activité</button></p>
     </div>`;
@@ -447,8 +455,8 @@
       <h1>${texte(D.ui.bravo)}</h1>
       ${S.reponses[act.id + "-auto"] ? `<p class="petit" style="margin-top:8px">${esc(fr(D.ui.tonAvis))} : ${esc(fr({ vert: D.ui.jeSais, orange: D.ui.presque, rouge: D.ui.pasEncore }[S.reponses[act.id + "-auto"]]))}</p>` : ""}
       <p class="bloc consigne-texte">${texte(act.objectif)}</p>
-      <h2 class="bloc">${texte(D.ui.motsAppris)}</h2>
-      <div class="mots-gagnes">${mots.map(m => `<span class="badge">${ic("dico")} ${esc(fr(m.t))}</span>`).join("")}</div>
+      ${mots.length ? `<h2 class="bloc">${texte(D.ui.motsAppris)}</h2>
+      <div class="mots-gagnes">${mots.map(m => `<span class="badge">${ic("dico")} ${esc(fr(m.t))}</span>`).join("")}</div>` : ""}
       <div class="ligne-boutons bloc">
         <a class="btn btn-secondaire" href="#mots">${ic("mots")} ${esc(fr(D.ui.mots))}</a>
         <a class="btn btn-principal" href="#accueil">${ic("house")} ${esc(fr(D.ui.accueil))}</a>

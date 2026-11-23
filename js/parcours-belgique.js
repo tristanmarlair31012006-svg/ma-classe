@@ -197,6 +197,7 @@
               L("Aujourd'hui, le 21 juillet est la fête nationale belge.", "Сьогодні 21 липня — національне свято Бельгії.", "Dziś 21 lipca to święto narodowe Belgii.", "Hoy, el 21 de julio es la fiesta nacional belga.")
             ]
           } },
+        { type: "activite", activite: "be-trace" },
         { type: "minitest", test: "test-be-1831" },
         { type: "synthese", titre: RETIENS,
           contenu: { liste: [
@@ -228,6 +229,7 @@
               L("CHERCHE dans l'image : les cheminées, la fumée, la Meuse, un bateau.", "ЗНАЙДИ на зображенні: димарі, дим, Маас, човен.", "ZNAJDŹ na obrazie: kominy, dym, Mozę, statek.", "BUSCA en la imagen: las chimeneas, el humo, el Mosa, un barco.")
             ]
           } },
+        { type: "activite", activite: "be-usine" },
         { type: "minitest", test: "test-be-industrie" },
         { type: "synthese", titre: RETIENS,
           contenu: { liste: [
@@ -293,6 +295,7 @@
               L("Huy est en Wallonie. Ici, on parle français.", "Юї — у Валлонії. Тут говорять французькою.", "Huy leży w Walonii. Tutaj mówi się po francusku.", "Huy está en Valonia. Aquí se habla francés.")
             ]
           } },
+        { type: "activite", activite: "be-frise" },
         { type: "minitest", test: "test-be-aujourdhui" },
         { type: "synthese", titre: RETIENS,
           contenu: { liste: [
@@ -300,6 +303,133 @@
             L("3 langues : néerlandais, français, allemand.", "3 мови: нідерландська, французька, німецька.", "3 języki: niderlandzki, francuski, niemiecki.", "3 idiomas: neerlandés, francés, alemán."),
             L("Ligne du temps : 1815 → 1830 → 1831 → 1914 → 1940 → 1993 → aujourd'hui.", "Стрічка часу: 1815 → 1830 → 1831 → 1914 → 1940 → 1993 → сьогодні.", "Oś czasu: 1815 → 1830 → 1831 → 1914 → 1940 → 1993 → dziś.", "Línea del tiempo: 1815 → 1830 → 1831 → 1914 → 1940 → 1993 → hoy.")
           ] } }
+      ]
+    }
+  );
+
+
+  /* ---------- Activités (ajoutées à DATA.activites, même moteur que l'activité « euro ») ---------- */
+  const AUTO = (fr, uk, pl, es) => ({ type: "auto", picto: 3245, verbe: "CHOISIS", consigne: L(fr, uk, pl, es) });
+  const TRACE_BAC = { id: "trace", label: L("Trace du passé (faite à l'époque)", "Слід минулого (зроблено в той час)", "Ślad przeszłości (z tamtych czasów)", "Huella del pasado (hecha en esa época)") };
+  const POST_BAC = { id: "post", label: L("Travail postérieur (fait plus tard)", "Пізніша праця (зроблено пізніше)", "Praca późniejsza (zrobiona później)", "Trabajo posterior (hecho más tarde)") };
+  window.DATA.activites.push(
+    {
+      id: "be-trace", discipline: "histoire", picto: null, motsAppris: [],
+      titre: L("Trace du passé ou travail postérieur ?", "Слід минулого чи пізніша праця?", "Ślad przeszłości czy praca późniejsza?", "¿Huella del pasado o trabajo posterior?"),
+      objectif: L("Je classe des documents : trace du passé ou travail postérieur.", "Я сортую документи: слід минулого чи пізніша праця.", "Klasyfikuję dokumenty: ślad przeszłości czy praca późniejsza.", "Clasifico documentos: huella del pasado o trabajo posterior."),
+      etapes: [
+        { type: "classer", picto: null, verbe: "CLASSE",
+          consigne: L("CLASSE les documents : TOUCHE un document, puis « trace du passé » ou « travail postérieur ».", "РОЗСОРТУЙ документи: ТОРКНИСЬ документа, потім «слід минулого» чи «пізніша праця».", "PODZIEL dokumenty: DOTKNIJ dokumentu, potem „ślad przeszłości” albo „praca późniejsza”.", "CLASIFICA los documentos: TOCA un documento y luego «huella del pasado» o «trabajo posterior»."),
+          bacs: [TRACE_BAC, POST_BAC],
+          elements: [
+            { id: "carte", img: IMG + "carte-1815.jpg", bac: "trace", label: L("Carte de 1815, faite en 1815", "Карта 1815 року, зроблена в 1815 році", "Mapa z 1815 roku, zrobiona w 1815", "Mapa de 1815, hecho en 1815") },
+            { id: "fort", img: IMG + "fort-huy.jpg", bac: "trace", label: L("Fort de Huy, construit en 1818-1823", "Форт у Юї, збудований у 1818–1823", "Fort w Huy, zbudowany w 1818–1823", "Fuerte de Huy, construido en 1818-1823") },
+            { id: "wappers", img: IMG + "wappers-1835.jpg", bac: "post", label: L("Combats de 1830, peints en 1835", "Бої 1830 року, намальовані в 1835", "Walki z 1830 roku, namalowane w 1835", "Combates de 1830, pintados en 1835") },
+            { id: "soubre", img: IMG + "soubre-1878.jpg", bac: "post", label: L("Volontaires de 1830, peints en 1878", "Добровольці 1830 року, намальовані в 1878", "Ochotnicy z 1830 roku, namalowani w 1878", "Voluntarios de 1830, pintados en 1878") },
+            { id: "serment", img: IMG + "serment-1831.jpg", bac: "post", label: L("Serment de 1831, gravure de 1856", "Присяга 1831 року, гравюра 1856", "Przysięga z 1831 roku, rycina z 1856", "Juramento de 1831, grabado de 1856") }
+          ],
+          bravo: L("Bravo ! Fait à l'époque = trace du passé. Fait plus tard = travail postérieur.", "Молодець! Зроблено в той час — слід минулого. Зроблено пізніше — пізніша праця.", "Brawo! Zrobione w tamtych czasach = ślad przeszłości. Zrobione później = praca późniejsza.", "¡Bien! Hecho en esa época = huella del pasado. Hecho más tarde = trabajo posterior."),
+          erreur: L("Pas encore. Compare deux dates : la date de l'événement et la date du document.", "Ще ні. Порівняй дві дати: дату події та дату документа.", "Jeszcze nie. Porównaj dwie daty: datę wydarzenia i datę dokumentu.", "Todavía no. Compara dos fechas: la del acontecimiento y la del documento."),
+          aides: [
+            L("Cherche deux dates sur chaque étiquette.", "Знайди дві дати на кожній картці.", "Znajdź dwie daty na każdej karcie.", "Busca dos fechas en cada etiqueta."),
+            L("Si les deux dates sont pareilles, c'est fait à l'époque.", "Якщо дві дати однакові — це зроблено в той час.", "Jeśli obie daty są takie same, zrobiono to w tamtych czasach.", "Si las dos fechas son iguales, se hizo en esa época."),
+            L("1835 est après 1830 : le tableau est fait plus tard.", "1835 — після 1830: картину зроблено пізніше.", "1835 jest po 1830: obraz zrobiono później.", "1835 es después de 1830: el cuadro se hizo más tarde.")
+          ] },
+        { type: "nombre", picto: null, verbe: "CALCULE",
+          consigne: L("CALCULE : le serment a lieu en 1831. La gravure est publiée en 1856. Combien d'années après ?", "ПОРАХУЙ: присяга була в 1831 році. Гравюру надруковано в 1856 році. Через скільки років?", "POLICZ: przysięga była w 1831 roku. Rycinę wydano w 1856 roku. Ile lat później?", "CALCULA: el juramento es en 1831. El grabado se publica en 1856. ¿Cuántos años después?"),
+          reponse: 25, unite: "ans",
+          bravo: L("Oui ! 1856 − 1831 = 25 ans. C'est un travail postérieur.", "Так! 1856 − 1831 = 25 років. Це пізніша праця.", "Tak! 1856 − 1831 = 25 lat. To praca późniejsza.", "¡Sí! 1856 − 1831 = 25 años. Es un trabajo posterior."),
+          erreur: L("Pas encore. Fais 1856 − 1831.", "Ще ні. Порахуй 1856 − 1831.", "Jeszcze nie. Policz 1856 − 1831.", "Todavía no. Haz 1856 − 1831."),
+          aides: [
+            L("La plus grande date moins la plus petite date.", "Більша дата мінус менша дата.", "Większa data minus mniejsza data.", "La fecha más grande menos la más pequeña."),
+            L("De 1831 à 1851 : 20 ans. De 1851 à 1856 : … ans.", "Від 1831 до 1851: 20 років. Від 1851 до 1856: … років.", "Od 1831 do 1851: 20 lat. Od 1851 do 1856: … lat.", "De 1831 a 1851: 20 años. De 1851 a 1856: … años.")
+          ] },
+        AUTO("CHOISIS : est-ce que tu sais dire si un document est une trace du passé ou un travail postérieur ?", "ВИБЕРИ: чи вмієш ти сказати, документ — це слід минулого чи пізніша праця?", "WYBIERZ: czy umiesz powiedzieć, czy dokument to ślad przeszłości, czy praca późniejsza?", "ELIGE: ¿sabes decir si un documento es una huella del pasado o un trabajo posterior?")
+      ]
+    },
+    {
+      id: "be-usine", discipline: "histoire", picto: null, motsAppris: [],
+      titre: L("J'observe les usines de Seraing", "Я розглядаю заводи в Серені", "Oglądam fabryki w Seraing", "Observo las fábricas de Seraing"),
+      objectif: L("Je trouve des éléments dans une image et je la décris.", "Я знаходжу елементи на зображенні й описую його.", "Znajduję elementy na obrazie i opisuję go.", "Encuentro elementos en una imagen y la describo."),
+      etapes: [
+        { type: "classer", picto: null, verbe: "CLASSE", image: IMG + "cockerill-1852.jpg",
+          consigne: L("REGARDE l'image. CLASSE : ce que tu vois et ce que tu ne vois pas.", "ПОДИВИСЬ на зображення. РОЗСОРТУЙ: що ти бачиш і чого не бачиш.", "SPÓJRZ na obraz. PODZIEL: co widzisz, a czego nie widzisz.", "MIRA la imagen. CLASIFICA: lo que ves y lo que no ves."),
+          bacs: [
+            { id: "oui", label: L("Je le vois", "Я це бачу", "Widzę to", "Lo veo") },
+            { id: "non", label: L("Je ne le vois pas", "Я цього не бачу", "Nie widzę tego", "No lo veo") }
+          ],
+          elements: [
+            { id: "chem", bac: "oui", label: L("des cheminées", "димарі", "kominy", "chimeneas") },
+            { id: "fumee", bac: "oui", label: L("de la fumée", "дим", "dym", "humo") },
+            { id: "meuse", bac: "oui", label: L("la Meuse", "Маас", "Moza", "el Mosa") },
+            { id: "bateau", bac: "oui", label: L("un bateau", "човен", "statek", "un barco") },
+            { id: "voiture", bac: "non", label: L("une voiture", "автомобіль", "samochód", "un coche") },
+            { id: "avion", bac: "non", label: L("un avion", "літак", "samolot", "un avión") }
+          ],
+          bravo: L("Bravo ! En 1852, il n'y a pas encore de voitures ni d'avions.", "Молодець! У 1852 році ще немає ні автомобілів, ні літаків.", "Brawo! W 1852 roku nie ma jeszcze samochodów ani samolotów.", "¡Bien! En 1852 todavía no hay coches ni aviones."),
+          erreur: L("Regarde encore l'image, de gauche à droite.", "Подивись ще раз на зображення, зліва направо.", "Spójrz jeszcze raz na obraz, od lewej do prawej.", "Mira otra vez la imagen, de izquierda a derecha."),
+          aides: [
+            L("La rivière est en bas de l'image.", "Річка — внизу зображення.", "Rzeka jest na dole obrazu.", "El río está abajo en la imagen."),
+            L("La voiture est inventée vers 1886, l'avion vers 1903.", "Автомобіль винайшли близько 1886 року, літак — близько 1903.", "Samochód wynaleziono około 1886 roku, samolot około 1903.", "El coche se inventa hacia 1886, el avión hacia 1903.")
+          ] },
+        { type: "ecrire", picto: null, verbe: "ÉCRIS", image: IMG + "cockerill-1852.jpg",
+          consigne: L("ÉCRIS une ou deux phrases pour décrire l'image.", "НАПИШИ одне-два речення, щоб описати зображення.", "NAPISZ jedno lub dwa zdania, żeby opisać obraz.", "ESCRIBE una o dos frases para describir la imagen."),
+          amorces: ["Je vois", "Il y a", "Au bord de la Meuse,"], placeholder: "Je vois des cheminées…",
+          astuce: L("Tu peux aussi toucher le micro du clavier et parler.", "Можеш також натиснути мікрофон на клавіатурі й говорити.", "Możesz też dotknąć mikrofonu na klawiaturze i mówić.", "También puedes tocar el micrófono del teclado y hablar."),
+          aides: [
+            L("Commence par ce qui est le plus grand.", "Почни з того, що найбільше.", "Zacznij od tego, co jest największe.", "Empieza por lo más grande."),
+            L("Exemple : Je vois des usines et de la fumée.", "Приклад: Je vois des usines et de la fumée.", "Przykład: Je vois des usines et de la fumée.", "Ejemplo: Je vois des usines et de la fumée.")
+          ] },
+        AUTO("CHOISIS : est-ce que tu sais décrire une image d'usine ?", "ВИБЕРИ: чи вмієш ти описати зображення заводу?", "WYBIERZ: czy umiesz opisać obraz fabryki?", "ELIGE: ¿sabes describir una imagen de fábrica?")
+      ]
+    },
+    {
+      id: "be-frise", discipline: "histoire", picto: null, motsAppris: [],
+      titre: L("Ma frise de la Belgique", "Моя стрічка часу Бельгії", "Moja oś czasu Belgii", "Mi línea del tiempo de Bélgica"),
+      objectif: L("Je place les grands événements de la Belgique sur une frise du temps.", "Я розміщую головні події Бельгії на стрічці часу.", "Umieszczam najważniejsze wydarzenia Belgii na osi czasu.", "Coloco los grandes acontecimientos de Bélgica en una línea del tiempo."),
+      etapes: [
+        { type: "classer", picto: null, verbe: "CLASSE",
+          consigne: L("CLASSE les événements sur la frise : TOUCHE un événement, puis la bonne période.", "РОЗСОРТУЙ події на стрічці часу: ТОРКНИСЬ події, потім правильного періоду.", "UMIEŚĆ wydarzenia na osi czasu: DOTKNIJ wydarzenia, potem właściwego okresu.", "CLASIFICA los acontecimientos en la línea del tiempo: TOCA un acontecimiento y luego el periodo correcto."),
+          bacs: [
+            { id: "p1", label: L("1815-1829 : avant la Belgique", "1815–1829: до Бельгії", "1815–1829: przed Belgią", "1815-1829: antes de Bélgica") },
+            { id: "p2", label: L("1830-1831 : naissance de la Belgique", "1830–1831: народження Бельгії", "1830–1831: narodziny Belgii", "1830-1831: nacimiento de Bélgica") },
+            { id: "p3", label: L("1914-1945 : les deux guerres", "1914–1945: дві війни", "1914–1945: dwie wojny", "1914-1945: las dos guerras") },
+            { id: "p4", label: L("Depuis 1993 : la Belgique fédérale", "З 1993: федеративна Бельгія", "Od 1993: Belgia federalna", "Desde 1993: la Bélgica federal") }
+          ],
+          elements: [
+            { id: "roi", bac: "p1", img: IMG + "carte-1815.jpg", label: L("Le roi hollandais Guillaume Ier", "Нідерландський король Віллем I", "Król holenderski Wilhelm I", "El rey holandés Guillermo I") },
+            { id: "fort", bac: "p1", img: IMG + "fort-huy.jpg", label: L("On construit le fort de Huy", "Будують форт у Юї", "Budowa fortu w Huy", "Se construye el fuerte de Huy") },
+            { id: "revol", bac: "p2", img: IMG + "wappers-1835.jpg", label: L("Combats à Bruxelles et indépendance", "Бої в Брюсселі та незалежність", "Walki w Brukseli i niepodległość", "Combates en Bruselas e independencia") },
+            { id: "leo", bac: "p2", img: IMG + "serment-1831.jpg", label: L("Léopold Ier devient roi", "Леопольд I стає королем", "Leopold I zostaje królem", "Leopoldo I se convierte en rey") },
+            { id: "loncin", bac: "p3", img: IMG + "loncin-1918.jpg", label: L("Le fort de Loncin explose", "Вибух форту Лонсен", "Wybuch fortu Loncin", "Explota el fuerte de Loncin") },
+            { id: "prison", bac: "p3", label: L("Le fort de Huy devient une prison allemande", "Форт у Юї стає німецькою в'язницею", "Fort w Huy staje się niemieckim więzieniem", "El fuerte de Huy se convierte en cárcel alemana") },
+            { id: "fed", bac: "p4", img: IMG + "regions-aujourdhui.jpg", label: L("La Belgique devient un État fédéral", "Бельгія стає федеративною державою", "Belgia staje się państwem federalnym", "Bélgica se convierte en un Estado federal") }
+          ],
+          bravo: L("Bravo ! Ta frise est juste : 1815 → 1830 → 1831 → 1914 → 1940 → 1993.", "Молодець! Твоя стрічка правильна: 1815 → 1830 → 1831 → 1914 → 1940 → 1993.", "Brawo! Twoja oś czasu jest dobra: 1815 → 1830 → 1831 → 1914 → 1940 → 1993.", "¡Bien! Tu línea del tiempo es correcta: 1815 → 1830 → 1831 → 1914 → 1940 → 1993."),
+          erreur: L("Pas encore. Relis les synthèses « Ce que je retiens » des séquences.", "Ще ні. Перечитай підсумки «Що я запам'ятовую».", "Jeszcze nie. Przeczytaj jeszcze raz podsumowania „Co zapamiętuję”.", "Todavía no. Vuelve a leer las síntesis «Lo que recuerdo»."),
+          aides: [
+            L("Le fort de Huy sert à deux époques : construit vers 1820, prison en 1940.", "Форт у Юї служить у дві епохи: збудований близько 1820, в'язниця в 1940.", "Fort w Huy służy w dwóch epokach: zbudowany około 1820, więzienie w 1940.", "El fuerte de Huy sirve en dos épocas: construido hacia 1820, cárcel en 1940."),
+            L("Le fort de Loncin explose en 1914.", "Форт Лонсен вибухає в 1914 році.", "Fort Loncin wybucha w 1914 roku.", "El fuerte de Loncin explota en 1914."),
+            L("L'État fédéral, c'est 1993.", "Федеративна держава — це 1993 рік.", "Państwo federalne to rok 1993.", "El Estado federal es 1993.")
+          ] },
+        { type: "nombre", picto: null, verbe: "CALCULE",
+          consigne: L("CALCULE : la Belgique est née en 1830. En 2030, elle aura quel âge ?", "ПОРАХУЙ: Бельгія народилася в 1830 році. Скільки їй буде у 2030 році?", "POLICZ: Belgia powstała w 1830 roku. Ile lat będzie miała w 2030 roku?", "CALCULA: Bélgica nació en 1830. ¿Cuántos años tendrá en 2030?"),
+          reponse: 200, unite: "ans",
+          bravo: L("Oui ! 2030 − 1830 = 200 ans. Deux siècles !", "Так! 2030 − 1830 = 200 років. Два століття!", "Tak! 2030 − 1830 = 200 lat. Dwa wieki!", "¡Sí! 2030 − 1830 = 200 años. ¡Dos siglos!"),
+          erreur: L("Pas encore. Fais 2030 − 1830.", "Ще ні. Порахуй 2030 − 1830.", "Jeszcze nie. Policz 2030 − 1830.", "Todavía no. Haz 2030 − 1830."),
+          aides: [
+            L("Un siècle, c'est 100 ans.", "Століття — це 100 років.", "Wiek to 100 lat.", "Un siglo son 100 años."),
+            L("De 1830 à 1930 : 100 ans. De 1930 à 2030 : … ans.", "Від 1830 до 1930: 100 років. Від 1930 до 2030: … років.", "Od 1830 do 1930: 100 lat. Od 1930 do 2030: … lat.", "De 1830 a 1930: 100 años. De 1930 a 2030: … años.")
+          ] },
+        { type: "ecrire", picto: null, verbe: "ÉCRIS",
+          consigne: L("ÉCRIS une phrase : un événement de l'histoire de la Belgique qui s'est passé près de Huy.", "НАПИШИ речення: подія з історії Бельгії, яка сталася біля Юї.", "NAPISZ zdanie: wydarzenie z historii Belgii, które miało miejsce koło Huy.", "ESCRIBE una frase: un acontecimiento de la historia de Bélgica que pasó cerca de Huy."),
+          amorces: ["En 1914,", "En 1940,", "À Huy,", "À Liège,"], placeholder: "En 1914, à Loncin…",
+          astuce: L("Tu peux aussi toucher le micro du clavier et parler.", "Можеш також натиснути мікрофон на клавіатурі й говорити.", "Możesz też dotknąć mikrofonu na klawiaturze i mówić.", "También puedes tocar el micrófono del teclado y hablar."),
+          aides: [
+            L("Pense aux forts : Huy et Loncin.", "Згадай форти: Юї та Лонсен.", "Pomyśl o fortach: Huy i Loncin.", "Piensa en los fuertes: Huy y Loncin."),
+            L("Exemple : En 1940, le fort de Huy devient une prison.", "Приклад: En 1940, le fort de Huy devient une prison.", "Przykład: En 1940, le fort de Huy devient une prison.", "Ejemplo: En 1940, le fort de Huy devient une prison.")
+          ] },
+        AUTO("CHOISIS : est-ce que tu sais placer les grands événements de la Belgique dans le temps ?", "ВИБЕРИ: чи вмієш ти розмістити головні події Бельгії в часі?", "WYBIERZ: czy umiesz umieścić najważniejsze wydarzenia Belgii w czasie?", "ELIGE: ¿sabes situar en el tiempo los grandes acontecimientos de Bélgica?")
       ]
     }
   );

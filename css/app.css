@@ -205,6 +205,9 @@ button.argent:active { transform: translate(4px, 4px); box-shadow: none; }
 button.argent[aria-pressed="true"] { outline: 4px solid var(--espace); outline-offset: 4px; }
 .argent.bien { outline: 3px solid var(--ok); outline-offset: 2px; }
 .argent.mal { outline: 3px solid var(--erreur); outline-offset: 2px; }
+.argent.jeton { display: inline-flex; align-items: center; gap: var(--s-2); max-width: 300px; min-height: 56px; padding: var(--s-2) var(--s-3); border-radius: var(--r-md); background: var(--papier); text-align: left; font: 700 17px/22px var(--font-fr); }
+.argent.jeton img { width: 72px; height: 56px; object-fit: cover; border-radius: var(--r-sm); border: 1px solid var(--ink); flex-shrink: 0; }
+.argent.jeton .trad { display: block; font: 400 15px/20px var(--font-trad); }
 
 /* Nombre */
 .visuel { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; }
@@ -476,3 +479,7 @@ a.btn { text-decoration: none; }
 .points-langue { display: flex; gap: 4px; flex-wrap: wrap; }
 .points-langue i { width: 12px; height: 12px; border-radius: 50%; background: var(--social); }
 @media (max-width: 900px) { .deux-cartes { grid-template-columns: 1fr; } }
+
+/* Image d'une étape d'activité (même cadre que les documents des leçons) */
+.doc-cadre { background: var(--papier); border: var(--trait-fort); border-radius: var(--r-md); box-shadow: var(--ombre); padding: var(--s-2); }
+.doc-cadre img { display: block; width: 100%; height: auto; max-height: 45vh; object-fit: contain; border-radius: var(--r-sm); }

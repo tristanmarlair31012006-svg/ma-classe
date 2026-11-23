@@ -172,6 +172,7 @@
     if (window.LECONS && window.LECONS.gere(r)) return window.LECONS.ecran(r);
     if (r === "lecons") return ecranLecons();
     if ((r.startsWith("act-") || (r.startsWith("atelier-"))) && (!S.dernier || S.dernier.r !== r)) { S.dernier = { r, t: Date.now() }; sauver(); }
+    if (r === "groupes" && window.GROUPES) return window.GROUPES.ecran();
     if (r === "atelier" || r.startsWith("atelier-")) return window.ATELIER ? window.ATELIER.ecran(r) : ecranAtelier();
     if (r === "mots") return ecranMots();
     if (r === "discuter") return ecranDiscuter();

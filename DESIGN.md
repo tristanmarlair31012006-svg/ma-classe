@@ -118,3 +118,9 @@ Dégradés violet-bleu, verre dépoli, sections toutes centrées, trois cartes i
 - **Niveaux** : vert « Je maîtrise » (≥ 80 %), orange « Presque » (≥ 50 %), rouge « Pas encore ». Toujours icône + mot.
 - **Évaluation** : avancement (étapes faites) + critères maîtrisés, visibles dans le mode prof.
 - Le contenu se met dans `js/parcours.js`.
+
+## 10. Tirage au sort des groupes (Atelier → En classe)
+
+- Liste de la classe saisie par le prof (code prof), **gardée sur la tablette uniquement** (jamais dans le dépôt).
+- Présents du jour à cocher, groupes de 2, 3 ou 4 ; les élèves en trop rejoignent un groupe existant.
+- « On garde ces groupes » enregistre le tirage : les suivants évitent au maximum de remettre ensemble les mêmes élèves (les tirages récents comptent plus).

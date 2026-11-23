@@ -60,6 +60,9 @@
     legendeCase: { fr: "Récit (ce qui se passe)", uk: "Розповідь (що відбувається)", pl: "Opis (co się dzieje)", es: "Relato (lo que pasa)", rn: null },
     retourBD: { fr: "Retour à la BD", uk: "Назад до коміксу", pl: "Powrót do komiksu", es: "Volver al cómic", rn: null },
     partageImpossible: { fr: "Le partage marchera quand l'app sera installée sur l'iPad.", uk: "Поділитися можна буде, коли застосунок встановлять на iPad.", pl: "Udostępnianie zadziała, gdy aplikacja będzie zainstalowana na iPadzie.", es: "Compartir funcionará cuando la app esté instalada en el iPad.", rn: null },
+    enClasse: { fr: "En classe", uk: "У класі", pl: "W klasie", es: "En clase", rn: null },
+    tirage: { fr: "Tirage au sort des groupes", uk: "Жеребкування груп", pl: "Losowanie grup", es: "Sorteo de los grupos", rn: null },
+    tirageDesc: { fr: "Des groupes au hasard, chaque fois avec quelqu'un de nouveau.", uk: "Випадкові групи, щоразу з кимось новим.", pl: "Losowe grupy, za każdym razem z kimś nowym.", es: "Grupos al azar, cada vez con alguien nuevo.", rn: null },
     effacerTout: { fr: "Tout effacer", uk: "Стерти все", pl: "Wyczyść wszystko", es: "Borrar todo", rn: null }
   };
 
@@ -143,6 +146,15 @@
             <span class="icone-outil">${ic(o.icone)}</span>
             <span><b>${esc(fr(o.nom))}</b>${ligneTrad(o.nom)}<span class="petit" style="display:block;margin-top:4px">${esc(fr(o.desc))}</span></span>
           </button>`).join("")}
+        </div>
+      </section>
+      <section class="bloc">
+        <h2>${esc(fr(T.enClasse))}${ligneTrad(T.enClasse)}</h2>
+        <div class="outils-atelier">
+          <a class="outil-atelier" href="#groupes" style="color:inherit;text-decoration:none">
+            <span class="icone-outil">${ic("de")}</span>
+            <span><b>${esc(fr(T.tirage))}</b>${ligneTrad(T.tirage)}<span class="petit" style="display:block;margin-top:4px">${esc(fr(T.tirageDesc))}</span></span>
+          </a>
         </div>
       </section>
       <section class="bloc">

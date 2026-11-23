@@ -1,0 +1,30 @@
+/* Tirage au sort des groupes */
+.tirage-colonnes { display: grid; grid-template-columns: minmax(320px, 1fr) 1.4fr; gap: var(--s-5); align-items: start; }
+.puces-eleves { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
+.puce-eleve { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 14px; border-radius: var(--r-pill); border: 2px solid var(--ink); background: var(--espace-clair, var(--creme)); font: 700 17px/1 var(--font-fr); }
+.puce-eleve svg { width: 18px; height: 18px; color: var(--ok); }
+.puce-eleve[aria-pressed="false"] { background: var(--papier); border-style: dashed; color: var(--ink-muted); text-decoration: line-through; }
+.puce-eleve[aria-pressed="false"] svg { color: var(--erreur); }
+.segments { display: inline-flex; border: var(--trait-fort); border-radius: var(--r-md); overflow: hidden; margin-top: var(--s-2); }
+.segment { min-width: 72px; min-height: 56px; font: 700 24px/1 var(--font-fr); background: var(--papier); border-right: 2px solid var(--ink); }
+.segment:last-child { border-right: 0; }
+.segment[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.btn-tirer { width: 100%; margin-top: var(--s-5); min-height: 64px; font-size: 22px; background: var(--ink); }
+.groupes-tires { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3); }
+.groupe-tire { border: var(--trait-fort); border-radius: var(--r-md); background: var(--papier); box-shadow: var(--ombre); padding: var(--s-3) var(--s-4); }
+.groupe-tire:nth-child(4n+1) { border-top: 10px solid var(--histoire); }
+.groupe-tire:nth-child(4n+2) { border-top: 10px solid var(--geo); }
+.groupe-tire:nth-child(4n+3) { border-top: 10px solid var(--social); }
+.groupe-tire:nth-child(4n+4) { border-top: 10px solid var(--eco); }
+.num-groupe { font: 700 15px/1 var(--font-fr); color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+.groupe-tire ul { list-style: none; margin-top: var(--s-2); display: grid; gap: 6px; }
+.groupe-tire li { font: 700 26px/32px var(--font-fr); }
+.groupes-tires.anime .groupe-tire { animation: apparait .45s cubic-bezier(.2,.9,.3,1.3) both; animation-delay: calc(var(--i) * 120ms); }
+@keyframes apparait { from { opacity: 0; transform: translateY(16px) scale(.94); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .groupes-tires.anime .groupe-tire { animation: none; } }
+.attente-tirage { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-6, 48px); text-align: center; color: var(--ink-muted); border-style: dashed; }
+.attente-tirage svg { width: 64px; height: 64px; }
+.historique-groupes { margin-top: var(--s-5); }
+.historique-groupes summary { font: 700 17px/1.4 var(--font-fr); cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.historique-groupes p { margin: 6px 0; }
+@media (max-width: 900px) { .tirage-colonnes { grid-template-columns: 1fr; } }

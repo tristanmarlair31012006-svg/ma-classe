@@ -13,13 +13,24 @@ jobs:
   deployer:
     runs-on: ubuntu-latest
     steps:
+      - name: Secrets Cloudflare présents ?
+        id: verif
+        env:
+          T: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          C: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$T" ] && [ -n "$C" ]; then echo "ok=1" >> "$GITHUB_OUTPUT"; else echo "Secrets Cloudflare pas encore créés : rien à déployer."; fi
       - uses: actions/checkout@v4
+        if: steps.verif.outputs.ok == '1'
       - uses: actions/setup-node@v4
+        if: steps.verif.outputs.ok == '1'
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
+        if: steps.verif.outputs.ok == '1'
         working-directory: serveur
       - uses: cloudflare/wrangler-action@v3
+        if: steps.verif.outputs.ok == '1'
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -27,6 +38,7 @@ jobs:
           command: deploy
       # Les secrets vides sont ignorés : le suivi des élèves marche sans Azure (seule la traduction en a besoin).
       - name: Secrets du serveur
+        if: steps.verif.outputs.ok == '1'
         working-directory: serveur
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

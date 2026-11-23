@@ -16,7 +16,7 @@ new_sqlite_classes = ["Classe"]
 
 [vars]
 # Adresse de l'app sur GitHub Pages (à remplacer). Plusieurs adresses : séparer par des virgules.
-ORIGINES = "https://tristanmarlair31012006-svg.github.io"
+ORIGINES = "https://ma-classe-arh-daspa.pages.dev,https://tristanmarlair31012006-svg.github.io"
 
 # Secrets à créer avec « npx wrangler secret put NOM » (jamais dans ce fichier) :
 #   AZURE_CLE     clé de la ressource Translator

@@ -44,7 +44,7 @@ npx wrangler secret put CODE_CLASSE    # un code de 6 chiffres pour les élèves
 npx wrangler secret put CLE_PROF       # une clé longue, pour toi seul
 ```
 
-4. Dans `wrangler.toml`, remplace `https://TON-PSEUDO.github.io` par l'adresse de l'app sur GitHub Pages.
+4. `wrangler.toml` contient déjà l’adresse de l’app (`https://ma-classe-arh-daspa.pages.dev`) dans `ORIGINES`.
 5. Mets en ligne :
 
 ```bash

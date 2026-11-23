@@ -296,6 +296,17 @@
       </div>`, d, "lecons");
   }
 
+  /* Document (trace du passé ou travail postérieur) : image dans un cadre papier + « Document N°X » + légende.
+     doc = { n, src, legende: {fr, uk…}, credit, alt } — la légende ne dit jamais « trace » ou « travail postérieur ». */
+  const T_DOC = { fr: "Document N°", uk: "Документ №", pl: "Dokument nr ", es: "Documento N.º ", rn: null };
+  function figureDoc(d) {
+    return `<figure class="doc">
+      <div class="doc-cadre"><img src="${esc(d.src)}" alt="${esc(d.alt ? fr(d.alt) : fr(d.legende))}" loading="lazy"></div>
+      <figcaption><div class="paragraphe"><p><b class="doc-num">${esc(fr(T_DOC))}${esc(String(d.n))}</b> : ${texte(d.legende)}</p><div class="sons">${boutonsSon(d.legende)}</div></div>
+        ${d.credit ? `<p class="doc-credit">${esc(d.credit)}</p>` : ""}</figcaption>
+    </figure>`;
+  }
+
   /* ---------- Écran 5 : ressource ou synthèse ---------- */
   function ecranRes(r) {
     const [sid, idx] = r.split("--");
@@ -309,6 +320,7 @@
     cadre(entete(e.titre, retour) + `
       <div class="ressource-corps ${e.type} bloc">
         <span class="etiquette">${ic(TYPE_ICONE[e.type])} ${esc(fr(T[e.type]))}</span>
+        ${(c.docs || []).map(figureDoc).join("")}
         ${(c.textes || []).map(p => `<div class="paragraphe"><p class="consigne-texte">${texte(p)}</p><div class="sons">${boutonsSon(p)}</div></div>`).join("")}
         ${(c.liste || []).length ? `<ul class="liste-res">${c.liste.map(p => `<li><div><p>${texte(p)}</p></div><div class="sons">${boutonsSon(p)}</div></li>`).join("")}</ul>` : ""}
         ${c.lien ? `<p><a class="btn btn-secondaire" href="${esc(c.lien.url)}" target="_blank" rel="noopener">${ic("droite")} ${esc(c.lien.label || c.lien.url)}</a></p>` : ""}
@@ -360,6 +372,7 @@
         <div class="corps"><p class="consigne-texte">${texte(q.consigne, { gras: true })}</p></div>
         <div style="display:flex;flex-direction:column;gap:8px">${boutonsSon(q.consigne)}</div>
       </div>
+      ${q.doc ? figureDoc(q.doc) : ""}
       ${q.visuel ? `<div class="carte-plate visuel-test"><div class="visuel">${q.visuel.map((v, i) => (i ? '<span class="plus">+</span>' : "") + A.argent(v)).join("")}</div></div>` : ""}
       <div class="zone"><div class="options">${opts}</div></div>
       ${Q.valide ? `<div class="retour-msg ${juste ? "ok" : "ko"}" role="status">${ic(juste ? "ok" : "x")}<p>

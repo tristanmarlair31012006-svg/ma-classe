@@ -117,7 +117,8 @@ Dégradés violet-bleu, verre dépoli, sections toutes centrées, trois cartes i
 - **Séquence** : objectif, étapes (ressource · activité · mini-test · synthèse) à gauche, guide de maîtrise à droite (« Moi » = autoévaluation, « Test » = résultat du mini-test).
 - **Niveaux** : vert « Je maîtrise » (≥ 80 %), orange « Presque » (≥ 50 %), rouge « Pas encore ». Toujours icône + mot.
 - **Évaluation** : avancement (étapes faites) + critères maîtrisés, visibles dans le mode prof.
-- Le contenu se met dans `js/parcours.js`.
+- Le contenu se met dans `js/parcours.js` (et un fichier par module, ex. `js/parcours-belgique.js`).
+- **Documents** : `contenu.docs` (ressource) ou `doc` (question de test) = `{ n, src, legende, credit }`. Cadre papier + « Document N°X » + légende (nature, sujet, lieu, date, conservation, auteur) + licence en petit. Jamais « trace » ou « travail postérieur » dans la légende. Images dans `img/<module>/`, ajoutées à `sw.js`.
 
 ## 10. Tirage au sort des groupes (Atelier → En classe)
 

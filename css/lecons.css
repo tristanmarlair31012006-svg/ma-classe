@@ -142,3 +142,13 @@ a.ligne-seq:active { transform: translate(4px, 4px); box-shadow: none; }
 .tuile.matiere .corps-tuile > .etiquette { justify-self: start; }
 .bandeau.neutre { background: var(--ink); }
 .fin h2.bloc { justify-content: center; }
+
+/* Documents (traces du passé, travaux postérieurs) — DESIGN.md §7 */
+.doc { display: grid; gap: var(--s-3); margin: 0; }
+.doc-cadre { background: var(--papier); border: var(--trait-fort); border-radius: var(--r-md); box-shadow: var(--ombre); padding: var(--s-2); }
+.doc-cadre img { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; border-radius: var(--r-sm); }
+.doc figcaption { display: grid; gap: var(--s-1); }
+.doc-num { text-decoration: underline; }
+.doc-credit { font: var(--t-petit); color: var(--ink-muted); }
+.zone + .doc, .consigne + .doc { margin-bottom: var(--s-3); }
+.consigne + .doc .doc-cadre img { max-height: 42vh; }

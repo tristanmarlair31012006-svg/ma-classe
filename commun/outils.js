@@ -37,11 +37,22 @@
   };
 
   /* ---------- 2. Barre du bas ---------- */
+  // Icônes dessinées au trait (même style partout, pas d'émojis)
+  var ICONES = {
+    aujourdhui: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h3"/>',
+    daspa: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5s1.1-6 3.5-8.5z"/>',
+    suivi: '<path d="M7 3.5h10.5a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7z"/><path d="M7 3.5v17M4.5 8h4M4.5 12h4M4.5 16h4M11.5 8.5h5M11.5 12h3"/>',
+    lecons: '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8.5 20.5h7M7 8.5h6M7 11.5h9"/>',
+    crayon: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>'
+  };
+  MesOutils.icone = function (nom) {
+    return '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONES[nom] || "") + "</svg>";
+  };
   var OUTILS = [
-    { id: "aujourdhui", nom: "Aujourd'hui", pic: "🏠", lien: "/accueil/", c: "var(--c-aujourdhui)" },
-    { id: "daspa", nom: "DASPA", pic: "🌍", lien: "/daspa/", c: "var(--c-daspa)" },
-    { id: "suivi", nom: "Suivi", pic: "📒", lien: "/suivi/", c: "var(--c-suivi)" },
-    { id: "lecons", nom: "Leçons", pic: "🖍️", lien: "/lecons/", c: "var(--c-lecons)" }
+    { id: "aujourdhui", nom: "Aujourd'hui", lien: "/accueil/", c: "var(--c-aujourdhui)" },
+    { id: "daspa", nom: "DASPA", lien: "/daspa/", c: "var(--c-daspa)" },
+    { id: "suivi", nom: "Suivi", lien: "/suivi/", c: "var(--c-suivi)" },
+    { id: "lecons", nom: "Leçons", lien: "/lecons/", c: "var(--c-lecons)" }
   ];
   MesOutils.OUTILS = OUTILS;
   function barre() {
@@ -53,7 +64,7 @@
       a.href = o.lien;
       a.style.setProperty("--a", o.c);
       if (R.dataset.outil === o.id) a.setAttribute("aria-current", "page");
-      a.innerHTML = '<span aria-hidden="true">' + o.pic + "</span>" + o.nom;
+      a.innerHTML = MesOutils.icone(o.id) + "<span>" + o.nom + "</span>";
       nav.appendChild(a);
     });
     document.body.appendChild(nav);
@@ -61,6 +72,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     barre();
+    document.querySelectorAll("[data-icone]").forEach(function (el) { el.innerHTML = MesOutils.icone(el.dataset.icone); });
     document.querySelectorAll("[data-interrupteur]").forEach(MesOutils.interrupteur);
   });
 

@@ -596,7 +596,9 @@ async function ouvrirPdf(lib,buf){
   catch(e){return await lib.getDocument({data:buf.slice(0),disableWorker:true,isEvalSupported:false}).promise}
 }
 async function rendrePage(page,ech){const vp=page.getViewport({scale:ech}),c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);await page.render({canvasContext:x,viewport:vp}).promise;return c}
-const enJpeg=c=>new Promise(ok=>c.toBlob(ok,"image/jpeg",.85));
+const enJpeg=c=>new Promise((ok,ko)=>c.toBlob(b=>b?ok(b):ko(new Error("image de la page impossible à créer (page trop grande ?)")),"image/jpeg",.85));
+// Sur iPad, la mémoire des images est limitée : je vide chaque image dès qu'elle ne sert plus
+const libere=c=>{try{c.width=c.height=0}catch(e){}};
 function zonesDiff(ca,cb){
   const w=ca.width,h=ca.height;let cc=cb;
   if(cb.width!==w||cb.height!==h){cc=document.createElement("canvas");cc.width=w;cc.height=h;cc.getContext("2d").drawImage(cb,0,0,w,h)}
@@ -640,21 +642,24 @@ const importer={
       const pages=[];
       for(let i=1;i<=pdfL.numPages;i++){
         et(`Page ${i} sur ${pdfL.numPages}…`);
-        const pl=await pdfL.getPage(i),v=pl.getViewport({scale:1}),net=Math.min(170/72,2600/v.width);
+        const pl=await pdfL.getPage(i),v=pl.getViewport({scale:1}),net=Math.min(170/72,2600/v.width,Math.sqrt(4e6/(v.width*v.height))); // max 4 millions de points : l'iPad limite la mémoire des images
         const imgL=await rendrePage(pl,net);
         const p={ratio:Math.round(v.height/v.width*1e4)/1e4,zones:[],l:await stocker(await enJpeg(imgL)),c:null};
         if(pdfC&&i<=pdfC.numPages){
           const imgC=await rendrePage(await pdfC.getPage(i),net);p.c=await stocker(await enJpeg(imgC));
           const petit=c=>{const k=(75/72)/net,r=document.createElement("canvas");r.width=Math.round(c.width*k);r.height=Math.round(c.height*k);r.getContext("2d").drawImage(c,0,0,r.width,r.height);return r};
-          p.zones=zonesDiff(petit(imgL),petit(imgC));
+          const pL=petit(imgL),pC=petit(imgC);p.zones=zonesDiff(pL,pC);
+          libere(pL);libere(pC);libere(imgC);
         }
+        libere(imgL);pl.cleanup&&pl.cleanup();
         pages.push(p);
       }
+      try{pdfL.destroy();pdfC&&pdfC.destroy()}catch(e){}
       const o={id:"l"+Date.now().toString(36),titre,matiere,type,ordre:Date.now(),pages};
       LECONS.push(o);et("Enregistrement…");
       if(DB){const d=clone(o);delete d.id;await DB.doc("lecons/"+o.id).set(d)}
       $("#v-imp").classList.remove("ouvert");accueil();
-    }catch(e){et(MesDonnees.estPlein(e)?"Plus de place sur l'appareil pour cette leçon.":"Problème : "+((e&&e.message)||e));$("#b-imp-ok").disabled=false}
+    }catch(e){console.error(e);et(MesDonnees.estPlein(e)?"Plus de place sur l'appareil pour cette leçon.":"Problème : "+((e&&(e.message||e.name))||e)+(e&&e.name&&e.message?" ("+e.name+")":""));$("#b-imp-ok").disabled=false}
   },
   async supprimer(l){
     if(!await demander(`Supprimer « ${l.titre} » ? La leçon disparaît pour toutes les classes (tes PDF d'origine ne sont pas touchés).`,{ok:"Supprimer"}))return;

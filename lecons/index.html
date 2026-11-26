@@ -199,6 +199,10 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
       <button class="btn" id="b-tirage" title="Tirer un élève au sort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="lib">Élève</span></button>
       <button class="btn" id="b-minu" title="Minuteur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg><span class="lib">Minuteur</span></button>
     </div>
+    <div class="grp">
+      <button class="btn" id="b-daspa" hidden title="Ouvrir la version DASPA de cette leçon"><span aria-hidden="true">🌍</span><span class="lib">Version DASPA</span></button>
+      <button class="btn" id="b-noter" title="Noter ce cours dans mon Suivi"><span aria-hidden="true">📝</span><span class="lib">Noter ce cours</span></button>
+    </div>
     <div class="grp tbo">
       <button class="btn" id="b-fond">Fond</button>
       <button class="btn" id="b-page">+ Page</button>
@@ -247,6 +251,14 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
     <textarea id="liste-el"></textarea>
     <div class="ligne" style="margin-top:12px"><button class="btn pri" id="b-liste-ok">Enregistrer</button></div>
   </div>
+</div></div>
+
+<div class="voile" id="v-daspa"><div class="fen" style="width:min(520px,100%)">
+  <button class="btn fermer" data-ferme="v-daspa" title="Fermer">✕</button>
+  <h3>Version DASPA de « <span id="vd-titre"></span> »</h3>
+  <p class="aide">Je choisis la leçon adaptée (vocabulaire, consignes simplifiées, pictos). Elle s'ouvrira en un clic pendant le cours.</p>
+  <select id="vd-choix" style="width:100%;margin:12px 0"></select>
+  <div class="ligne"><button class="btn" id="vd-aucune">Aucune</button><button class="btn pri" id="vd-ok">Lier</button></div>
 </div></div>
 
 <div class="voile" id="v-dlg"><div class="fen" style="width:min(460px,100%)">
@@ -360,6 +372,7 @@ function accueil(){
       const mini=b.querySelector(".mini");
       if(commence){const r=document.createElement("button");r.textContent="↺ Recommencer";r.title="Effacer la progression et les traits pour cette classe";
         r.onclick=async e=>{e.stopPropagation();if(await demander(`Recommencer « ${l.titre} » à zéro pour ${cls().nom} ? Les réponses montrées et les traits seront effacés.`,{ok:"Recommencer"})){recommencer(l)}};mini.appendChild(r)}
+      if(l.type!=="tableau"){const v=document.createElement("button");const lie=l.daspa&&LECONS.find(x=>x.id===l.daspa);v.textContent=lie?"🌍 DASPA : "+lie.titre.slice(0,18):"🌍 Version DASPA";v.title="Lier la version DASPA de cette leçon";v.onclick=e=>{e.stopPropagation();lierDaspa(l)};mini.appendChild(v)}
       if(l.type!=="tableau"){const s=document.createElement("button");s.textContent="🗑 Supprimer";s.onclick=e=>{e.stopPropagation();importer.supprimer(l)};mini.appendChild(s)}
       const go=()=>ouvrir(l.id,pr?pr.page:0);b.onclick=go;b.onkeydown=e=>{if(e.key==="Enter")go()};
       box.appendChild(b);
@@ -387,6 +400,7 @@ async function ouvrir(id,page){
   corps.classList.add("en-lecon");document.documentElement.setAttribute("data-projection",""); // la barre du bas disparaîtcorps.classList.toggle("document",lecon.type==="document");corps.classList.toggle("tableau",lecon.type==="tableau");
   $("#titre-l").textContent=lecon.titre;$("#chip-cl").textContent=cls().nom;
   appliquerFond();
+  $("#b-daspa").hidden=!(lecon.daspa&&LECONS.some(x=>x.id===lecon.daspa));$("#b-noter").hidden=lecon.type==="tableau";
   trKey=CL+"__"+id;TR={};
   if(DB){try{const s=await DB.doc("traits/"+trKey).get();if(s.exists)TR=clone((s.data()||{}).p||{})}catch(e){}}else TR=loc.lire("tr-"+trKey,{});
   if(lecon.type==="tableau"&&mode!=="crayon")changerMode("crayon");
@@ -577,6 +591,43 @@ addEventListener("keydown",e=>{
   else if(e.key==="Escape"&&!document.fullscreenElement)fermer();
 });
 
+/* ---------- liens avec mes autres outils ---------- */
+// Leçon → version DASPA
+function lierDaspa(l){
+  $("#vd-titre").textContent=l.titre;const sel=$("#vd-choix");sel.innerHTML="";
+  LECONS.filter(x=>x.id!==l.id).sort((a,b)=>a.titre.localeCompare(b.titre)).forEach(x=>{const o=document.createElement("option");o.value=x.id;o.textContent=x.titre+" · "+x.matiere;sel.appendChild(o)});
+  if(!sel.options.length){const o=document.createElement("option");o.textContent="J'importe d'abord la version DASPA comme une leçon";o.disabled=true;sel.appendChild(o)}
+  if(l.daspa)sel.value=l.daspa;
+  const fin=v=>{if(v!==undefined){if(v)l.daspa=v;else delete l.daspa;sauverLecon(l);accueil()}$("#v-daspa").classList.remove("ouvert")};
+  $("#vd-ok").onclick=()=>fin(sel.value&&LECONS.some(x=>x.id===sel.value)?sel.value:undefined);$("#vd-aucune").onclick=()=>fin(null);
+  $("#v-daspa").classList.add("ouvert");
+}
+$("#b-daspa").onclick=()=>{if(lecon&&lecon.daspa)ouvrir(lecon.daspa,(PROG[lecon.daspa]||{}).page||0)};
+// Leçon → Suivi : « Noter ce cours » (date, classe, leçon + capture de la page annotée)
+async function capturePage(){
+  const p=lecon.pages[nPage];if(!p.l)return null;
+  const charge=src=>new Promise(ok=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>ok(null);im.src=src});
+  const il=await charge(urlDe(p.l));if(!il)return null;
+  const W=Math.min(il.naturalWidth,1400),H=Math.round(W*il.naturalHeight/il.naturalWidth);
+  const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,W,H);
+  const complet=$("#feuille").classList.contains("complet");
+  if(complet&&p.c){const ic=await charge(urlDe(p.c));x.drawImage(ic||il,0,0,W,H)}
+  else{x.drawImage(il,0,0,W,H);
+    if(p.c&&vues.size){const ic=await charge(urlDe(p.c));if(ic)(p.zones||[]).forEach(([zx,zy,zw,zh],k)=>{if(vues.has(k))x.drawImage(ic,zx*ic.naturalWidth,zy*ic.naturalHeight,zw*ic.naturalWidth,zh*ic.naturalHeight,zx*W,zy*H,zw*W,zh*H)})}}
+  x.drawImage($("#dessin"),0,0,W,H);
+  const blob=await new Promise(ok=>c.toBlob(ok,"image/jpeg",.85));c.width=c.height=0;
+  return blob?await MesDonnees.fichiers.ajouter(blob):null;
+}
+$("#b-noter").onclick=async()=>{
+  if(!lecon)return;const b=$("#b-noter");b.disabled=true;
+  let cap=null;try{cap=await capturePage()}catch(e){}
+  const d=new Date(),jour=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const q=new URLSearchParams({noter:"1",lecon:lecon.id,titre:lecon.titre,matiere:lecon.matiere||"",classe:cls().nom,date:jour,page:String(nPage+1)});
+  if(cap)q.set("capture",cap);
+  for(const k of Object.keys(files))if(!k.startsWith("t:"))await vider(k);
+  location.href="/suivi/?"+q.toString();
+};
+
 /* ---------- classes ---------- */
 $("#sel-cl").onchange=async e=>{CL=e.target.value;loc.ecrire("classe",CL);await chargerProg();accueil()};
 $("#b-cl-plus").onclick=async()=>{const nom=await demander("Nom de la nouvelle classe :",{saisie:"",ok:"Créer"});if(!nom)return;const c={id:"c"+Date.now().toString(36),nom,eleves:[],deja:[]};CLASSES.push(c);sauverClasses();CL=c.id;loc.ecrire("classe",CL);await chargerProg();accueil()};
@@ -675,7 +726,10 @@ async function chargerProg(){
   if(DB){try{const s=await DB.doc("prog/"+CL).get();PROG=s.exists?clone((s.data()||{}).p||{}):{}}catch(e){PROG={}}}
   else PROG=loc.lire("prog-"+CL,{});
 }
-function ouvrirDepuisHash(){const h=location.hash.slice(1);if(h&&trouver(h)&&!lecon)ouvrir(h,(PROG[h]||{}).page||0)}
+function ouvrirDepuisHash(){
+  const q=new URLSearchParams(location.search),ql=q.get("lecon");
+  if(ql&&trouver(ql)&&!lecon){history.replaceState(null,"",location.pathname);return ouvrir(ql,Math.max(0,(+q.get("page")||1)-1))}
+  const h=location.hash.slice(1);if(h&&trouver(h)&&!lecon)ouvrir(h,(PROG[h]||{}).page||0)}
 if(!document.documentElement.requestFullscreen)$("#b-plein").hidden=true;
 if(loc.lire("discret",false))corps.classList.add("discret");majMenu();
 accueil();

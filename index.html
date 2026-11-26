@@ -31,6 +31,9 @@
 <script src="js/suivi.js"></script>
 <!-- Bouton « Mes outils » : seulement sur la tablette du prof -->
 <script src="commun/retour-daspa.js"></script>
+<!-- « Utile pour le mémoire » : seulement sur la tablette du prof (données gardées sur l'appareil) -->
+<script src="commun/db.js"></script>
+<script src="commun/daspa-memoire.js"></script>
 <script>
   // Mode hors ligne (ignoré là où ce n'est pas permis, par ex. l'aperçu Claude)
   try { if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(function () {}); if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}

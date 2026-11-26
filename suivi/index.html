@@ -170,7 +170,7 @@ const DEBP={jan:["d1","d2"],fev:["d3"],mar:["d4","d5"],avr:["d6","d7"]};
 const DEB=[["d1","Débriefing 1","S1 – S2"],["d2","Débriefing 2","S3 – S4"],["d3","Débriefing 3","S5 – S6"],["d4","Débriefing 4","S7 – S8"],["d5","Débriefing 5","S9 – S10"],["d6","Débriefing 6","S11 – S12"],["d7","Débriefing 7","S13 – S14"]];
 const CAT={A:"Suivi institutionnel des apprentissages et des élèves",B:"Travail collaboratif et concertation",C:"Relations avec les familles et les partenaires",D:"Participation à la vie de l'établissement",E:"Développement professionnel et connaissance du métier"};
 const OBL=[["conseil","Conseil de classe","B"],["parents","Réunion de parents","C"],["vie","Activité de la vie de l'établissement (projet)","D"]];
-const TABS=[["dash","Tableau de bord"],["les","Mes leçons"],["cla","Mes classes"],["obs","Observations"],["comp","Compétences"],["obj","Objectifs du mois"],["bil","Bilans mensuels"],["deb","Débriefings"],["tra","Traces"],["chg","Charge de stage"]];
+const TABS=[["dash","Tableau de bord"],["les","Mes leçons"],["cla","Mes classes"],["obs","Observations"],["comp","Compétences"],["obj","Objectifs du mois"],["bil","Bilans mensuels"],["deb","Débriefings"],["tra","Traces"],["chg","Charge de stage"],["mem","Mémoire DASPA"]];
 const ETAT=["Non abordé","En construction","En voie","Maîtrisé"];
 const RENC=[["obs","Faire le point sur les observations faites et à planifier","obs"],["outil","Présenter mon outil de suivi des objectifs (ce carnet)","dash"],["obj","Présenter les objectifs de développement que je poursuis","obj"],["hor","Montrer mon horaire prévisionnel","chg"],["seq","Parler de l'avancée de mes séquences","les"]];
 const STAT=["À préparer","Préparée","Donnée","Évaluée"];
@@ -280,7 +280,7 @@ comp(){
    ${list.map(c=>{const e=ev(b,c[0]);const isObj=[...(S.objectifs[b]||[]),...(S.objectifs[prevB(b)]||[])].some(o=>o.comp===c[0]);const nt=S.traces.filter(t=>(t.comps||[]).includes(c[0])).length;return `<div class="card comp fam" style="--c:${famC(f.id)}">${isObj?'<span class="tag" style="--c:var(--or);float:right;margin-left:8px">Objectif</span>':''}<p><span class="code">${c[0]}</span>${esc(c[2])}</p>
     ${WHO.map(w=>`<div class="who"><label>${w[1]}</label><div class="lv">${[1,2,3,4].map(v=>`<button data-ev="${c[0]}|${w[0]}" data-v="${v}" class="${e[w[0]]===v?'on':''}">${LV[v]}</button>`).join('')}</div></div>`).join('')}
     <label class="f">Preuve ou commentaire</label><input data-p="evals.${b}.${c[0]}.com" value="${esc(e.com)}" placeholder="Une situation de classe, un retour reçu…">
-    <div class="hist">Mes bilans : ${BIL.map(x=>{const v=ev(x[0],c[0]).moi;return `<span title="${x[1]}"><i style="${v?'background:var(--l'+v+');border-color:transparent':''}"></i>${x[1].replace('Fin ','').replace('Bilan initial','Init.')}</span>`}).join('')}<button class="chip" style="margin-left:auto" data-seetr="${c[0]}">${nt} trace${nt>1?'s':''}</button></div></div>`}).join('')}`:''}).join('')||'<div class="empty">Rien ici avec ce filtre.</div>'}`;
+    <div class="hist">Mes bilans : ${BIL.map(x=>{const v=ev(x[0],c[0]).moi;return `<span title="${x[1]}"><i style="${v?'background:var(--l'+v+');border-color:transparent':''}"></i>${x[1].replace('Fin ','').replace('Bilan initial','Init.')}</span>`}).join('')}${lecTrav(c[0])}<button class="chip" style="margin-left:auto" data-seetr="${c[0]}">${nt} trace${nt>1?'s':''}</button></div></div>`}).join('')}`:''}).join('')||'<div class="empty">Rien ici avec ce filtre.</div>'}`;
 },
 obj(){
   const b=cur.obj,L=S.objectifs[b]||[];
@@ -410,7 +410,7 @@ V.les=function(){
    ${(l.liens||'').split('\n').filter(u=>/^https:\/\//.test(u.trim())).map(u=>`<a href="${esc(u.trim())}" target="_blank" rel="noopener" style="margin-right:12px">${esc(u.trim().replace('https://','').slice(0,40))}…</a>`).join('')}
    <div class="two">${fld(k+'.retour','Retour du maître de stage',true)}${fld(k+'.bilan','Mon regard après la leçon',true)}</div>
    <label class="f">Compétences travaillées</label><div class="chips">${C.map(c=>`<button class="chip ${(l.comps||[]).includes(c[0])?'on':''}" style="--c:${famC(c[1])}" data-lc="${i}|${c[0]}">${c[0]}</button>`).join('')}</div>
-   <div class="row" style="margin-top:12px"><button class="btn alt sm" data-delles="${i}">Supprimer la leçon</button></div></details>`}).join(''):`<div class="empty">Pas encore de leçon${f?' en '+esc(f):''}.</div>`}`;
+   <div class="row" style="margin-top:12px">${l.lecId?`<a class="btn alt sm" style="text-decoration:none;display:inline-flex;align-items:center" href="/lecons/?lecon=${encodeURIComponent(l.lecId)}">🖍️ Projeter cette leçon</a>`:''}<button class="btn alt sm" data-delles="${i}">Supprimer la leçon</button></div></details>`}).join(''):`<div class="empty">Pas encore de leçon${f?' en '+esc(f):''}.</div>`}`;
 };
 V.cla=function(){
   if(!S.classes.length)return `<h2>Mes classes</h2><div class="empty">Aucune classe.</div><button class="btn" id="addcl" style="margin-top:10px">Ajouter une classe</button>`;
@@ -471,6 +471,62 @@ function keep(b,c){if(cur.filt==='todo')return !ev(b,c).moi;if(cur.filt==='obj')
 function prevB(b){return BIL[Math.max(0,BIL.findIndex(x=>x[0]===b)-1)][0]}
 function latestObj(){return [...BIL].reverse().find(b=>(S.objectifs[b[0]]||[]).length)?.[0]||'init'}
 function rr(){const y=window.scrollY;render();window.scrollTo(0,y)}
+
+/* ---------- Liens avec mes autres outils ---------- */
+// Suivi → Leçons : les leçons notées où j'ai travaillé cette compétence
+function lecTrav(code){
+  const L=S.lecons.filter(l=>(l.comps||[]).includes(code));
+  if(!L.length)return '';
+  return `<span style="flex-basis:100%;height:0"></span><span>Travaillée dans :</span>${L.map(l=>`<button class="chip" data-goles="${esc(l.id)}">${esc((l.titre||'Leçon').slice(0,28))}${l.classe?' · '+esc(l.classe):''}</button>`).join('')}`;
+}
+// Leçons → Suivi : « Noter ce cours » arrive ici avec ?noter=1&lecon=…&titre=…&classe=…&date=…&capture=…
+function noterCeCours(){
+  const q=new URLSearchParams(location.search);if(!q.get('noter'))return;
+  history.replaceState(null,'',location.pathname);
+  const lecId=q.get('lecon')||'',titre=q.get('titre')||'Leçon',classe=q.get('classe')||'',date=q.get('date')||'',cap=q.get('capture');
+  const jj=date?date.split('-').reverse().slice(0,2).join('/'):'';
+  // même leçon, même classe : je complète la fiche existante
+  let L=S.lecons.find(l=>l.lecId===lecId&&l.classe===classe);
+  if(!L){L={id:'l'+Date.now(),titre,classe,seq:q.get('matiere')||'',date:jj,per:'',statut:'Donnée',files:[],liens:'',retour:'',bilan:'',comps:[],lecId};S.lecons.unshift(L)}
+  else{L.date=jj||L.date;if(STAT.indexOf(L.statut)<2)L.statut='Donnée'}
+  if(!S.classes.some(c=>c.nom===classe)&&classe)L.classe=classe;
+  if(cap){L.files=L.files||[];L.files.push({id:cap,url:'/_fichier/'+cap,name:`Tableau ${jj||''} p.${q.get('page')||1}.jpg`.replace('  ',' '),size:0,kind:'Autre'})}
+  tab='les';cur.lesOpen=L.id;cur.lesF='';mark();
+  setTimeout(()=>{const d=document.querySelector(`details[data-les="${CSS.escape(L.id)}"]`);if(d){d.scrollIntoView({block:'start'});const t=d.querySelector('textarea[data-p$=".bilan"]');if(t)t.focus({preventScroll:true})}},300);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-goles]');if(!b)return;e.stopPropagation();cur.lesOpen=b.dataset.goles;cur.lesF='';tab='les';location.hash='les';render();setTimeout(()=>{const d=document.querySelector(`details[data-les="${CSS.escape(b.dataset.goles)}"]`);if(d)d.scrollIntoView({block:'start'})},50)},true);
+
+// Onglet « Mémoire DASPA » : les observations envoyées depuis l'appli DASPA (« utile pour le mémoire »)
+let MEM=[];
+async function chargerMem(){try{MEM=(await MesDonnees.collection('memoire').get()).map(d=>({...(d.data()||{}),id:d.id})).sort((a,b)=>(b.t||0)-(a.t||0))}catch(e){MEM=[]}}
+const memSauver=(m)=>{const o={...m};delete o.id;MesDonnees.doc('memoire/'+m.id).set(o).catch(()=>{})};
+V.mem=function(){
+  return `<h2>Mémoire DASPA</h2><p class="lead">Les observations d'élèves DASPA que j'ai marquées « utile pour le mémoire ». Elles restent sur cet appareil. L'export remplace les prénoms par É1, É2…</p>
+  <div class="row" style="margin-bottom:12px"><button class="btn" id="addmem">Ajouter une observation</button><button class="btn alt" id="exp-mem">Exporter pour le mémoire (anonyme)</button></div>
+  ${MEM.length?MEM.map(m=>`<div class="card"><div class="two"><div><label class="f">Élève (prénom)</label><input data-mem="${esc(m.id)}|prenom" value="${esc(m.prenom)}"></div><div><label class="f">Date</label><input type="date" data-mem="${esc(m.id)}|date" value="${esc(m.date)}"></div></div>
+   <label class="f">Ce que j'ai observé</label><textarea data-mem="${esc(m.id)}|texte">${esc(m.texte)}</textarea>
+   <label class="f">Ce que j'en tire pour le mémoire</label><textarea data-mem="${esc(m.id)}|analyse" placeholder="Lien avec ma question de recherche, piste, hypothèse…">${esc(m.analyse)}</textarea>
+   <div class="row" style="margin-top:10px;justify-content:space-between"><span class="note">${esc(m.source||'')}</span><button class="btn alt sm" data-delmem="${esc(m.id)}">Supprimer</button></div></div>`).join(''):'<div class="empty">Rien pour l\'instant. Dans l\'appli DASPA (suivi des élèves, mode prof), le bouton « Mémoire » à côté d\'une remarque l\'envoie ici.</div>'}`;
+};
+let memT={};
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.mem;if(!k)return;const[id,ch]=k.split('|');const m=MEM.find(x=>x.id===id);if(!m)return;m[ch]=e.target.value;clearTimeout(memT[id]);memT[id]=setTimeout(()=>memSauver(m),600)});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.id==='addmem'){const d=new Date();const m={id:'m'+Date.now(),t:Date.now(),date:d.toISOString().slice(0,10),prenom:'',texte:'',analyse:'',source:'Ajoutée dans le Suivi'};MEM.unshift(m);memSauver(m);rr();return}
+  if(t.dataset.delmem){const id=t.dataset.delmem;const m=MEM.find(x=>x.id===id);MEM=MEM.filter(x=>x.id!==id);MesDonnees.doc('memoire/'+id).delete().catch(()=>{});rr();
+    toast('Observation supprimée');undo={arr:{splice:(i,n,it)=>{MEM.push(it);memSauver(it);MEM.sort((a,b)=>(b.t||0)-(a.t||0))}},i:0,item:m};return}
+  if(t.id==='exp-mem'){dl('memoire-daspa-anonyme.html',memoireDoc(),t);return}
+});
+function memoireDoc(){
+  // Pseudonymes stables : É1, É2… dans l'ordre d'apparition ; les prénoms sont aussi remplacés dans les textes
+  const ps={};let n=0;[...MEM].reverse().forEach(m=>{const p=(m.prenom||'').trim();if(p&&!ps[p.toLowerCase()])ps[p.toLowerCase()]='É'+(++n)});
+  const noms=Object.keys(ps).sort((a,b)=>b.length-a.length);
+  const anon=t=>{let x=String(t||'');noms.forEach(p=>{x=x.replace(new RegExp('(^|[^\\p{L}])'+p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\p{L}])','giu'),(m0,a)=>a+ps[p])});return x};
+  const rows=[...MEM].sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(ps[(m.prenom||'').trim().toLowerCase()]||'–')}</td><td>${esc(anon(m.texte))}</td><td>${esc(anon(m.analyse))}</td></tr>`).join('');
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Observations DASPA – mémoire</title><style>body{font:14px/1.5 Arial,sans-serif;max-width:900px;margin:30px auto;padding:0 20px;color:#222}h1{color:#7b4fa0}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;vertical-align:top}th{background:#f3ecfa;text-align:left}</style></head><body>
+  <h1>Observations DASPA (anonymisées)</h1><p>${MEM.length} observation(s). Les prénoms sont remplacés par des codes (É1, É2…).</p>
+  <table><tr><th>Date</th><th>Élève</th><th>Observation</th><th>Pour le mémoire</th></tr>${rows||'<tr><td colspan="4">Aucune observation.</td></tr>'}</table></body></html>`;
+}
 function render(){
   document.getElementById('nav').innerHTML=TABS.map(t=>`<button data-tab="${t[0]}" class="${tab===t[0]?'on':''}">${t[1]}</button>`).join('');
   document.getElementById('main').innerHTML=(V[tab]||V.dash)();
@@ -622,6 +678,8 @@ AS={ // fichiers déposés : gardés sur l'appareil
       const snap=await REFS[k].get();
       if(snap.exists){const v=(snap.data()||{}).v;if(v!=null){LAST[k]=JSON.stringify(v);if(!dirty)S[k]=v}}
     }
+    await chargerMem();
+    noterCeCours();
     await chargerFichiers();
     render();
     if(dirty)save();else setPill();

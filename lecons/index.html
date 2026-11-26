@@ -6,32 +6,702 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mes outils">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f4f1f8">
 <title>Leçons – Mes outils</title>
-<!-- Même manifest partout : si j'ajoute n'importe quelle page à l'écran d'accueil, j'obtiens l'icône « Mes outils » -->
 <link rel="manifest" href="/accueil/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/commun/apple-touch-icon.png">
 <link rel="icon" href="/commun/icone-192.png">
 <link rel="stylesheet" href="/commun/lexend.css">
 <link rel="stylesheet" href="/commun/outils.css">
 <script src="/commun/outils.js"></script>
+<script src="/commun/db.js"></script>
+<style>
+/* VOICE: outil de classe, gros boutons, rien qui distrait du tableau
+   IDEA: la feuille de l'élève projetée, dont on révèle les réponses une à une
+   PICTURE: la feuille elle-même, plein cadre, avec ses cadres de réponse
+   COLOUR and TYPE: blanc et mauve comme le carnet de stage ; Lexend
+   LAYOUT: accueil en cartes par matière ; leçon = feuille + barre d'outils en bas */
+:root{--bg:var(--fond);--panel:var(--panneau);--ink:var(--encre);--muted:var(--gris);--line:var(--trait);--acc:#7b4fa0;--acc2:var(--mauve-clair);
+--ok:#3f8f5a;--danger:#c95b7a;--orange:#d9822b;--shadow:0 2px 10px rgba(40,20,60,.12);--shadow2:0 12px 40px rgba(40,20,60,.28)}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.5 'Lexend',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+[hidden]{display:none!important}
+.btn{min-height:50px;min-width:50px;padding:0 13px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--acc)}
+.btn.actif,.btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn.pri{font-weight:600}
+.btn:disabled{opacity:.4;cursor:default}
+.btn svg{width:23px;height:23px;flex:none}
+.btn:focus-visible,input:focus,select:focus,textarea:focus{outline:3px solid #c9a6e3;outline-offset:1px}
+input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+
+/* accueil */
+#accueil{max-width:1180px;margin:0 auto;padding:26px max(4vw,14px) 60px}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.top h1{font-size:clamp(26px,4vw,38px);line-height:1.05;margin:0;color:var(--accent)}
+.sous{color:var(--muted);margin:6px 0 22px}
+.outils{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.outils select{min-height:50px;font-weight:600}
+#etat{font-size:13px;color:var(--muted)}
+.matiere{margin-bottom:26px}
+.matiere h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.matiere h2::before{content:"";width:14px;height:14px;border-radius:4px;background:var(--c)}
+.cartes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.carte{padding:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);position:relative;cursor:pointer;transition:transform .15s;text-align:left}
+.carte:hover{transform:translateY(-3px)}
+.carte .vig{height:150px;border-bottom:4px solid var(--c);background:#fff center top/cover no-repeat}
+.carte .vig.tb{background-color:#fff;background-image:linear-gradient(#d9e2f1 1px,transparent 1px),linear-gradient(90deg,#d9e2f1 1px,transparent 1px);background-size:16px 16px;display:grid;place-items:center;font-size:44px}
+.carte .vig.add{background:var(--acc2);color:var(--acc);display:grid;place-items:center;font-size:76px;font-weight:300}
+.carte .inf{padding:12px 14px 14px}
+.carte b{display:block;font-size:17px;margin-bottom:2px}
+.carte .et{color:var(--muted);font-size:14px}.carte .et.on{color:var(--acc);font-weight:600}
+.carte .badge{position:absolute;top:10px;left:10px;background:var(--c);color:#fff;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px}
+.mini{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mini button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:5px 11px;font-size:13px;color:var(--muted)}
+.mini button:hover{color:var(--danger);border-color:var(--danger)}
+
+/* leçon */
+#lecon{display:none;height:100%;flex-direction:column;position:relative}
+body.en-lecon{overflow:hidden}body.en-lecon #accueil{display:none}body.en-lecon #lecon{display:flex}
+#scene{flex:1;overflow:auto;display:flex;align-items:flex-start;padding:14px;position:relative;background:var(--bg)}
+#feuille{position:relative;background:#fff;box-shadow:var(--shadow);flex:none;margin:0 auto;user-select:none;-webkit-user-select:none}
+#feuille>img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#img-c{opacity:0;transition:opacity .35s}#feuille.complet #img-c{opacity:1}#feuille.complet .zone{visibility:hidden}
+.zone{position:absolute;overflow:hidden;border-radius:4px;cursor:pointer;outline:2px dashed rgba(123,79,160,.6);background:rgba(123,79,160,.08)}
+.zone img{position:absolute;max-width:none;opacity:0;transition:opacity .4s;pointer-events:none}
+.zone.vue{outline:none;background:none}.zone.vue img{opacity:1}
+.zone.suiv{outline:3px solid var(--acc);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{background:rgba(123,79,160,.2)}}
+body.discret .zone:not(.vue){outline-color:transparent;background:none}
+body.edition .zone{outline:2px solid var(--danger);background:rgba(201,91,122,.14)}body.edition .zone img{opacity:.55}body.edition #feuille{cursor:crosshair}
+#trace{position:absolute;border:2px dashed var(--danger);background:rgba(201,91,122,.1);display:none}
+#dessin{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;touch-action:none}
+body.crayon #dessin{pointer-events:auto;cursor:crosshair}
+#capture{position:absolute;inset:0;display:none;touch-action:none;cursor:zoom-in}body.loupe #capture{display:block}body.loupe.zoome #capture{cursor:grab}
+#retour-zoom{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);border:none;border-radius:99px;padding:12px 22px;font-size:16px;box-shadow:var(--shadow2);display:none}
+body.zoome #retour-zoom{display:block}
+#rideau{position:absolute;left:-2px;right:-2px;bottom:-2px;z-index:5;display:none;touch-action:none;background:repeating-linear-gradient(45deg,#d9cfe6 0 14px,#cdc1de 14px 28px);border-top:4px solid #8d78a8;box-shadow:0 -6px 18px rgba(40,20,60,.18)}
+body.rideau #rideau{display:block}
+#rideau .poig{position:absolute;left:50%;top:10px;transform:translateX(-50%);cursor:ns-resize;background:#8d78a8;color:#fff;border-radius:12px;padding:10px 24px;font-size:15px;font-weight:600;white-space:nowrap}
+#feuille.carreaux{background-image:linear-gradient(#c9bfe0 1.5px,transparent 1.5px),linear-gradient(90deg,#c9bfe0 1.5px,transparent 1.5px);background-size:var(--pas) var(--pas)}
+#feuille.lignes{background-image:linear-gradient(transparent calc(var(--pas)*1.5 - 2px),#b6a6d4 2px);background-size:100% calc(var(--pas)*1.5)}
+#bandeau-ed{display:none;background:#fff1e3;color:#8a4b00;text-align:center;padding:8px;font-size:15px}body.edition #bandeau-ed{display:block}
+
+#barre{background:var(--panel);border-top:1px solid var(--line);padding:8px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;position:relative}
+.grp{display:flex;align-items:center;gap:6px;padding:0 6px;border-right:1px solid var(--line)}.grp:last-child{border-right:none}
+#num{font-size:17px;font-weight:600;min-width:70px;text-align:center}
+#titre-l{font-weight:600;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chip-cl{background:var(--acc);color:#fff;font-weight:600;border-radius:10px;padding:6px 12px;font-size:15px;white-space:nowrap}
+#compteur{color:var(--muted);font-size:14px;min-width:46px;text-align:center}
+.coul{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px var(--line);background:var(--c);padding:0}
+.coul.actif{box-shadow:0 0 0 3px var(--ink)}
+#couleurs{display:none;gap:6px;align-items:center}body.crayon #couleurs{display:flex}
+body.document .rep,body.document #m-cadres,body.document #m-ed{display:none}
+.tbo{display:none!important}body.tableau .tbo{display:flex!important}
+body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-ed{display:none}
+#menu{position:absolute;bottom:calc(100% + 8px);right:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow2);padding:8px;display:none;flex-direction:column;gap:6px;z-index:40;min-width:230px}
+#menu.ouvert{display:flex}#menu .btn{justify-content:flex-start}
+@media(max-width:1300px){.lib{display:none}#titre-l{display:none}}
+@media(max-width:900px){.btn{min-width:44px;min-height:46px;padding:0 8px}#b-tout,#b-rien,#compteur,#chip-cl{display:none}.grp{border-right:none;padding:0}#barre{gap:4px;padding:6px}}
+
+/* fenêtres */
+.voile{position:fixed;inset:0;background:rgba(20,12,30,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.voile.ouvert{display:flex}
+.fen{background:var(--panel);border-radius:20px;box-shadow:var(--shadow2);width:min(720px,100%);padding:24px;position:relative;max-height:92vh;overflow:auto}
+.fen h3{margin:0 0 14px;font-size:21px}
+.fermer{position:absolute;top:12px;right:12px}
+.form{display:flex;flex-direction:column;gap:14px}
+.form label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:15px}
+.aide{color:var(--muted);font-size:14px;margin:0}
+.ligne{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+#nom-tire{font-size:clamp(46px,9vw,104px);font-weight:700;text-align:center;min-height:1.3em;margin:8px 0 16px;color:var(--acc)}
+#nom-tire.roule{color:var(--muted)}#nom-tire.fini{animation:pop .5s}@keyframes pop{40%{transform:scale(1.12)}}
+#liste-el{width:100%;min-height:240px;font-size:17px}
+.case{display:inline-flex;align-items:center;gap:8px}.case input{width:22px;height:22px;accent-color:var(--acc)}
+#dlg-msg{font-size:17px;margin:0 0 16px}#dlg-in{width:100%;margin-bottom:16px}
+
+/* minuteur */
+#minuteur{position:fixed;top:16px;right:16px;z-index:45;background:var(--panel);border-radius:18px;box-shadow:var(--shadow2);padding:12px 16px 16px;width:300px;display:none;border:1px solid var(--line)}
+#minuteur.ouvert{display:block}
+#minuteur .haut{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+#minuteur .haut button{border:none;background:none;font-size:22px;padding:4px 8px;color:var(--muted)}
+#temps{font-size:62px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;line-height:1.1}
+#minuteur.bientot #temps{color:var(--orange)}#minuteur.fini{animation:clig .5s 8}#minuteur.fini #temps{color:var(--danger)}
+@keyframes clig{50%{background:#fde2e8}}
+#jauge{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:8px 0 12px}
+#jauge div{height:100%;width:100%;background:var(--ok);transition:width .3s linear}
+#minuteur.bientot #jauge div{background:var(--orange)}
+.choix{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.choix .btn,#minuteur .ligne .btn{min-height:42px;font-size:14px;padding:0 6px}
+#minuteur .ligne{flex-wrap:nowrap}#minuteur .ligne .btn{flex:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
 </head>
 <body>
-<main class="page">
-  <div class="entete">
+<section id="accueil">
+  <div class="top">
     <h1>Leçons au tableau</h1>
-    <button class="sw" data-interrupteur></button>
+    <div class="outils">
+      <select id="sel-cl" aria-label="Classe"></select>
+      <button class="btn" id="b-cl-plus">+ Classe</button>
+      <button class="btn" id="b-cl-nom">Renommer</button>
+      <button class="sw" data-interrupteur></button>
+    </div>
   </div>
-  <p class="sous">Projeter une leçon, annoter, révéler les réponses.</p>
-  <div class="carte">
-    <h2>Arrive à l'étape 2</h2>
-    <p class="note">En attendant, j'utilise encore mon outil actuel.</p>
-    <p style="margin:16px 0 0"><a class="bouton" href="https://claude.ai/artifact/DUu7mbYeNWJPeTYK5oejj4" target="_blank" rel="noopener">Ouvrir mon outil actuel</a></p>
+  <p class="sous">Je choisis une leçon. Un clic sur un cadre fait apparaître la réponse. <span id="etat">Chargement…</span></p>
+  <div id="liste"></div>
+</section>
+
+<section id="lecon">
+  <div id="bandeau-ed">Mode édition : je glisse sur la page pour ajouter un cadre, je touche un cadre pour le supprimer.</div>
+  <div id="scene">
+    <div id="feuille">
+      <img id="img-l" alt=""><img id="img-c" alt="">
+      <div id="zones"></div><div id="trace"></div>
+      <canvas id="dessin"></canvas>
+      <div id="rideau"><div class="poig">⇕ Glisse le rideau</div></div>
+      <div id="capture"></div>
+    </div>
   </div>
-</main>
-<style>
-  .bouton { display: inline-flex; align-items: center; min-height: 52px; padding: 0 20px; border-radius: 14px; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; }
-</style>
+  <button id="retour-zoom">Revenir à la page entière</button>
+  <nav id="barre">
+    <div class="grp">
+      <button class="btn" id="b-acc" title="Retour aux leçons (Échap)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
+      <span id="chip-cl"></span><span id="titre-l"></span>
+    </div>
+    <div class="grp">
+      <button class="btn" id="b-prec" title="Page précédente (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span id="num"></span>
+      <button class="btn" id="b-suiv" title="Page suivante (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="grp rep">
+      <button class="btn pri" id="b-une" title="Réponse suivante (Espace)">Réponse suivante</button>
+      <span id="compteur"></span>
+      <button class="btn" id="b-tout">Tout montrer</button>
+      <button class="btn" id="b-rien">Tout cacher</button>
+      <button class="btn" id="b-complet" title="Toute la page corrigée">Corrigé</button>
+    </div>
+    <div class="grp">
+      <button class="btn" id="b-crayon" title="Écrire sur la page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg><span class="lib">Crayon</span></button>
+      <div id="couleurs">
+        <button class="coul actif" style="--c:#dc2626" data-c="#dc2626" title="Rouge"></button>
+        <button class="coul" style="--c:#2563eb" data-c="#2563eb" title="Bleu"></button>
+        <button class="coul" style="--c:#16a34a" data-c="#16a34a" title="Vert"></button>
+        <button class="coul" style="--c:rgba(250,204,21,.45)" data-c="rgba(250,204,21,.45)" data-epais="1" title="Surligneur"></button>
+        <button class="btn" id="b-annul" title="Effacer le dernier trait">↶</button>
+        <button class="btn" id="b-gomme" title="Effacer tous les traits de la page">Effacer</button>
+      </div>
+      <button class="btn" id="b-loupe" title="Loupe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6"/></svg><span class="lib">Loupe</span></button>
+      <button class="btn" id="b-rideau" title="Cacher le bas de la page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 11h18"/><path d="M3 15h18M3 19h18" opacity=".5"/></svg><span class="lib">Rideau</span></button>
+    </div>
+    <div class="grp">
+      <button class="btn" id="b-tirage" title="Tirer un élève au sort"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="lib">Élève</span></button>
+      <button class="btn" id="b-minu" title="Minuteur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg><span class="lib">Minuteur</span></button>
+    </div>
+    <div class="grp tbo">
+      <button class="btn" id="b-fond">Fond</button>
+      <button class="btn" id="b-page">+ Page</button>
+    </div>
+    <div class="grp">
+      <button class="btn" id="b-menu" title="Réglages"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+      <button class="btn" id="b-plein" title="Plein écran"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+    <div id="menu">
+      <button class="btn" id="m-zoom">Largeur de l'écran</button>
+      <button class="btn" id="m-cadres">Cadres pointillés : visibles</button>
+      <button class="btn" id="m-ed">Éditer les cadres</button>
+      <button class="btn" id="m-auto">Remettre les cadres automatiques</button>
+    </div>
+  </nav>
+</section>
+
+<div class="voile" id="v-imp"><div class="fen">
+  <button class="btn fermer" data-ferme="v-imp" title="Fermer">✕</button>
+  <h3>Ajouter une leçon</h3>
+  <div class="form">
+    <label>Titre<input id="imp-titre" placeholder="Ex. : Les moines au Moyen Âge"></label>
+    <label>Matière<input id="imp-mat" list="mats" placeholder="Ex. : Histoire"><datalist id="mats"></datalist></label>
+    <label>Type<select id="imp-type"><option value="lecon">Leçon avec corrigé (les réponses apparaissent au clic)</option><option value="document">Document seul (dossier, carte…)</option></select></label>
+    <label>PDF de la leçon (feuille élève)<input id="imp-l" type="file" accept="application/pdf,.pdf"></label>
+    <label id="lg-c">PDF du corrigé<input id="imp-c" type="file" accept="application/pdf,.pdf"></label>
+    <p class="aide">Le corrigé doit être <b>la même feuille</b> que la leçon (mêmes pages, même mise en page) avec les réponses en plus. La page compare les deux et crée un cadre pour chaque réponse. Les cadres se corrigent ensuite à la main.</p>
+    <div class="ligne"><button class="btn pri" id="b-imp-ok">Ajouter</button><span id="imp-etat"></span></div>
+  </div>
+</div></div>
+
+<div class="voile" id="v-tir"><div class="fen">
+  <button class="btn fermer" data-ferme="v-tir" title="Fermer (Échap)">✕</button>
+  <div id="tir-jeu">
+    <h3>Qui répond ?</h3>
+    <div id="nom-tire">?</div>
+    <div class="ligne">
+      <button class="btn pri" id="b-tirer" style="font-size:19px;padding:0 28px">Tirer au sort</button>
+      <label class="case"><input type="checkbox" id="sans-rep" checked> Chacun son tour</label>
+      <button class="btn" id="b-liste">Modifier la liste</button>
+    </div>
+    <p class="aide" id="info-tir" style="text-align:center;margin-top:12px"></p>
+  </div>
+  <div id="tir-liste" hidden>
+    <h3>Liste des élèves (un prénom par ligne)</h3>
+    <textarea id="liste-el"></textarea>
+    <div class="ligne" style="margin-top:12px"><button class="btn pri" id="b-liste-ok">Enregistrer</button></div>
+  </div>
+</div></div>
+
+<div class="voile" id="v-dlg"><div class="fen" style="width:min(460px,100%)">
+  <p id="dlg-msg"></p><input id="dlg-in" hidden>
+  <div class="ligne"><button class="btn" id="dlg-non">Annuler</button><button class="btn pri" id="dlg-oui">OK</button></div>
+</div></div>
+
+<div id="minuteur">
+  <div class="haut"><span>Minuteur</span><button id="b-min-x" title="Fermer">✕</button></div>
+  <div id="temps">05:00</div><div id="jauge"><div></div></div>
+  <div class="choix"><button class="btn" data-min="1">1 min</button><button class="btn" data-min="2">2 min</button><button class="btn" data-min="3">3 min</button><button class="btn" data-min="5">5 min</button><button class="btn" data-min="10">10 min</button><button class="btn" data-min="15">15 min</button></div>
+  <div class="ligne"><button class="btn" id="b-moins">− 30 s</button><button class="btn pri" id="b-go">Démarrer</button><button class="btn" id="b-plus">+ 30 s</button></div>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const corps=document.body;
+const PDFJS="/lecons/pdfjs/"; // lecteur PDF gardé dans l'appli (marche sans wifi)
+const COUL={"Outils":"#6f6280","Histoire":"#c2410c","Géographie":"#0e9f6e","FHG":"#b4572e","FHGES":"#b4572e","Sciences éco":"#7c3aed","FES":"#7c3aed","Sciences économiques":"#7c3aed","Sciences sociales":"#be185d"};
+const PAL=["#0e9f6e","#c2410c","#7c3aed","#0369a1","#be185d","#a16207","#15803d","#4338ca"];
+const couleurMat=m=>{if(COUL[m])return COUL[m];let h=0;for(const c of m)h=(h*31+c.charCodeAt(0))>>>0;return PAL[h%PAL.length]};
+const loc={lire(k,d){try{const v=localStorage.getItem('lat-'+k);return v?JSON.parse(v):d}catch(e){return d}},ecrire(k,v){try{localStorage.setItem('lat-'+k,JSON.stringify(v))}catch(e){}}};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const etat=t=>{$("#etat").textContent=t};
+
+/* ---------- données ---------- */
+let DB=null,AS=null,local=false;
+let LECONS=[];                                 // {id,titre,matiere,type,ordre,pages:[{ratio,zones,auto,l,c}]}
+let CLASSES=[{id:"c1",nom:"1D",eleves:[],deja:[]},{id:"c2",nom:"1E",eleves:[],deja:[]},{id:"c3",nom:"DASPA",eleves:[],deja:[]}];
+let PROG={};                                   // progression de la classe active
+let TR={},trKey=null;                          // traits de la leçon ouverte {page:[...]}
+let CL=loc.lire("classe","c1");
+const cls=()=>CLASSES.find(c=>c.id===CL)||CLASSES[0];
+const OBJ_URL={};                              // id -> url locale (mode sans serveur)
+const urlDe=id=>id?(OBJ_URL[id]||""):""; // images préchargées depuis l'appareil
+
+/* écritures : une à la fois par document, regroupées */
+const files={},enCours={};
+function ecrire(path,data,delai=500){
+  files[path]=data;clearTimeout(files["t:"+path]);
+  files["t:"+path]=setTimeout(()=>vider(path),delai);
+}
+async function vider(path){
+  if(!DB||enCours[path]||!(path in files))return;
+  const data=files[path];delete files[path];enCours[path]=true;
+  try{await DB.doc(path).set(data);etat("Enregistré")}catch(e){etat(MesDonnees.estPlein(e)?"Plus de place sur l'appareil : je supprime une leçon.":"Échec de l'enregistrement");}
+  enCours[path]=false;if(path in files)vider(path);
+}
+// Si je quitte l'appli, j'écris tout de suite ce qui attendait encore
+addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")Object.keys(files).filter(k=>!k.startsWith("t:")).forEach(vider)});
+const sauverClasses=()=>{if(DB)ecrire("meta/classes",{list:clone(CLASSES)});else loc.ecrire("classes",CLASSES)};
+const sauverLecon=l=>{const o=clone(l);delete o.id;if(DB)ecrire("lecons/"+l.id,o,300)};
+const sauverProg=()=>{if(DB)ecrire("prog/"+CL,{p:clone(PROG)},700);else loc.ecrire("prog-"+CL,PROG)};
+const sauverTraits=()=>{if(DB&&trKey)ecrire("traits/"+trKey,{p:clone(TR)},800)};
+
+/* ---------- boîte de dialogue (remplace confirm / prompt) ---------- */
+function demander(msg,{saisie=null,ok="OK"}={}){
+  return new Promise(res=>{
+    $("#dlg-msg").textContent=msg;const inp=$("#dlg-in");inp.hidden=saisie===null;inp.value=saisie||"";
+    $("#dlg-oui").textContent=ok;$("#v-dlg").classList.add("ouvert");(saisie!==null?inp:$("#dlg-oui")).focus();
+    const fin=v=>{$("#v-dlg").classList.remove("ouvert");$("#dlg-oui").onclick=$("#dlg-non").onclick=inp.onkeydown=null;res(v)};
+    $("#dlg-oui").onclick=()=>fin(saisie!==null?inp.value.trim():true);$("#dlg-non").onclick=()=>fin(null);
+    inp.onkeydown=e=>{if(e.key==="Enter")$("#dlg-oui").click()};
+  });
+}
+
+/* ---------- tableau blanc ---------- */
+const FONDS=[["blanc","Fond : blanc"],["carreaux","Fond : carreaux"],["lignes","Fond : lignes"]];
+const tableau=()=>{const n=(PROG.tableau||{}).n||1;return {id:"tableau",matiere:"Outils",titre:"Tableau blanc",type:"tableau",pages:Array.from({length:n},()=>({ratio:.62,zones:[]}))}};
+const trouver=id=>id==="tableau"?tableau():LECONS.find(l=>l.id===id);
+function appliquerFond(){
+  const f=(PROG.tableau||{}).fond||"carreaux",tb=lecon&&lecon.type==="tableau";
+  $("#feuille").classList.toggle("carreaux",tb&&f==="carreaux");$("#feuille").classList.toggle("lignes",tb&&f==="lignes");
+  $("#b-fond").textContent=(FONDS.find(x=>x[0]===f)||FONDS[0])[1];
+}
+
+let lecon=null,nPage=0,modeLarg=loc.lire("largeur",false),zoom=1,vues=new Set(),mode="";
+
+/* ---------- accueil ---------- */
+function classesUI(){
+  const s=$("#sel-cl");s.innerHTML="";CLASSES.forEach(c=>{const o=document.createElement("option");o.value=c.id;o.textContent=c.nom;s.appendChild(o)});s.value=cls().id;
+  $("#chip-cl").textContent=cls().nom;
+}
+function accueil(){
+  classesUI();
+  const par={"Outils":[tableau()]};
+  [...LECONS].sort((a,b)=>(a.ordre||0)-(b.ordre||0)).forEach(l=>(par[l.matiere]||=[]).push(l));
+  const liste=$("#liste");liste.innerHTML="";
+  for(const [m,ls] of Object.entries(par)){
+    const sec=document.createElement("div");sec.className="matiere";sec.style.setProperty("--c",couleurMat(m));
+    sec.innerHTML=`<h2></h2><div class="cartes"></div>`;sec.querySelector("h2").textContent=m;
+    const box=sec.querySelector(".cartes");
+    if(m==="Outils"){
+      const a=document.createElement("div");a.className="carte";a.tabIndex=0;a.setAttribute("role","button");
+      a.innerHTML=`<div class="vig add">+</div><div class="inf"><b>Ajouter une leçon</b><span class="et">PDF de la leçon + PDF du corrigé</span></div>`;
+      a.onclick=()=>importer.ouvrir();a.onkeydown=e=>{if(e.key==="Enter")importer.ouvrir()};box.appendChild(a);
+    }
+    for(const l of ls){
+      const b=document.createElement("div");b.className="carte";b.tabIndex=0;b.setAttribute("role","button");
+      const doc=l.type!=="lecon",n=l.pages.reduce((s,p)=>s+(p.zones||[]).length,0);
+      const pages=`${l.pages.length} page${l.pages.length>1?"s":""}`,pr=PROG[l.id];
+      const montrees=pr?Object.values(pr.vues||{}).reduce((s,v)=>s+v.length,0):0;
+      const commence=pr&&(pr.page>0||montrees>0);
+      let et=doc?pages:`${pages} · ${n} réponses`;
+      if(commence)et=`Arrêté page ${pr.page+1}/${l.pages.length}`+(doc?"":` · ${montrees}/${n} montrées`);
+      b.innerHTML=`<div class="vig ${l.type==="tableau"?"tb":""}">${l.type==="tableau"?"✏️":""}</div><span class="badge"></span><div class="inf"><b></b><span class="et ${commence?"on":""}"></span><div class="mini"></div></div>`;
+      if(l.type!=="tableau"&&l.pages[0])b.querySelector(".vig").style.backgroundImage=`url("${urlDe(l.pages[0].l)}")`;
+      b.querySelector(".badge").textContent={tableau:"Outil",document:"Document"}[l.type]||"Leçon";
+      b.querySelector("b").textContent=l.titre;b.querySelector(".et").textContent=et;
+      const mini=b.querySelector(".mini");
+      if(commence){const r=document.createElement("button");r.textContent="↺ Recommencer";r.title="Effacer la progression et les traits pour cette classe";
+        r.onclick=async e=>{e.stopPropagation();if(await demander(`Recommencer « ${l.titre} » à zéro pour ${cls().nom} ? Les réponses montrées et les traits seront effacés.`,{ok:"Recommencer"})){recommencer(l)}};mini.appendChild(r)}
+      if(l.type!=="tableau"){const s=document.createElement("button");s.textContent="🗑 Supprimer";s.onclick=e=>{e.stopPropagation();importer.supprimer(l)};mini.appendChild(s)}
+      const go=()=>ouvrir(l.id,pr?pr.page:0);b.onclick=go;b.onkeydown=e=>{if(e.key==="Enter")go()};
+      box.appendChild(b);
+    }
+    liste.appendChild(sec);
+  }
+}
+function recommencer(l){
+  delete PROG[l.id];if(l.id==="tableau")PROG.tableau={fond:(PROG.tableau||{}).fond};sauverProg();
+  if(DB)DB.doc("traits/"+CL+"__"+l.id).delete().catch(()=>{});
+  accueil();
+}
+
+/* ---------- modes ---------- */
+function changerMode(m){
+  mode=mode===m?"":m;
+  ["crayon","loupe","edition"].forEach(x=>corps.classList.toggle(x,mode===x));
+  $("#b-crayon").classList.toggle("actif",mode==="crayon");$("#b-loupe").classList.toggle("actif",mode==="loupe");$("#m-ed").classList.toggle("actif",mode==="edition");
+  if(mode!=="loupe"&&zoom!==1)zoomer(1);
+}
+
+/* ---------- leçon ---------- */
+async function ouvrir(id,page){
+  lecon=trouver(id);if(!lecon)return fermer();
+  corps.classList.add("en-lecon");document.documentElement.setAttribute("data-projection",""); // la barre du bas disparaîtcorps.classList.toggle("document",lecon.type==="document");corps.classList.toggle("tableau",lecon.type==="tableau");
+  $("#titre-l").textContent=lecon.titre;$("#chip-cl").textContent=cls().nom;
+  appliquerFond();
+  trKey=CL+"__"+id;TR={};
+  if(DB){try{const s=await DB.doc("traits/"+trKey).get();if(s.exists)TR=clone((s.data()||{}).p||{})}catch(e){}}else TR=loc.lire("tr-"+trKey,{});
+  if(lecon.type==="tableau"&&mode!=="crayon")changerMode("crayon");
+  allerPage(Math.min(Math.max(page||0,0),lecon.pages.length-1));
+  location.hash=id;
+}
+function fermer(){
+  lecon=null;if(mode)changerMode(mode);
+  corps.classList.remove("en-lecon","rideau","tableau","document");document.documentElement.removeAttribute("data-projection");$("#b-rideau").classList.remove("actif");
+  appliquerFond();if(location.hash)history.replaceState(null,"",location.pathname);accueil();
+}
+let traits=[];
+function allerPage(i){
+  nPage=i;const pr=PROG[lecon.id]||{};vues=new Set((pr.vues||{})[i]||[]);
+  zoom=1;corps.classList.remove("zoome");
+  const p=lecon.pages[i];
+  $("#img-l").hidden=$("#img-c").hidden=!p.l;
+  if(p.l){$("#img-l").src=urlDe(p.l);$("#img-c").src=urlDe(p.c||p.l)}
+  $("#feuille").classList.remove("complet");$("#b-complet").classList.remove("actif");$("#b-complet").disabled=!p.c;
+  $("#num").textContent=`${i+1} / ${lecon.pages.length}`;$("#b-prec").disabled=i===0;$("#b-suiv").disabled=i===lecon.pages.length-1;
+  traits=TR[i]||[];rideauY=.12;placerRideau();
+  dimensionner();dessinerZones();$("#scene").scrollTop=0;$("#scene").scrollLeft=0;
+}
+function enregistrerProg(){
+  if(!lecon)return;const p=PROG[lecon.id]=PROG[lecon.id]||{vues:{}};p.vues=p.vues||{};p.page=nPage;
+  if(vues.size)p.vues[nPage]=[...vues];else delete p.vues[nPage];sauverProg();
+}
+const zonesDe=()=>lecon.pages[nPage].zones||[];
+function dessinerZones(){
+  const p=lecon.pages[nPage],boite=$("#zones");boite.innerHTML="";
+  zonesDe().forEach(([x,y,w,h],k)=>{
+    const d=document.createElement("div");d.className="zone"+(vues.has(k)?" vue":"");
+    Object.assign(d.style,{left:x*100+"%",top:y*100+"%",width:w*100+"%",height:h*100+"%"});
+    if(p.c){const im=document.createElement("img");im.src=urlDe(p.c);im.alt="";Object.assign(im.style,{width:100/w+"%",left:-x/w*100+"%",top:-y/h*100+"%"});d.appendChild(im)}
+    d.addEventListener("pointerdown",e=>{
+      if(mode==="crayon"||mode==="loupe")return;e.stopPropagation();
+      if(mode==="edition"){const z=zonesDe().slice();z.splice(k,1);majZonesLecon(z);return}
+      vues.has(k)?vues.delete(k):vues.add(k);majZones();
+    });
+    boite.appendChild(d);
+  });
+  majZones();
+}
+function majZonesLecon(z){
+  z.sort((a,b)=>(Math.round(a[1]*40)-Math.round(b[1]*40))||a[0]-b[0]);
+  const p=lecon.pages[nPage];if(!p.auto)p.auto=clone(p.zones||[]);p.zones=z;
+  const L=LECONS.find(x=>x.id===lecon.id);if(L)sauverLecon(L);
+  vues=new Set();dessinerZones();
+}
+function majZones(){
+  const zs=[...document.querySelectorAll(".zone")];
+  vues.forEach(k=>{if(k>=zs.length)vues.delete(k)});
+  const pro=zs.findIndex((_,k)=>!vues.has(k));
+  zs.forEach((d,k)=>{d.classList.toggle("vue",vues.has(k));d.classList.toggle("suiv",k===pro&&vues.size>0)});
+  $("#compteur").textContent=zs.length?`${vues.size}/${zs.length}`:"—";$("#b-une").disabled=pro<0;
+  enregistrerProg();
+}
+function reponseSuivante(){
+  if(!lecon||lecon.type!=="lecon")return;const z=zonesDe();
+  for(let k=0;k<z.length;k++)if(!vues.has(k)){vues.add(k);if(corps.classList.contains("rideau")&&z[k][1]+z[k][3]>rideauY){rideauY=Math.min(1,z[k][1]+z[k][3]+.01);placerRideau()}break}
+  majZones();
+}
+
+/* ---------- taille, loupe ---------- */
+function dimensionner(){
+  if(!lecon)return;const sc=$("#scene"),L=sc.clientWidth-28,H=sc.clientHeight-28;
+  const r=lecon.type==="tableau"?Math.max(.4,H/L):lecon.pages[nPage].ratio;
+  const w=(modeLarg?L:Math.min(L,H/r))*zoom,f=$("#feuille");
+  f.style.width=w+"px";f.style.height=w*r+"px";f.style.setProperty("--pas",w/26+"px");
+  const c=$("#dessin"),e=Math.min(devicePixelRatio,2);c.width=Math.round(w*e);c.height=Math.round(w*r*e);redessiner();
+}
+const roS=new ResizeObserver(()=>dimensionner());roS.observe($("#scene"));
+function zoomer(z,fx=.5,fy=.5){
+  const sc=$("#scene");zoom=z;corps.classList.toggle("zoome",z>1);dimensionner();
+  const f=$("#feuille");sc.scrollLeft=f.offsetLeft+fx*f.offsetWidth-sc.clientWidth/2;sc.scrollTop=f.offsetTop+fy*f.offsetHeight-sc.clientHeight/2;
+}
+const pos=(e,el)=>{const r=el.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+{
+  const cap=$("#capture"),sc=$("#scene");let dep=null;
+  cap.addEventListener("pointerdown",e=>{cap.setPointerCapture(e.pointerId);dep={x:e.clientX,y:e.clientY,sl:sc.scrollLeft,st:sc.scrollTop,bouge:false}});
+  cap.addEventListener("pointermove",e=>{if(!dep)return;const dx=e.clientX-dep.x,dy=e.clientY-dep.y;if(Math.abs(dx)+Math.abs(dy)>8)dep.bouge=true;if(dep.bouge&&zoom>1){sc.scrollLeft=dep.sl-dx;sc.scrollTop=dep.st-dy}});
+  cap.addEventListener("pointerup",e=>{if(dep&&!dep.bouge){const[fx,fy]=pos(e,$("#feuille"));zoomer(zoom>=3?1:zoom+1,fx,fy)}dep=null});
+  $("#retour-zoom").onclick=()=>zoomer(1);
+}
+
+/* ---------- rideau ---------- */
+let rideauY=.12;
+const placerRideau=()=>{$("#rideau").style.top=rideauY*100+"%"};
+{const rid=$("#rideau");let g=false;
+ rid.addEventListener("pointerdown",e=>{g=true;rid.setPointerCapture(e.pointerId);e.stopPropagation()});
+ rid.addEventListener("pointermove",e=>{if(!g)return;rideauY=Math.min(1,Math.max(0,pos(e,$("#feuille"))[1]));placerRideau()});
+ rid.addEventListener("pointerup",()=>g=false);rid.addEventListener("pointercancel",()=>g=false);}
+
+/* ---------- crayon ---------- */
+let couleur="#dc2626",epais=false,enTrait=null;
+function garderTraits(){if(traits.length)TR[nPage]=traits;else delete TR[nPage];if(DB)sauverTraits();else loc.ecrire("tr-"+trKey,TR)}
+function redessiner(){const c=$("#dessin"),x=c.getContext("2d");x.clearRect(0,0,c.width,c.height);for(const t of traits)tracer(x,t,c)}
+function tracer(x,t,c){x.strokeStyle=t.c;x.lineCap=x.lineJoin="round";x.lineWidth=(t.e?.022:.004)*c.width;x.beginPath();
+  t.p.forEach(([a,b],i)=>i?x.lineTo(a*c.width,b*c.height):x.moveTo(a*c.width,b*c.height));if(t.p.length===1)x.lineTo(t.p[0][0]*c.width+.5,t.p[0][1]*c.height);x.stroke()}
+const arr=([a,b])=>[Math.round(a*1e4)/1e4,Math.round(b*1e4)/1e4];
+const toile=$("#dessin");
+toile.addEventListener("pointerdown",e=>{toile.setPointerCapture(e.pointerId);enTrait={c:couleur,e:epais,p:[arr(pos(e,toile))]};traits.push(enTrait);redessiner()});
+toile.addEventListener("pointermove",e=>{if(!enTrait)return;enTrait.p.push(arr(pos(e,toile)));redessiner()});
+const finTrait=()=>{if(enTrait){enTrait=null;garderTraits()}};
+toile.addEventListener("pointerup",finTrait);toile.addEventListener("pointercancel",finTrait);
+
+/* ---------- édition des cadres ---------- */
+let debut=null;const feuille=$("#feuille"),trace=$("#trace");
+feuille.addEventListener("pointerdown",e=>{if(mode!=="edition")return;feuille.setPointerCapture(e.pointerId);debut=pos(e,feuille)});
+feuille.addEventListener("pointermove",e=>{if(!debut)return;const[x,y]=pos(e,feuille);Object.assign(trace.style,{display:"block",left:Math.min(x,debut[0])*100+"%",top:Math.min(y,debut[1])*100+"%",width:Math.abs(x-debut[0])*100+"%",height:Math.abs(y-debut[1])*100+"%"})});
+feuille.addEventListener("pointerup",e=>{
+  if(!debut)return;const[x,y]=pos(e,feuille),cl=v=>Math.min(1,Math.max(0,v));
+  const x1=cl(Math.min(x,debut[0])),y1=cl(Math.min(y,debut[1])),w=cl(Math.max(x,debut[0]))-x1,h=cl(Math.max(y,debut[1]))-y1;
+  debut=null;trace.style.display="none";
+  if(w>.01&&h>.006){const r=v=>Math.round(v*1e4)/1e4;majZonesLecon([...zonesDe(),[r(x1),r(y1),r(w),r(h)]])}
+});
+
+/* ---------- tirage au sort ---------- */
+const tirage={
+  ouvrir(){$("#v-tir").classList.add("ouvert");this.vue(!cls().eleves.length);this.info()},
+  vue(l){$("#tir-jeu").hidden=l;$("#tir-liste").hidden=!l;if(l){$("#liste-el").value=cls().eleves.join("\n");$("#liste-el").focus()}},
+  info(){const c=cls(),n=c.eleves.length,d=(c.deja||[]).filter(x=>c.eleves.includes(x)).length;
+    $("#info-tir").textContent=n?($("#sans-rep").checked?`${n-d} élève${n-d>1?"s":""} pas encore interrogé${n-d>1?"s":""} sur ${n} · ${c.nom}`:`${n} élèves · ${c.nom}`):""},
+  tirer(){
+    const c=cls(),tous=c.eleves;if(!tous.length)return this.vue(true);
+    let deja=(c.deja||[]).filter(n=>tous.includes(n)),pool=$("#sans-rep").checked?tous.filter(n=>!deja.includes(n)):tous;
+    if(!pool.length){deja=[];pool=tous}
+    const choisi=pool[Math.floor(Math.random()*pool.length)],el=$("#nom-tire");el.className="roule";$("#b-tirer").disabled=true;
+    let k=0,delai=50;const tour=()=>{if(k++<14){el.textContent=tous[Math.floor(Math.random()*tous.length)];delai*=1.12;setTimeout(tour,delai)}
+      else{el.textContent=choisi;el.className="fini";deja.push(choisi);c.deja=deja;sauverClasses();$("#b-tirer").disabled=false;this.info()}};
+    tour();
+  }
+};
+$("#b-tirage").onclick=()=>tirage.ouvrir();$("#b-tirer").onclick=()=>tirage.tirer();$("#b-liste").onclick=()=>tirage.vue(true);$("#sans-rep").onchange=()=>tirage.info();
+$("#b-liste-ok").onclick=()=>{const c=cls();c.eleves=[...new Set($("#liste-el").value.split("\n").map(s=>s.trim()).filter(Boolean))];c.deja=[];sauverClasses();$("#nom-tire").textContent="?";$("#nom-tire").className="";tirage.vue(false);tirage.info()};
+
+/* ---------- minuteur ---------- */
+const minu={total:300,reste:300,fin:0,id:0,
+  ouvrir(){$("#minuteur").classList.toggle("ouvert");$("#b-minu").classList.toggle("actif",$("#minuteur").classList.contains("ouvert"))},
+  regler(s){this.stop();this.total=this.reste=Math.max(10,s);this.affiche()},
+  ajouter(s){if(this.id){this.fin+=s*1000;this.total=Math.max(this.total+s,10)}else{this.total=this.reste=Math.max(10,this.reste+s)}this.tic()},
+  go(){if(this.id){this.reste=Math.max(0,(this.fin-Date.now())/1000);this.stop();return}if(this.reste<=0)this.reste=this.total;$("#minuteur").classList.remove("fini");this.fin=Date.now()+this.reste*1000;this.id=setInterval(()=>this.tic(),200);$("#b-go").textContent="Pause"},
+  stop(){clearInterval(this.id);this.id=0;$("#b-go").textContent="Démarrer";this.affiche()},
+  tic(){if(this.id)this.reste=Math.max(0,(this.fin-Date.now())/1000);this.affiche();if(this.id&&this.reste<=0){this.stop();this.sonner();$("#minuteur").classList.add("fini")}},
+  affiche(){const s=Math.ceil(this.reste);$("#temps").textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;$("#jauge div").style.width=(this.reste/this.total*100)+"%";$("#minuteur").classList.toggle("bientot",this.reste>0&&this.reste<=Math.min(30,this.total/4))},
+  sonner(){try{const ac=new(window.AudioContext||window.webkitAudioContext)();[0,.45,.9].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.0001,ac.currentTime+t);g.gain.exponentialRampToValueAtTime(.4,ac.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t+.35);o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.4)})}catch(e){}}
+};
+document.querySelectorAll("[data-min]").forEach(b=>b.onclick=()=>minu.regler(+b.dataset.min*60));
+$("#b-go").onclick=()=>minu.go();$("#b-plus").onclick=()=>minu.ajouter(30);$("#b-moins").onclick=()=>minu.ajouter(-30);
+$("#b-minu").onclick=()=>minu.ouvrir();$("#b-min-x").onclick=()=>{minu.stop();minu.ouvrir()};minu.affiche();
+
+/* ---------- boutons ---------- */
+$("#b-acc").onclick=fermer;
+$("#b-prec").onclick=()=>nPage>0&&allerPage(nPage-1);
+$("#b-suiv").onclick=()=>nPage<lecon.pages.length-1&&allerPage(nPage+1);
+$("#b-une").onclick=reponseSuivante;
+$("#b-tout").onclick=()=>{zonesDe().forEach((_,k)=>vues.add(k));majZones()};
+$("#b-rien").onclick=()=>{vues.clear();majZones();$("#feuille").classList.remove("complet");$("#b-complet").classList.remove("actif")};
+$("#b-complet").onclick=e=>{e.currentTarget.classList.toggle("actif",$("#feuille").classList.toggle("complet"))};
+$("#b-crayon").onclick=()=>changerMode("crayon");$("#b-loupe").onclick=()=>changerMode("loupe");
+$("#b-rideau").onclick=e=>{const on=corps.classList.toggle("rideau");e.currentTarget.classList.toggle("actif",on);if(on){rideauY=.12;placerRideau()}};
+$("#b-gomme").onclick=()=>{traits=[];garderTraits();redessiner()};
+$("#b-annul").onclick=()=>{traits.pop();garderTraits();redessiner()};
+document.querySelectorAll(".coul").forEach(b=>b.onclick=()=>{document.querySelectorAll(".coul").forEach(x=>x.classList.remove("actif"));b.classList.add("actif");couleur=b.dataset.c;epais=!!b.dataset.epais});
+$("#b-menu").onclick=e=>{e.stopPropagation();$("#menu").classList.toggle("ouvert")};
+document.addEventListener("pointerdown",e=>{if(!e.target.closest("#menu,#b-menu"))$("#menu").classList.remove("ouvert")});
+function majMenu(){$("#m-zoom").textContent=modeLarg?"Page entière":"Largeur de l'écran";$("#m-cadres").textContent=corps.classList.contains("discret")?"Cadres pointillés : cachés":"Cadres pointillés : visibles"}
+$("#m-zoom").onclick=()=>{modeLarg=!modeLarg;loc.ecrire("largeur",modeLarg);majMenu();dimensionner()};
+$("#m-cadres").onclick=()=>{loc.ecrire("discret",corps.classList.toggle("discret"));majMenu()};
+$("#m-ed").onclick=()=>{$("#menu").classList.remove("ouvert");changerMode("edition")};
+$("#m-auto").onclick=async()=>{$("#menu").classList.remove("ouvert");const p=lecon.pages[nPage];if(!p.auto)return;
+  if(await demander("Remettre les cadres automatiques de cette page ? Mes cadres modifiés seront perdus.",{ok:"Remettre"})){const z=p.auto;delete p.auto;p.zones=z;const L=LECONS.find(x=>x.id===lecon.id);if(L)sauverLecon(L);vues=new Set();dessinerZones()}};
+$("#b-fond").onclick=()=>{PROG.tableau=PROG.tableau||{};const f=PROG.tableau.fond||"carreaux",k=FONDS.findIndex(x=>x[0]===f);PROG.tableau.fond=FONDS[(k+1)%FONDS.length][0];sauverProg();appliquerFond()};
+$("#b-page").onclick=()=>{PROG.tableau=PROG.tableau||{};PROG.tableau.n=lecon.pages.length+1;sauverProg();lecon=tableau();allerPage(lecon.pages.length-1)};
+$("#b-plein").onclick=()=>{try{const p=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(()=>{})}catch(e){}};
+document.querySelectorAll("[data-ferme]").forEach(b=>b.onclick=()=>$("#"+b.dataset.ferme).classList.remove("ouvert"));
+addEventListener("keydown",e=>{
+  if(e.target.matches("textarea,input,select"))return;
+  if($("#v-dlg").classList.contains("ouvert"))return;
+  if(e.key==="Escape"&&$("#v-tir").classList.contains("ouvert")){$("#v-tir").classList.remove("ouvert");return}
+  if($("#v-tir").classList.contains("ouvert")){if(e.key===" "||e.key==="Enter"){e.preventDefault();if(!$("#b-tirer").disabled&&!$("#tir-jeu").hidden)tirage.tirer()}return}
+  if(!lecon)return;
+  if(e.key==="ArrowRight"||e.key==="PageDown")$("#b-suiv").click();
+  else if(e.key==="ArrowLeft"||e.key==="PageUp")$("#b-prec").click();
+  else if(e.key===" "||e.key==="Enter"){e.preventDefault();reponseSuivante()}
+  else if(e.key==="Escape"&&zoom>1)zoomer(1);
+  else if(e.key==="Escape"&&mode)changerMode(mode);
+  else if(e.key==="Escape"&&!document.fullscreenElement)fermer();
+});
+
+/* ---------- classes ---------- */
+$("#sel-cl").onchange=async e=>{CL=e.target.value;loc.ecrire("classe",CL);await chargerProg();accueil()};
+$("#b-cl-plus").onclick=async()=>{const nom=await demander("Nom de la nouvelle classe :",{saisie:"",ok:"Créer"});if(!nom)return;const c={id:"c"+Date.now().toString(36),nom,eleves:[],deja:[]};CLASSES.push(c);sauverClasses();CL=c.id;loc.ecrire("classe",CL);await chargerProg();accueil()};
+$("#b-cl-nom").onclick=async()=>{const nom=await demander("Nouveau nom pour cette classe :",{saisie:cls().nom,ok:"Renommer"});if(!nom)return;cls().nom=nom;sauverClasses();accueil()};
+
+/* ---------- import PDF ---------- */
+let pdfP=null;
+function chargerPdf(){
+  return pdfP||(pdfP=new Promise((ok,ko)=>{
+    const s1=document.createElement("script");s1.src=PDFJS+"pdf.worker.min.js";
+    s1.onload=()=>{const s2=document.createElement("script");s2.src=PDFJS+"pdf.min.js";s2.onload=()=>{try{window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+"pdf.worker.min.js"}catch(e){}ok(window.pdfjsLib)};s2.onerror=()=>ko(new Error("lecteur PDF introuvable"));document.head.appendChild(s2)};
+    s1.onerror=()=>ko(new Error("lecteur PDF introuvable"));document.head.appendChild(s1);
+  }).catch(e=>{pdfP=null;throw e}));
+}
+async function ouvrirPdf(lib,buf){
+  try{return await lib.getDocument({data:buf.slice(0)}).promise}
+  catch(e){return await lib.getDocument({data:buf.slice(0),disableWorker:true,isEvalSupported:false}).promise}
+}
+async function rendrePage(page,ech){const vp=page.getViewport({scale:ech}),c=document.createElement("canvas");c.width=Math.round(vp.width);c.height=Math.round(vp.height);const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);await page.render({canvasContext:x,viewport:vp}).promise;return c}
+const enJpeg=c=>new Promise((ok,ko)=>c.toBlob(b=>b?ok(b):ko(new Error("image de la page impossible à créer (page trop grande ?)")),"image/jpeg",.85));
+// Sur iPad, la mémoire des images est limitée : je vide chaque image dès qu'elle ne sert plus
+const libere=c=>{try{c.width=c.height=0}catch(e){}};
+function zonesDiff(ca,cb){
+  const w=ca.width,h=ca.height;let cc=cb;
+  if(cb.width!==w||cb.height!==h){cc=document.createElement("canvas");cc.width=w;cc.height=h;cc.getContext("2d").drawImage(cb,0,0,w,h)}
+  const A=ca.getContext("2d").getImageData(0,0,w,h).data,B=cc.getContext("2d").getImageData(0,0,w,h).data,diff=new Uint8Array(w*h);
+  for(let y=Math.floor(h*.035);y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(Math.max(Math.abs(A[i]-B[i]),Math.abs(A[i+1]-B[i+1]),Math.abs(A[i+2]-B[i+2]))>70)diff[y*w+x]=1}
+  const RX=14,RY=7,hz=new Uint8Array(w*h),dil=new Uint8Array(w*h);
+  for(let y=0;y<h;y++){let n=0;for(let x=-RX;x<w;x++){if(x+RX<w)n+=diff[y*w+x+RX];if(x-RX-1>=0)n-=diff[y*w+x-RX-1];if(x>=0)hz[y*w+x]=n>0}}
+  for(let x=0;x<w;x++){let n=0;for(let y=-RY;y<h;y++){if(y+RY<h)n+=hz[(y+RY)*w+x];if(y-RY-1>=0)n-=hz[(y-RY-1)*w+x];if(y>=0)dil[y*w+x]=n>0}}
+  const vu=new Uint8Array(w*h),boites=[];
+  for(let i=0;i<w*h;i++){if(!dil[i]||vu[i])continue;const pile=[i];vu[i]=1;let x1=w,y1=h,x2=0,y2=0;
+    while(pile.length){const j=pile.pop(),x=j%w,y=(j-x)/w;if(x<x1)x1=x;if(x>x2)x2=x;if(y<y1)y1=y;if(y>y2)y2=y;
+      for(const k of[j+1,j-1,j+w,j-w]){if(k<0||k>=w*h||vu[k]||!dil[k])continue;if((k===j+1&&x===w-1)||(k===j-1&&x===0))continue;vu[k]=1;pile.push(k)}}
+    boites.push([x1,y1,x2+1,y2+1])}
+  const zones=[],r=v=>Math.round(v*1e4)/1e4;
+  for(const[x1,y1,x2,y2]of boites){let a=w,b=h,c=-1,d=-1,n=0;for(let y=y1;y<y2;y++)for(let x=x1;x<x2;x++)if(diff[y*w+x]){n++;if(x<a)a=x;if(x>c)c=x;if(y<b)b=y;if(y>d)d=y}
+    if(n<6)continue;const X1=Math.max(0,a-3),Y1=Math.max(0,b-3),X2=Math.min(w,c+4),Y2=Math.min(h,d+4);zones.push([r(X1/w),r(Y1/h),r((X2-X1)/w),r((Y2-Y1)/h)])}
+  zones.sort((p,q)=>(Math.round(p[1]*40)-Math.round(q[1]*40))||p[0]-q[0]);return zones;
+}
+async function stocker(blob){
+  if(AS){const r=await AS.upload(blob);return r.id}
+  const id="loc"+Math.random().toString(36).slice(2);OBJ_URL[id]=URL.createObjectURL(blob);return id;
+}
+const importer={
+  ouvrir(){
+    const conn=[...new Set(["Histoire","Géographie","FHG","FES","Sciences économiques","Sciences sociales",...LECONS.map(l=>l.matiere)])];
+    const dl=$("#mats");dl.innerHTML="";conn.forEach(m=>{const o=document.createElement("option");o.value=m;dl.appendChild(o)});
+    $("#imp-titre").value="";$("#imp-l").value="";$("#imp-c").value="";$("#imp-etat").textContent="";$("#b-imp-ok").disabled=false;
+    this.majType();$("#v-imp").classList.add("ouvert");$("#imp-titre").focus();
+  },
+  majType(){$("#lg-c").hidden=$("#imp-type").value!=="lecon"},
+  async ajouter(){
+    const titre=$("#imp-titre").value.trim(),matiere=$("#imp-mat").value.trim()||"Mes leçons",type=$("#imp-type").value,fl=$("#imp-l").files[0],fc=$("#imp-c").files[0];
+    const et=t=>$("#imp-etat").textContent=t;
+    if(!titre)return et("Il faut un titre.");if(!fl)return et("Il manque le PDF de la leçon.");
+    if(type==="lecon"&&!fc)return et("Il manque le PDF du corrigé (ou choisir « Document seul »).");
+    $("#b-imp-ok").disabled=true;
+    try{
+      et("Préparation…");const lib=await chargerPdf();
+      const pdfL=await ouvrirPdf(lib,await fl.arrayBuffer()),pdfC=type==="lecon"?await ouvrirPdf(lib,await fc.arrayBuffer()):null;
+      if(pdfL.numPages>40)throw new Error("40 pages maximum par leçon");
+      const pages=[];
+      for(let i=1;i<=pdfL.numPages;i++){
+        et(`Page ${i} sur ${pdfL.numPages}…`);
+        const pl=await pdfL.getPage(i),v=pl.getViewport({scale:1}),net=Math.min(170/72,2600/v.width,Math.sqrt(4e6/(v.width*v.height))); // max 4 millions de points : l'iPad limite la mémoire des images
+        const imgL=await rendrePage(pl,net);
+        const p={ratio:Math.round(v.height/v.width*1e4)/1e4,zones:[],l:await stocker(await enJpeg(imgL)),c:null};
+        if(pdfC&&i<=pdfC.numPages){
+          const imgC=await rendrePage(await pdfC.getPage(i),net);p.c=await stocker(await enJpeg(imgC));
+          const petit=c=>{const k=(75/72)/net,r=document.createElement("canvas");r.width=Math.round(c.width*k);r.height=Math.round(c.height*k);r.getContext("2d").drawImage(c,0,0,r.width,r.height);return r};
+          const pL=petit(imgL),pC=petit(imgC);p.zones=zonesDiff(pL,pC);
+          libere(pL);libere(pC);libere(imgC);
+        }
+        libere(imgL);pl.cleanup&&pl.cleanup();
+        pages.push(p);
+      }
+      try{pdfL.destroy();pdfC&&pdfC.destroy()}catch(e){}
+      const o={id:"l"+Date.now().toString(36),titre,matiere,type,ordre:Date.now(),pages};
+      LECONS.push(o);et("Enregistrement…");
+      if(DB){const d=clone(o);delete d.id;await DB.doc("lecons/"+o.id).set(d)}
+      $("#v-imp").classList.remove("ouvert");accueil();
+    }catch(e){console.error(e);et(MesDonnees.estPlein(e)?"Plus de place sur l'appareil pour cette leçon.":"Problème : "+((e&&(e.message||e.name))||e)+(e&&e.name&&e.message?" ("+e.name+")":""));$("#b-imp-ok").disabled=false}
+  },
+  async supprimer(l){
+    if(!await demander(`Supprimer « ${l.titre} » ? La leçon disparaît pour toutes les classes (tes PDF d'origine ne sont pas touchés).`,{ok:"Supprimer"}))return;
+    LECONS=LECONS.filter(x=>x.id!==l.id);accueil();
+    if(DB){try{await DB.doc("lecons/"+l.id).delete()}catch(e){}}
+    if(AS)l.pages.forEach(p=>[p.l,p.c].forEach(id=>{if(id)AS.delete(id).catch(()=>{})}));
+  }
+};
+$("#imp-type").onchange=()=>importer.majType();$("#b-imp-ok").onclick=()=>importer.ajouter();
+
+/* ---------- démarrage ---------- */
+async function chargerProg(){
+  if(DB){try{const s=await DB.doc("prog/"+CL).get();PROG=s.exists?clone((s.data()||{}).p||{}):{}}catch(e){PROG={}}}
+  else PROG=loc.lire("prog-"+CL,{});
+}
+function ouvrirDepuisHash(){const h=location.hash.slice(1);if(h&&trouver(h)&&!lecon)ouvrir(h,(PROG[h]||{}).page||0)}
+if(!document.documentElement.requestFullscreen)$("#b-plein").hidden=true;
+if(loc.lire("discret",false))corps.classList.add("discret");majMenu();
+accueil();
+/* Images des pages : lues sur l'appareil une fois au démarrage */
+async function prechargerImages(ls){
+  const ids=[];ls.forEach(l=>(l.pages||[]).forEach(p=>[p.l,p.c].forEach(id=>{if(id&&!OBJ_URL[id])ids.push(id)})));
+  await Promise.all(ids.map(async id=>{try{const b=await MesDonnees.fichiers.lire(id);if(b)OBJ_URL[id]=URL.createObjectURL(b)}catch(e){}}));
+}
+(async()=>{
+  DB=MesDonnees;
+  AS={ // fichiers images : gardés sur l'appareil
+    async upload(blob){const id=await MesDonnees.fichiers.ajouter(blob);OBJ_URL[id]=URL.createObjectURL(blob);return {id}},
+    delete(id){return MesDonnees.fichiers.supprimer(id)}
+  };
+  try{
+    const s=await DB.doc("meta/classes").get();
+    if(s.exists){const l=(s.data()||{}).list;if(Array.isArray(l)&&l.length)CLASSES=l}else sauverClasses();
+    LECONS=(await DB.collection("lecons").get()).map(d=>({...(d.data()||{}),id:d.id})).filter(l=>Array.isArray(l.pages)&&l.pages.length);
+    await prechargerImages(LECONS);
+    await chargerProg();
+    etat("Gardé sur cet appareil.");
+  }catch(e){etat("Je n'arrive pas à lire mes données sur cet appareil.")}
+  if(!cls()||cls().id!==CL)CL=cls().id;
+  accueil();ouvrirDepuisHash();
+})();
+}
+</script>
 </body>
 </html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr" data-outil="aujourdhui">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mes outils">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4f1f8">
+<title>Aujourd'hui – Mes outils</title>
+<!-- Même manifest partout : si j'ajoute n'importe quelle page à l'écran d'accueil, j'obtiens l'icône « Mes outils » -->
+<link rel="manifest" href="/accueil/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/commun/apple-touch-icon.png">
+<link rel="icon" href="/commun/icone-192.png">
+<link rel="stylesheet" href="/commun/lexend.css">
+<link rel="stylesheet" href="/commun/outils.css">
+<script src="/commun/outils.js"></script>
+</head>
+<body>
+<main class="page">
+  <div class="entete">
+    <h1>Aujourd'hui</h1>
+    <button class="sw" data-interrupteur></button>
+  </div>
+  <p class="sous" id="date"></p>
+
+  <!-- Mes trois outils -->
+  <div class="tuiles">
+    <a class="tuile" href="/daspa/" style="--c: var(--c-daspa)"><span class="pic">🌍</span><b>Ma classe – DASPA</b><p>L'appli de ma classe DASPA, en mode prof.</p></a>
+    <a class="tuile" href="/suivi/" style="--c: var(--c-suivi)"><span class="pic">📒</span><b>Suivi de stage</b><p>Compétences, objectifs, bilans, traces.</p></a>
+    <a class="tuile" href="/lecons/" style="--c: var(--c-lecons)"><span class="pic">🖍️</span><b>Leçons au tableau</b><p>Projeter une leçon et révéler les réponses.</p></a>
+  </div>
+
+  <div class="bloc-bas">
+    <div class="carte">
+      <h2>Mes cours du jour</h2>
+      <p class="note">Bientôt ici : mes cours du jour, la leçon à projeter et ce qu'il me reste à noter.</p>
+    </div>
+    <div class="carte" id="compte"></div>
+  </div>
+</main>
+
+<style>
+  .bloc-bas { margin-top: 24px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 760px) { .bloc-bas { grid-template-columns: 1fr; } }
+  .gros { font-size: 40px; font-weight: 700; color: var(--mauve); line-height: 1; margin: 4px 0; }
+  :root[data-mode="dark"] .gros { color: #d9c3ee; }
+  @media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) .gros { color: #d9c3ee; } }
+</style>
+<script>
+  /* Date du jour + compte à rebours avant le stage (4 janvier → 23 avril 2027) */
+  (function () {
+    var auj = new Date(); auj.setHours(0, 0, 0, 0);
+    var d = auj.toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    document.getElementById("date").textContent = d.charAt(0).toUpperCase() + d.slice(1);
+    var debut = new Date(2027, 0, 4), fin = new Date(2027, 3, 23);
+    var j = Math.round((debut - auj) / 864e5), html;
+    if (j > 0) html = '<h2>Stage long</h2><div class="gros">' + j + ' j</div><p class="note">avant le lundi 4 janvier 2027</p>';
+    else if (auj <= fin) html = '<h2>Stage long</h2><div class="gros">S' + Math.min(16, Math.floor((auj - debut) / 6048e5) + 1) + '</div><p class="note">en cours, jusqu\'au 23 avril</p>';
+    else html = '<h2>Stage long</h2><div class="gros">✓</div><p class="note">terminé</p>';
+    document.getElementById("compte").innerHTML = html;
+  })();
+</script>
+</body>
+</html>

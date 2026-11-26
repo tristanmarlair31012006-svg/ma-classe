@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr" data-outil="lecons">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mes outils">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4f1f8">
+<title>Leçons – Mes outils</title>
+<!-- Même manifest partout : si j'ajoute n'importe quelle page à l'écran d'accueil, j'obtiens l'icône « Mes outils » -->
+<link rel="manifest" href="/accueil/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/commun/apple-touch-icon.png">
+<link rel="icon" href="/commun/icone-192.png">
+<link rel="stylesheet" href="/commun/lexend.css">
+<link rel="stylesheet" href="/commun/outils.css">
+<script src="/commun/outils.js"></script>
+</head>
+<body>
+<main class="page">
+  <div class="entete">
+    <h1>Leçons au tableau</h1>
+    <button class="sw" data-interrupteur></button>
+  </div>
+  <p class="sous">Projeter une leçon, annoter, révéler les réponses.</p>
+  <div class="carte">
+    <h2>Arrive à l'étape 2</h2>
+    <p class="note">En attendant, j'utilise encore mon outil actuel.</p>
+    <p style="margin:16px 0 0"><a class="bouton" href="https://claude.ai/artifact/DUu7mbYeNWJPeTYK5oejj4" target="_blank" rel="noopener">Ouvrir mon outil actuel</a></p>
+  </div>
+</main>
+<style>
+  .bouton { display: inline-flex; align-items: center; min-height: 52px; padding: 0 20px; border-radius: 14px; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; }
+</style>
+</body>
+</html>

@@ -18,6 +18,7 @@
 /* Chapitre et parcours */
 .chapitre > h2 { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; }
 .chapitre > h2 .petit { font-weight: 700; }
+.etiquette.rappel { background: var(--espace-clair); }
 .etiquette.exemple { background: var(--creme); border-style: dashed; color: var(--attention); }
 .deja-vu { margin-top: var(--s-3); background: var(--creme); border: 2px dashed var(--ink); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); }
 .deja-vu h3 { font: 700 18px/24px var(--font-fr); display: flex; align-items: center; gap: var(--s-2); }

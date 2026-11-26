@@ -161,7 +161,8 @@
       ${extra || ""}
     </div>`;
   }
-  const exemple = o => o && o.exemple ? `<span class="etiquette exemple">Exemple</span>` : "";
+  const exemple = o => o && o.exemple ? `<span class="etiquette exemple">Exemple</span>`
+    : o && o.prerequis ? `<span class="etiquette rappel">${esc(fr({ fr: "Rappel" }))}</span>` : "";
 
   /* ---------- Écran 1 : choisir sa matière ---------- */
   function ecranChoix() {

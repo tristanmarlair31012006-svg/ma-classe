@@ -486,7 +486,7 @@ function noterCeCours(){
   const lecId=q.get('lecon')||'',titre=q.get('titre')||'Leçon',classe=q.get('classe')||'',date=q.get('date')||'',cap=q.get('capture');
   const jj=date?date.split('-').reverse().slice(0,2).join('/'):'';
   // même leçon, même classe : je complète la fiche existante
-  let L=S.lecons.find(l=>l.lecId===lecId&&l.classe===classe);
+  let L=lecId?S.lecons.find(l=>l.lecId===lecId&&l.classe===classe):null;
   if(!L){L={id:'l'+Date.now(),titre,classe,seq:q.get('matiere')||'',date:jj,per:'',statut:'Donnée',files:[],liens:'',retour:'',bilan:'',comps:[],lecId};S.lecons.unshift(L)}
   else{L.date=jj||L.date;if(STAT.indexOf(L.statut)<2)L.statut='Donnée'}
   if(!S.classes.some(c=>c.nom===classe)&&classe)L.classe=classe;

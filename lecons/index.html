@@ -397,7 +397,8 @@ function changerMode(m){
 /* ---------- leçon ---------- */
 async function ouvrir(id,page){
   lecon=trouver(id);if(!lecon)return fermer();
-  corps.classList.add("en-lecon");document.documentElement.setAttribute("data-projection",""); // la barre du bas disparaîtcorps.classList.toggle("document",lecon.type==="document");corps.classList.toggle("tableau",lecon.type==="tableau");
+  corps.classList.add("en-lecon");document.documentElement.setAttribute("data-projection",""); // la barre du bas disparaît
+  corps.classList.toggle("document",lecon.type==="document");corps.classList.toggle("tableau",lecon.type==="tableau");
   $("#titre-l").textContent=lecon.titre;$("#chip-cl").textContent=cls().nom;
   appliquerFond();
   $("#b-daspa").hidden=!(lecon.daspa&&LECONS.some(x=>x.id===lecon.daspa));$("#b-noter").hidden=lecon.type==="tableau";
@@ -416,6 +417,7 @@ let traits=[];
 function allerPage(i){
   nPage=i;const pr=PROG[lecon.id]||{};vues=new Set((pr.vues||{})[i]||[]);
   zoom=1;corps.classList.remove("zoome");
+  noterDerniere(i);
   const p=lecon.pages[i];
   $("#img-l").hidden=$("#img-c").hidden=!p.l;
   if(p.l){$("#img-l").src=urlDe(p.l);$("#img-c").src=urlDe(p.c||p.l)}
@@ -726,8 +728,18 @@ async function chargerProg(){
   if(DB){try{const s=await DB.doc("prog/"+CL).get();PROG=s.exists?clone((s.data()||{}).p||{}):{}}catch(e){PROG={}}}
   else PROG=loc.lire("prog-"+CL,{});
 }
-function ouvrirDepuisHash(){
+/* Dernière leçon ouverte par classe : la page « Aujourd'hui » propose de la reprendre */
+let DERN={};
+function noterDerniere(i){
+  if(!DB||!lecon||!cls())return;
+  DERN[cls().nom]={id:lecon.id,titre:lecon.titre,page:i+1,t:Date.now()};
+  ecrire("meta/dernieres",clone(DERN),1500);
+}
+async function ouvrirDepuisHash(){
   const q=new URLSearchParams(location.search),ql=q.get("lecon");
+  // ?classe=1D : je passe d'abord sur cette classe
+  const qc=q.get("classe"),c=qc&&CLASSES.find(x=>x.nom===qc);
+  if(c&&c.id!==CL){CL=c.id;loc.ecrire("classe",CL);await chargerProg();accueil()}
   if(ql&&trouver(ql)&&!lecon){history.replaceState(null,"",location.pathname);return ouvrir(ql,Math.max(0,(+q.get("page")||1)-1))}
   const h=location.hash.slice(1);if(h&&trouver(h)&&!lecon)ouvrir(h,(PROG[h]||{}).page||0)}
 if(!document.documentElement.requestFullscreen)$("#b-plein").hidden=true;
@@ -750,6 +762,7 @@ async function prechargerImages(ls){
     LECONS=(await DB.collection("lecons").get()).map(d=>({...(d.data()||{}),id:d.id})).filter(l=>Array.isArray(l.pages)&&l.pages.length);
     await prechargerImages(LECONS);
     await chargerProg();
+    try{const d=await DB.doc("meta/dernieres").get();if(d.exists)DERN=d.data()||{}}catch(e){}
     etat("Gardé sur cet appareil.");
   }catch(e){etat("Je n'arrive pas à lire mes données sur cet appareil.")}
   if(!cls()||cls().id!==CL)CL=cls().id;

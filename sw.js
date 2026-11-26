@@ -1,6 +1,6 @@
 /* Mode hors ligne : l'app est gardée sur l'iPad.
    À CHAQUE MISE À JOUR DE L'APP, augmenter VERSION (ex. "v2" → "v3") pour que les iPad téléchargent la nouvelle version. */
-const VERSION = "v16";
+const VERSION = "v17";
 const CACHE = "ma-classe-" + VERSION;
 const FICHIERS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -17,7 +17,7 @@ const FICHIERS = [
   "./commun/outils.css", "./commun/outils.js", "./commun/db.js", "./commun/sauvegarde.js", "./commun/lexend.css", "./commun/retour-daspa.js", "./commun/daspa-memoire.js",
   "./commun/fonts/lexend-latin-400-normal.woff2", "./commun/fonts/lexend-latin-600-normal.woff2", "./commun/fonts/lexend-latin-700-normal.woff2",
   "./commun/icone-192.png", "./commun/icone-512.png", "./commun/apple-touch-icon.png",
-  "./accueil/", "./accueil/manifest.webmanifest", "./lecons/", "./lecons/pdfjs/pdf.min.js", "./lecons/pdfjs/pdf.worker.min.js", "./suivi/", "./daspa/"
+  "./accueil/", "./accueil/aujourdhui.js", "./accueil/manifest.webmanifest", "./lecons/", "./lecons/pdfjs/pdf.min.js", "./lecons/pdfjs/pdf.worker.min.js", "./suivi/", "./daspa/"
 ];
 
 self.addEventListener("install", e => {

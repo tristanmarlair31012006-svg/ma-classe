@@ -17,6 +17,8 @@
 <link rel="stylesheet" href="/commun/outils.css">
 <script src="/commun/outils.js"></script>
 <script src="/commun/sauvegarde.js"></script>
+<script src="/commun/db.js"></script>
+<script src="/accueil/aujourdhui.js"></script>
 </head>
 <body>
 <main class="page">
@@ -34,12 +36,21 @@
   </div>
 
   <div class="bloc-bas">
-    <div class="carte">
+    <div class="carte" id="cours-jour">
       <h2>Mes cours du jour</h2>
-      <p class="note">Bientôt ici : mes cours du jour, la leçon à projeter et ce qu'il me reste à noter.</p>
+      <p class="note">Je lis mon horaire…</p>
     </div>
     <div class="carte" id="compte"></div>
   </div>
+
+  <!-- Mon horaire : encodé une fois, il sert à « Mes cours du jour » -->
+  <details class="carte" id="horaire" style="margin-top:16px">
+    <summary><h2>Mon horaire</h2></summary>
+    <p class="note">Une ligne par cours de la semaine. Les classes viennent de Leçons au tableau.</p>
+    <div id="horaire-liste"></div>
+    <div class="boutons"><button class="bouton alt" id="h-ajouter">+ Ajouter un cours</button></div>
+    <p class="note" id="horaire-etat" aria-live="polite"></p>
+  </details>
 
   <!-- Sauvegarde et synchro iPad ↔ Mac -->
   <div class="carte" style="margin-top:16px">
@@ -63,6 +74,28 @@
   .rappel { color: #b45309; font-weight: 600; }
   :root[data-mode="dark"] .rappel { color: #f6b26b; }
   @media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) .rappel { color: #f6b26b; } }
+  /* Mes cours du jour */
+  .cours { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--trait); }
+  .cours .heure { font-weight: 700; font-size: 17px; line-height: 1.1; }
+  .cours .heure span { display: block; font-weight: 400; font-size: 13px; color: var(--gris); }
+  .cours .quoi b { font-size: 18px; }
+  .cours .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+  .cours.fini { opacity: .6; }
+  .cours.en-cours { background: color-mix(in srgb, var(--c-aujourdhui) 10%, transparent); border-radius: 12px; padding: 10px; }
+  .badge { font-size: 12px; font-weight: 700; color: #fff; background: var(--c-aujourdhui); border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
+  .petit-bouton { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--trait); background: var(--panneau); color: var(--encre); font: 600 15px/1.2 "Lexend", system-ui, sans-serif; text-decoration: none; cursor: pointer; }
+  .petit-bouton.plein { background: var(--c-lecons); border-color: var(--c-lecons); color: #fff; }
+  .a-noter { margin: 16px 0 4px; font-size: 16px; }
+  @media (max-width: 560px) { .cours { grid-template-columns: 56px minmax(0, 1fr); } .cours .actions { grid-column: 1 / -1; justify-content: flex-start; } }
+  /* Mon horaire */
+  #horaire summary { cursor: pointer; list-style: none; }
+  #horaire summary::-webkit-details-marker { display: none; }
+  #horaire summary h2 { display: inline; }
+  #horaire summary::after { content: " ▾"; color: var(--gris); }
+  #horaire[open] summary::after { content: " ▴"; }
+  .ligne-horaire { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 44px; gap: 8px; margin: 8px 0; }
+  .ligne-horaire select, .ligne-horaire input { min-height: 44px; min-width: 0; border: 1px solid var(--trait); border-radius: 10px; padding: 0 8px; background: var(--panneau); color: var(--encre); font: 15px "Lexend", system-ui, sans-serif; }
+  @media (max-width: 560px) { .ligne-horaire { grid-template-columns: 1fr 1fr 1fr; } }
   .gros { font-size: 40px; font-weight: 700; color: var(--mauve); line-height: 1; margin: 4px 0; }
   :root[data-mode="dark"] .gros { color: #d9c3ee; }
   @media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) .gros { color: #d9c3ee; } }

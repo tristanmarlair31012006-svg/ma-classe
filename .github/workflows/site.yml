@@ -4,9 +4,10 @@
 # Seuls les fichiers de l'app sont publiés (pas le dossier serveur/ ni les guides).
 name: Site de la classe
 
+# main = la vraie appli (élèves). Une autre branche = version d'essai à part :
+# https://<nom-de-la-branche>.ma-classe-arh-daspa.pages.dev (sans toucher aux iPads des élèves).
 on:
   push:
-    branches: [main]
     paths-ignore: ["serveur/**", "**.md", ".github/workflows/serveur.yml"]
   workflow_dispatch:
 
@@ -31,7 +32,8 @@ jobs:
         run: |
           mkdir _site
           cp index.html sw.js manifest.webmanifest jour.json _site/
-          cp -r css js fonts icones _site/
+          cp -r css js fonts icones img _site/
+          cp -r commun accueil lecons suivi daspa _site/
           [ -d pictos ] && cp -r pictos _site/ || true
       - uses: actions/setup-node@v4
         if: steps.verif.outputs.ok == '1'
@@ -49,4 +51,4 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx --yes wrangler@4 pages deploy _site --project-name "$PROJET" --branch main --commit-dirty=true
+        run: npx --yes wrangler@4 pages deploy _site --project-name "$PROJET" --branch "${{ github.ref_name }}" --commit-dirty=true

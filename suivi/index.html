@@ -6,32 +6,703 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mes outils">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f4f1f8">
+<meta name="theme-color" content="#7b4fa0">
 <title>Suivi – Mes outils</title>
-<!-- Même manifest partout : si j'ajoute n'importe quelle page à l'écran d'accueil, j'obtiens l'icône « Mes outils » -->
 <link rel="manifest" href="/accueil/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/commun/apple-touch-icon.png">
 <link rel="icon" href="/commun/icone-192.png">
 <link rel="stylesheet" href="/commun/lexend.css">
 <link rel="stylesheet" href="/commun/outils.css">
 <script src="/commun/outils.js"></script>
-</head>
-<body>
-<main class="page">
-  <div class="entete">
-    <h1>Suivi de stage</h1>
-    <button class="sw" data-interrupteur></button>
-  </div>
-  <p class="sous">Compétences, objectifs, bilans, débriefings, traces.</p>
-  <div class="carte">
-    <h2>Arrive à l'étape 3</h2>
-    <p class="note">En attendant, j'utilise encore mon outil actuel.</p>
-    <p style="margin:16px 0 0"><a class="bouton" href="https://claude.ai/artifact/4mbW8ZroQCycJN7SfcbK6G" target="_blank" rel="noopener">Ouvrir mon outil actuel</a></p>
-  </div>
-</main>
+<script src="/commun/db.js"></script>
 <style>
-  .bouton { display: inline-flex; align-items: center; min-height: 52px; padding: 0 20px; border-radius: 14px; background: var(--accent); color: #fff; font-weight: 600; text-decoration: none; }
-</style>
-</body>
-</html>
+/* VOICE: carnet de bord perso, chaleureux mais sérieux
+   IDEA: un carnet vintage 70s (univers VintYS) qui suit une trajectoire
+   PICTURE: la courbe des 4 familles de compétences, en haut
+   COLOUR and TYPE: blanc et mauve (prune, orchidée, lavande, bleu ardoise) ; Lexend partout (police pensée pour la lisibilité)
+   LAYOUT: bandeau rayé, onglets, cartes empilées, une colonne sur mobile */
+:root{--bg:var(--panneau);--panel:var(--fond);--ink:var(--encre);--muted:var(--gris);--line:var(--trait);
+--or:#7b4fa0;--mu:#c9a6e3;--te:#5b3a8c;--br:#5b3a8c;--l1:#c95b7a;--l2:#e3b15a;--l3:#9b7fd1;--l4:#5b3a8c}
+:root[data-mode=dark]{--br:#c9a6e3}
+@media (prefers-color-scheme:dark){:root:not([data-mode=light]){--br:#c9a6e3}}
+.sw{position:relative;width:72px;height:36px;border-radius:99px;border:0;padding:0;cursor:pointer;background:rgba(255,255,255,.22);flex:none}
+.sw svg{position:absolute;top:9px;width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}.sw .sun{left:9px}.sw .moon{right:9px}
+.sw i{position:absolute;top:3px;left:3px;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .25s}
+.sw[aria-checked=true] i{transform:translateX(36px)}
+.rm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.rm.fait .rtx{text-decoration:line-through;color:var(--muted)}.rm input.rtx{border:0;background:none;padding:2px 0}.rm input[type=date]{width:auto;padding:3px 6px;font-size:13px}
+.rm input[type=checkbox],.ck{width:22px;height:22px;accent-color:var(--or)}
+.late{color:var(--l1)!important;font-weight:600}
+.crit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin:6px 0}
+.st{font:600 13px 'Lexend',system-ui,sans-serif;min-height:36px;min-width:130px;border-radius:99px;border:0;cursor:pointer;padding:0 10px}
+.st0{background:var(--line);color:var(--muted)}.st1{background:var(--l1);color:#fff}.st2{background:var(--l2);color:#2a1f35}.st3{background:var(--l4);color:#fff}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 'Lexend',system-ui,sans-serif;overflow-x:clip}
+header{background:var(--or);color:#ffffff;padding:max(22px,env(safe-area-inset-top)) max(5vw,16px) 0;position:relative}
+header h1{color:#fff;font-weight:700;font-size:clamp(28px,4.4vw,40px);letter-spacing:-.01em;line-height:1.05;margin:0}
+header p{margin:4px 0 14px;opacity:.92}
+.stripes{display:grid;grid-template-rows:8px 8px 8px}.stripes i:nth-child(1){background:#c9a6e3}.stripes i:nth-child(2){background:#9b6bc4}.stripes i:nth-child(3){background:#4b2a6b}
+.savebar{position:absolute;right:max(5vw,16px);top:max(24px,env(safe-area-inset-top));display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pill{font-size:13px;background:#ffffff;color:#5b3a8c;border-radius:20px;padding:4px 12px;font-weight:600}
+.pill.dirty{background:#2a1f35;color:#e9d6ff}
+#nav{display:flex;gap:6px;overflow-x:auto;padding:12px max(5vw,16px);border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+#nav button{flex:none;border:2px solid var(--line);background:var(--panel);color:var(--ink);border-radius:22px;padding:8px 15px;font:600 14px 'Lexend',system-ui,sans-serif;cursor:pointer;min-height:40px}
+#nav button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+main{padding:22px max(5vw,16px) 60px;max-width:1240px;margin:0 auto}
+h2{font-weight:700;font-size:26px;letter-spacing:-.01em;margin:0 0 6px;color:var(--br)}
+h3{margin:0 0 6px;font-size:18px}
+.lead{color:var(--muted);margin:0 0 18px;max-width:70ch}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.kpi b{display:block;font-weight:700;font-size:30px;line-height:1.1}
+.kpi span{color:var(--muted);font-size:14px}
+.fig{position:relative;min-height:320px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;margin-top:8px}
+.legend i{display:inline-block;width:22px;height:5px;border-radius:3px;vertical-align:middle;margin-right:6px}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:22px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:var(--ink);padding:7px 13px;font:600 14px 'Lexend',system-ui,sans-serif;cursor:pointer;min-height:38px}
+.seg button.on{background:var(--br);color:var(--bg)}
+.fam{border-left:8px solid var(--c);}
+.famh{display:flex;align-items:center;gap:10px;margin:22px 0 10px}
+.famh .dot{width:16px;height:16px;border-radius:50%;background:var(--c)}
+.famh h3{margin:0;color:var(--c)}
+.comp .code{font-weight:700;color:var(--c);margin-right:6px}
+.comp p{margin:0 0 10px;font-size:15px}
+.who{display:grid;grid-template-columns:110px 1fr;gap:8px;align-items:center;margin-top:6px}
+.who label{font-size:13px;font-weight:600;color:var(--muted)}
+.lv{display:flex;gap:5px;flex-wrap:wrap}
+.lv button{border:2px solid var(--line);background:transparent;color:var(--ink);border-radius:9px;padding:5px 9px;font:500 13px 'Lexend',system-ui,sans-serif;cursor:pointer;min-height:34px}
+.lv button.on{color:#fff;border-color:transparent}
+.lv button.on[data-v="1"]{background:var(--l1)}.lv button.on[data-v="2"]{background:var(--l2);color:#2a1f35}.lv button.on[data-v="3"]{background:var(--l3)}.lv button.on[data-v="4"]{background:var(--l4)}
+.hist{display:flex;gap:6px;align-items:center;margin-top:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.hist span{display:inline-flex;align-items:center;gap:4px}
+.hist i{width:13px;height:13px;border-radius:50%;border:2px solid var(--line);display:inline-block}
+label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;font:16px 'Lexend',system-ui,sans-serif;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:9px 11px}
+textarea{min-height:76px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid var(--mu);outline-offset:1px}
+.btn{border:0;background:var(--or);color:#ffffff;border-radius:22px;padding:10px 18px;font:700 15px 'Lexend',system-ui,sans-serif;cursor:pointer;min-height:44px}
+.btn.alt{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.btn.sm{padding:6px 12px;min-height:36px;font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
+@media(max-width:600px){.two{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:2px solid var(--line);border-radius:16px;padding:3px 10px;font:600 12.5px 'Lexend',system-ui,sans-serif;background:transparent;color:var(--ink);cursor:pointer;min-height:30px}
+.chip.on{background:var(--c,var(--te));color:#fff;border-color:transparent}
+.tag{display:inline-block;border-radius:8px;padding:1px 8px;font-size:12.5px;font-weight:700;color:#fff;background:var(--c)}
+table{border-collapse:collapse;width:100%}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+th{font-size:13px;color:var(--muted)}
+td input{padding:5px 6px;font-size:15px;min-width:52px}
+td.n,th.n{text-align:right;white-space:nowrap}
+.scroll{overflow-x:auto}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--c,var(--or))}
+.ok{color:var(--te);font-weight:700}.ko{color:var(--l1);font-weight:700}
+.note{font-size:13px;color:var(--muted)}
+.empty{border:2px dashed var(--line);border-radius:14px;padding:18px;color:var(--muted);text-align:center}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:24px;padding:8px 8px 8px 18px;display:flex;gap:12px;align-items:center;z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.famh{scroll-margin-top:80px}
+.trip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;text-align:center;font-size:13px}
+.trip div{border-radius:8px;padding:5px;background:var(--bg)}
+@media(max-width:600px){.who{grid-template-columns:1fr}.savebar{position:static;justify-content:flex-start;margin-bottom:10px}table{font-size:13px}}
+@media(prefers-reduced-motion:no-preference){.card{transition:border-color .2s}}
+.visio{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}
+.visio-barre{display:flex;gap:8px;align-items:center;padding:max(10px,env(safe-area-inset-top)) 14px 10px;border-bottom:2px solid var(--line)}
+.visio-corps{flex:1;overflow:auto;display:flex;justify-content:center;background:var(--panel)}
+.visio-corps iframe{border:0;width:100%;height:100%;background:#fff}.visio-corps img{max-width:100%;height:auto;align-self:flex-start}
+#toast{bottom:calc(var(--barre-h) + 20px + env(safe-area-inset-bottom))}
+</style></head><body>
+<header>
+  <div class="savebar"><span class="pill" id="st-pill">Chargement…</span><button class="sw" id="sw" role="switch" aria-checked="false" aria-label="Mode nuit" title="Mode jour / mode nuit"><svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1111 3a7 7 0 0010 10z"/></svg><i></i></button></div>
+  <h1>Mon stage long</h1>
+  <p>Mon carnet de bord · M1 à l'Athénée royal de Huy · janvier → avril 2027</p>
+  <div class="stripes"><i></i><i></i><i></i></div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+
+<script id="st" type="application/json">{"savedAt":0,"profil":{"nom":"","etab":"Athénée royal de Huy","mds":"","sup":""},"evals":{},"bilans":{},"objectifs":{},"debriefs":{},"traces":[],"semaines":{},"missions":[],"lecons":[],"classes":[{"id":"c1","nom":"1D","disc":"FHG","eleves":[],"evals":[],"periodes":[]},{"id":"c2","nom":"1E","disc":"FHG","eleves":[],"evals":[],"periodes":[]},{"id":"c3","nom":"DASPA","disc":"Histoire","eleves":[],"evals":[],"periodes":[]}]}</script>
+
+<script>
+{
+const TEMPLATE='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+const FAM=[
+ {id:1,nom:"Acteur institutionnel, social et culturel",c:"#4b2a6b",cs:"#6a3d96",dk:"#b48ad6"},
+ {id:2,nom:"Acteur d'une organisation apprenante",c:"#c46aa8"},
+ {id:3,nom:"Organisateur et accompagnateur d'apprentissages",c:"#8e5bc4"},
+ {id:4,nom:"Praticien réflexif",c:"#5b7bc4"}];
+const C=[
+ ["1a",1,"Agir comme acteur social et culturel au sein de l'école et de la société, y compris dans leur transformation, intégrer la diversité et développer des pratiques citoyennes pour plus de cohésion sociale."],
+ ["1b",1,"Comprendre les enjeux éthiques et respecter les cadres déontologiques et réglementaires de la profession dans une perspective démocratique et de responsabilité."],
+ ["1c-I",1,"Analyser l'environnement organisationnel et institutionnel du système éducatif et agir en son sein : s'inscrire dans la démarche de pilotage de l'école et participer aux démarches d'amélioration du système éducatif de la FWB."],
+ ["1c-II",1,"Analyser l'environnement du système éducatif et agir en son sein : faire de l'école un lieu où les élèves apprennent, se développent et se forment dans un climat positif, et non un lieu de sélection."],
+ ["1d",1,"Maîtriser sa situation administrative et le suivi de son dossier administratif personnel."],
+ ["2a",2,"S'inscrire dans le travail collaboratif au sein d'une équipe éducative afin d'en augmenter le professionnalisme et l'expertise par la mobilisation de l'intelligence collective, notamment au cours de concertations."],
+ ["2b",2,"Identifier ses besoins de formation individuelle et participer à l'identification des besoins de formation de l'équipe pédagogique."],
+ ["2c",2,"Contribuer à la diffusion, au sein de l'équipe éducative, des acquis liés aux formations continues suivies ou des capacités développées par celles-ci ou par l'expérience."],
+ ["3a",3,"Maîtriser les contenus disciplinaires, leurs fondements épistémologiques, leur évolution scientifique et technologique, leur didactique et la méthodologie de leur enseignement."],
+ ["3b",3,"Maîtriser les savoirs relatifs aux processus d'apprentissage, aux recherches sur les différents modèles et théories de l'enseignement."],
+ ["3c",3,"Maîtriser la langue française écrite et orale de manière approfondie pour enseigner et communiquer de manière adéquate dans ses divers contextes et les différentes disciplines liés à la profession."],
+ ["3d",3,"Prendre en compte et développer les dimensions langagières des apprentissages et enseignements, en étant attentif à la langue de scolarisation et conscient du caractère socialement et culturellement inégal de la familiarisation à celle-ci."],
+ ["3e-I",3,"Agir comme pédagogue : concevoir et mettre en œuvre une démarche d'enseignement et d'apprentissage aux pratiques variées, qui renforce la motivation, la confiance en soi, la créativité, l'esprit d'initiative et de coopération des élèves."],
+ ["3e-II",3,"Agir comme pédagogue : concevoir, choisir et utiliser des supports didactiques, des manuels, des logiciels scolaires et d'autres outils pédagogiques."],
+ ["3e-III",3,"Agir comme pédagogue : construire et utiliser des supports d'observation et d'évaluation, à visée compréhensive et formative, favorisant la responsabilisation et la participation de l'élève dans ses apprentissages."],
+ ["3e-IV",3,"Agir comme pédagogue : concevoir et mettre en œuvre des pratiques de différenciation pédagogique et d'accompagnement personnalisé, tenant compte des acquis antérieurs, du profil et des besoins spécifiques des élèves, notamment par le co-enseignement ou la co-intervention."],
+ ["3e-V",3,"Agir comme pédagogue : mettre en place des activités d'apprentissage interdisciplinaires."],
+ ["3f",3,"Maîtriser l'intégration des technologies numériques dans ses pratiques pédagogiques."],
+ ["3g",3,"Prendre en compte l'éducation aux médias, l'EVRAS ainsi que le genre de manière transversale."],
+ ["3h",3,"Créer un cadre relationnel bienveillant pour faciliter la communication avec les élèves, leur entourage notamment familial, ainsi qu'avec les collègues."],
+ ["3i",3,"Gérer le groupe-classe en situation éducative et pédagogique de manière stimulante, structurante et sécurisante."],
+ ["4a",4,"Lire de manière critique les résultats de recherches scientifiques en éducation et en didactique, s'en inspirer pour son action et s'appuyer sur les sciences humaines pour analyser et agir en situation professionnelle."],
+ ["4b",4,"Mener, seul et avec ses pairs, une observation et une analyse critique et rigoureuse de ses propres pratiques et de leur impact sur les élèves, afin de réguler son enseignement dans une perspective d'efficacité et d'équité."],
+ ["4c",4,"Construire progressivement son identité professionnelle, notamment en mobilisant des outils de développement professionnel personnel tel que le portfolio."]];
+const CM=Object.fromEntries(C.map(x=>[x[0],x]));
+const BIL=[["init","Bilan initial","novembre 2026"],["jan","Fin janvier","semaine 4"],["fev","Fin février","semaine 7"],["mar","Fin mars","semaine 11"],["avr","Fin avril","semaine 14"]];
+const LV=["","Pas encore","En cours","Atteint","Maîtrisé"];
+const WHO=[["moi","Moi"],["mds","Maître de stage"],["sup","Superviseur HECh"]];
+const SEM=[["S1","4/01 – 8/01"],["S2","11/01 – 15/01"],["S3","18/01 – 22/01"],["S4","25/01 – 29/01"],["S5","1/02 – 5/02"],["S6","8/02 – 12/02"],["S7","15/02 – 19/02"],["S8","8/03 – 12/03"],["S9","15/03 – 19/03"],["S10","22/03 – 26/03"],["S11","29/03 – 2/04"],["S12","5/04 – 9/04"],["S13","12/04 – 16/04"],["S14","19/04 – 23/04"]];
+const WK=["2027-01-04","2027-01-11","2027-01-18","2027-01-25","2027-02-01","2027-02-08","2027-02-15","2027-03-08","2027-03-15","2027-03-22","2027-03-29","2027-04-05","2027-04-12","2027-04-19"].map(d=>new Date(d+"T00:00:00"));
+const addD=(d,n)=>new Date(d.getTime()+n*864e5);
+const fmtD=d=>d.toLocaleDateString('fr-BE',{weekday:'long',day:'numeric',month:'long'});
+const BILW={jan:3,fev:6,mar:10,avr:13};
+const DEBP={jan:["d1","d2"],fev:["d3"],mar:["d4","d5"],avr:["d6","d7"]};
+const DEB=[["d1","Débriefing 1","S1 – S2"],["d2","Débriefing 2","S3 – S4"],["d3","Débriefing 3","S5 – S6"],["d4","Débriefing 4","S7 – S8"],["d5","Débriefing 5","S9 – S10"],["d6","Débriefing 6","S11 – S12"],["d7","Débriefing 7","S13 – S14"]];
+const CAT={A:"Suivi institutionnel des apprentissages et des élèves",B:"Travail collaboratif et concertation",C:"Relations avec les familles et les partenaires",D:"Participation à la vie de l'établissement",E:"Développement professionnel et connaissance du métier"};
+const OBL=[["conseil","Conseil de classe","B"],["parents","Réunion de parents","C"],["vie","Activité de la vie de l'établissement (projet)","D"]];
+const TABS=[["dash","Tableau de bord"],["les","Mes leçons"],["cla","Mes classes"],["obs","Observations"],["comp","Compétences"],["obj","Objectifs du mois"],["bil","Bilans mensuels"],["deb","Débriefings"],["tra","Traces"],["chg","Charge de stage"],["mem","Mémoire DASPA"]];
+const ETAT=["Non abordé","En construction","En voie","Maîtrisé"];
+const RENC=[["obs","Faire le point sur les observations faites et à planifier","obs"],["outil","Présenter mon outil de suivi des objectifs (ce carnet)","dash"],["obj","Présenter les objectifs de développement que je poursuis","obj"],["hor","Montrer mon horaire prévisionnel","chg"],["seq","Parler de l'avancée de mes séquences","les"]];
+const STAT=["À préparer","Préparée","Donnée","Évaluée"];
+const KIND=["Feuille élève","Corrigé","Dossier documentaire","Structuration","Fiche descriptive","Évaluation","Autre"];
+const ATT=["Allophone","Aménagements raisonnables","Besoin de structure","Lenteur","Manque de confiance","Comportement","Absences","Très à l'aise","À surveiller"];
+const ETYPE=["Interro","Évaluation formative","Évaluation sommative","Devoir","Travail de groupe"];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const isDark=()=>{const r=document.documentElement;const m=r.dataset.mode||r.dataset.theme;return m?m==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+const famC=(f,light)=>(!light&&isDark()&&FAM[f-1].dk)||FAM[f-1].cs||FAM[f-1].c;
+let S=JSON.parse(document.getElementById('st').textContent);
+const EMB=JSON.parse(JSON.stringify(S));
+let dirty=false,tab=(location.hash||'#dash').slice(1),cur={comp:'init',obj:'init',bil:'init',src:'moi',filt:'all'},openDeb=new Set(),undo=null;
+const DEFS={profil:{},evals:{},bilans:{},objectifs:{},debriefs:{},traces:[],semaines:{},missions:[],lecons:[],classes:[],rappels:[],observations:[],rencontre:{}};
+const SECS=Object.keys(DEFS);
+SECS.forEach(k=>{if(S[k]==null)S[k]=JSON.parse(JSON.stringify(DEFS[k]))});
+try{const d=JSON.parse(localStorage.getItem('stageM1-draft')||'null');if(d&&d.s&&d.t>(S.savedAt||0)){SECS.forEach(k=>{if(d.s[k]!=null)S[k]=d.s[k]});dirty=true}}catch(e){}
+let ART=null,AS=null,DB=null,REFS={},LAST={},tmr=null,busy=false,lastEdit=0;
+const pill=document.getElementById('st-pill');
+const pillT=(t,bad)=>{pill.textContent=t;pill.classList.toggle('dirty',!!bad)};
+function mark(){dirty=true;lastEdit=Date.now();pillT('Enregistrement…');try{localStorage.setItem('stageM1-draft',JSON.stringify({t:Date.now(),s:S}))}catch(e){}clearTimeout(tmr);tmr=setTimeout(save,700)}
+function setPill(){pillT(dirty?'Enregistrement…':'Gardé sur cet appareil')}
+async function save(){
+  clearTimeout(tmr);
+  if(!DB){dirty=false;setPill();return}
+  if(busy){tmr=setTimeout(save,400);return}
+  busy=true;let fail=false;
+  for(const k of SECS){const js=JSON.stringify(S[k]);if(js===LAST[k])continue;try{await REFS[k].set({v:JSON.parse(js)});LAST[k]=js}catch(e){fail=true;if(MesDonnees.estPlein(e)){busy=false;pillT('Plus de place sur l\'appareil',true);return}}}
+  busy=false;
+  if(fail){pillT('Échec, nouvel essai…',true);tmr=setTimeout(save,2000);return}
+  dirty=false;try{localStorage.removeItem('stageM1-draft')}catch(e){}setPill();
+}
+function softRender(){const a=document.activeElement;if(a&&main.contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)){cur.pendR=true;return}rr()}
+async function startDb(db){
+  DB=db;let got=0;const tm=setTimeout(()=>{if(got<SECS.length)pillT('Données injoignables pour l\'instant',true)},10000);
+  SECS.forEach(k=>{REFS[k]=db.doc('carnet/'+k);REFS[k].onSnapshot(snap=>{
+    if(++got===SECS.length)clearTimeout(tm);
+    if(snap.metadata&&snap.metadata.hasPendingWrites)return;
+    if(!snap.exists){const js=JSON.stringify(S[k]);if(js!==JSON.stringify(DEFS[k])||JSON.stringify(EMB[k]??null)!=='null'){REFS[k].set({v:JSON.parse(js)}).then(()=>{LAST[k]=js}).catch(()=>{})}else LAST[k]=js;return}
+    const v=(snap.data()||{}).v;if(v==null)return;const js=JSON.stringify(v);LAST[k]=js;
+    if((dirty||busy||Date.now()-lastEdit<5000)&&JSON.stringify(S[k])!==js)return;
+    if(JSON.stringify(S[k])!==js){S[k]=JSON.parse(js);softRender()}
+    if(got>=SECS.length&&!dirty)setPill();
+  },()=>{clearTimeout(tm);pillT('Connexion aux données perdue',true)})});
+  if(dirty)save();
+}
+const ev=(b,c)=>((S.evals[b]||{})[c]||{});
+function setEv(b,c,w,v){S.evals[b]=S.evals[b]||{};S.evals[b][c]=S.evals[b][c]||{};S.evals[b][c][w]=S.evals[b][c][w]===v?0:v;mark()}
+function getP(p){return p.split('.').reduce((o,k)=>o==null?o:o[k],S)}
+function setP(p,v){const ks=p.split('.');let o=S;ks.slice(0,-1).forEach(k=>{o[k]=o[k]??{};o=o[k]});o[ks.at(-1)]=v;mark()}
+const fld=(p,lab,ta,ph)=>`<div><label class="f">${lab}</label>`+(ta?`<textarea data-p="${p}" placeholder="${esc(ph||'')}">${esc(getP(p))}</textarea>`:`<input data-p="${p}" value="${esc(getP(p))}" placeholder="${esc(ph||'')}">`)+`</div>`;
+const compOpts=sel=>C.map(c=>`<option value="${c[0]}" ${c[0]===sel?'selected':''}>${c[0]} · ${esc(c[2].slice(0,60))}…</option>`).join('');
+const bilSeg=(k)=>`<div class="seg">${BIL.map(b=>`<button data-seg="${k}" data-v="${b[0]}" class="${cur[k]===b[0]?'on':''}">${b[1]}</button>`).join('')}</div>`;
+function famAvg(b,f,w){const v=C.filter(c=>c[1]===f).map(c=>ev(b,c[0])[w]).filter(x=>x>0);return v.length?v.reduce((a,x)=>a+x,0)/v.length:null}
+
+function svgChart(W,H,src,exp){
+  const pl=W<520?34:96,pr=36,pt=14,pb=34,fg=exp?'#333':'currentColor',bg=exp?'#fff':'var(--panel)';
+  const x=i=>pl+i*(W-pl-pr)/(BIL.length-1),y=v=>pt+(4-v)*(H-pt-pb)/3;
+  let g='';
+  for(let v=1;v<=4;v++)g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="${fg}" stroke-opacity=".15"/><text x="${pl-8}" y="${y(v)+4}" text-anchor="end" font-size="12" fill="${fg}" opacity=".7">${W<520?v:LV[v]}</text>`;
+  BIL.forEach((b,i)=>g+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="12" fill="${fg}" opacity=".7">${W<520?b[1].replace('Fin ','').slice(0,4):b[1]}</text>`);
+  FAM.forEach(f=>{const pts=BIL.map((b,i)=>[i,famAvg(b[0],f.id,src)]).filter(p=>p[1]!=null);const col=famC(f.id,exp);
+    if(pts.length>1)g+=`<polyline fill="none" stroke="${col}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p=>x(p[0])+','+y(p[1])).join(' ')}"/>`;
+    pts.forEach(p=>g+=`<circle cx="${x(p[0])}" cy="${y(p[1])}" r="6" fill="${col}" stroke="${bg}" stroke-width="2"><title>${esc(f.nom)} : ${p[1].toFixed(1)}</title></circle>`)});
+  if(!exp&&!BIL.some(b=>FAM.some(f=>famAvg(b[0],f.id,src)!=null)))g+=`<text x="${(pl+W-pr)/2}" y="${(pt+H-pb)/2}" text-anchor="middle" font-size="15" fill="${fg}" opacity=".75">La courbe apparaîtra au premier bilan encodé.</text>`;
+  return g;
+}
+function chart(){const s=document.getElementById('chart');if(!s)return;s.innerHTML=svgChart(s.clientWidth,s.clientHeight,cur.src)}
+let ro=null;
+function kpis(){
+  const lastB=[...BIL].reverse().find(b=>S.evals[b[0]]&&Object.values(S.evals[b[0]]).some(e=>e.moi));
+  const nb=lastB?C.filter(c=>ev(lastB[0],c[0]).moi>=3).length:0;
+  const debF=DEB.filter(d=>(S.debriefs[d[0]]||{}).date).length;
+  const per=sumSem();const h=S.missions.reduce((a,m)=>a+(+m.h||0),0);
+  return `<div class="grid">
+   <div class="card kpi"><b>${nb} / ${C.length}</b><span>compétences au moins « Atteint »${lastB?' ('+lastB[1].toLowerCase()+')':''}</span></div>
+   <div class="card kpi"><b>${debF} / 7</b><span>débriefings complétés</span></div>
+   <div class="card kpi"><b>${per.acc+per.auto} / 154</b><span>périodes d'enseignement</span></div>
+   <div class="card kpi"><b>${h} / 56 h</b><span>autres missions</span></div></div>`;
+}
+const V={
+dash(){
+  const obl=OBL.map(o=>{const d=S.missions.some(m=>m.obl===o[0]);return `<div class="${d?'ok':'ko'}">${d?'✓':'○'} ${o[1]}</div>`}).join('');
+  const objs=(S.objectifs[latestObj()]||[]);
+  return `<h2>Où j'en suis</h2><p class="lead">Où j'en suis, bilan après bilan. Ce qu'on attend de moi, c'est une progression : si la courbe monte, c'est bon signe.</p>
+  <div class="card"><div class="row" style="justify-content:space-between"><h3>Ma progression par famille</h3>
+  <div class="seg">${WHO.map(w=>`<button data-src="${w[0]}" class="${cur.src===w[0]?'on':''}">${w[1]}</button>`).join('')}</div></div>
+  <div class="fig" style="color:var(--ink)"><svg id="chart" role="img" aria-label="Courbes d'évolution des 4 familles"></svg></div>
+  <div class="legend">${FAM.map(f=>`<span><i style="background:${famC(f.id)}"></i>${f.id}. ${esc(f.nom)}</span>`).join('')}</div>
+  <p class="note">Moyenne par famille, de 1 (pas encore) à 4 (maîtrisé). Ce qui n'est pas évalué ne compte pas.</p></div>
+  ${kpis()}
+  <div class="two" style="gap:0 14px">${echeances()}${rappels()}</div>
+  ${rencontre()}
+  <div class="two"><div class="card"><h3>Ce que je travaille en ce moment</h3>${objs.length?objs.map(o=>`<p style="margin:6px 0"><span class="tag" style="--c:${famC(CM[o.comp]?.[1]||3)}">${esc(o.comp)}</span> ${esc(o.objectif)}</p>`).join(''):'<p class="note">Rien de fixé pour l\'instant.</p>'}</div>
+  <div class="card"><h3>Les 3 obligatoires</h3>${obl}<p class="note">Attention : une activité dans une autre école ou un entretien seul avec un parent ne comptent pas.</p></div></div>
+  <div class="card"><h3>Infos</h3><div class="two">${fld('profil.nom','Stagiaire')}${fld('profil.etab','Établissement')}${fld('profil.mds','Maîtres de stage')}${fld('profil.sup','Superviseurs HECh')}</div></div>
+  <div class="card"><h3>Sauvegarde</h3><p class="note">Rien n'est gardé sans « Enregistrer » (ou Ctrl+S). Une copie de secours de temps en temps, ça ne fait pas de mal.</p>
+  <div class="row"><button class="btn alt sm" id="exp-port">Exporter tout le portfolio (.html)</button><button class="btn alt sm" id="exp-json">Télécharger une copie (.json)</button><label class="btn alt sm" style="display:inline-flex;align-items:center">Importer une copie<input type="file" id="imp" accept=".json" hidden></label></div></div>`;
+},
+comp(){
+  const b=cur.comp;
+  return `<h2>Compétences</h2><p class="lead">Les compétences de l'art. 5, celles du cahier des charges. À chaque bilan, je me situe, puis je recopie ce que mes MDS et mon superviseur m'ont renvoyé.</p>
+  <div class="row" style="margin-bottom:10px">${bilSeg('comp')}</div>
+  <div class="row" style="margin-bottom:6px;justify-content:space-between"><div class="seg">${[['all','Toutes'],['obj','Mes objectifs'],['todo','Pas encore évaluées']].map(f=>`<button data-filt="${f[0]}" class="${cur.filt===f[0]?'on':''}">${f[1]}</button>`).join('')}</div>
+  <span class="note">${C.filter(c=>ev(b,c[0]).moi).length} / ${C.length} autoévaluées pour ce bilan</span></div>
+  <div class="chips" style="margin:8px 0 4px">${FAM.map(f=>`<a class="chip" style="text-decoration:none" href="#fam${f.id}" data-jump="fam${f.id}">${f.id}. ${esc(f.nom.split(' ').slice(0,3).join(' '))}…</a>`).join('')}</div>
+  ${FAM.map(f=>{const list=C.filter(c=>c[1]===f.id&&keep(b,c[0]));return list.length?`<div class="famh" id="fam${f.id}" style="--c:${famC(f.id)}"><span class="dot"></span><h3>${f.id}. ${esc(f.nom)}</h3></div>
+   ${list.map(c=>{const e=ev(b,c[0]);const isObj=[...(S.objectifs[b]||[]),...(S.objectifs[prevB(b)]||[])].some(o=>o.comp===c[0]);const nt=S.traces.filter(t=>(t.comps||[]).includes(c[0])).length;return `<div class="card comp fam" style="--c:${famC(f.id)}">${isObj?'<span class="tag" style="--c:var(--or);float:right;margin-left:8px">Objectif</span>':''}<p><span class="code">${c[0]}</span>${esc(c[2])}</p>
+    ${WHO.map(w=>`<div class="who"><label>${w[1]}</label><div class="lv">${[1,2,3,4].map(v=>`<button data-ev="${c[0]}|${w[0]}" data-v="${v}" class="${e[w[0]]===v?'on':''}">${LV[v]}</button>`).join('')}</div></div>`).join('')}
+    <label class="f">Preuve ou commentaire</label><input data-p="evals.${b}.${c[0]}.com" value="${esc(e.com)}" placeholder="Une situation de classe, un retour reçu…">
+    <div class="hist">Mes bilans : ${BIL.map(x=>{const v=ev(x[0],c[0]).moi;return `<span title="${x[1]}"><i style="${v?'background:var(--l'+v+');border-color:transparent':''}"></i>${x[1].replace('Fin ','').replace('Bilan initial','Init.')}</span>`}).join('')}${lecTrav(c[0])}<button class="chip" style="margin-left:auto" data-seetr="${c[0]}">${nt} trace${nt>1?'s':''}</button></div></div>`}).join('')}`:''}).join('')||'<div class="empty">Rien ici avec ce filtre.</div>'}`;
+},
+obj(){
+  const b=cur.obj,L=S.objectifs[b]||[];
+  return `<h2>Objectifs du mois</h2><p class="lead">Ce sur quoi je bosse ce mois-ci, décidé avec mes MDS et mes superviseurs. Pour chaque objectif : ce que je vise, comment je m'y prends, et comment je saurai que ça marche.</p>
+  <div class="row" style="margin-bottom:14px">${bilSeg('obj')}</div>
+  <p class="note" style="margin-top:-6px">Objectifs fixés au ${BIL.find(x=>x[0]===b)[1].toLowerCase()}, pour la période qui suit.</p>
+  ${!L.length&&b!=='init'&&(S.objectifs[prevB(b)]||[]).length?`<div class="card"><p style="margin-top:0">Rien pour cette période. Je peux repartir des objectifs d'avant et les ajuster.</p><button class="btn alt sm" id="copyobj">Reprendre les ${S.objectifs[prevB(b)].length} objectifs précédents</button></div>`:''}
+  ${L.length?L.map((o,i)=>{const f=CM[o.comp]?.[1]||3;return `<div class="card fam" style="--c:${famC(f)}">
+   <div class="row" style="justify-content:space-between"><span class="tag" style="--c:${famC(f)}">${esc(o.comp)}</span><button class="btn alt sm" data-delobj="${i}">Supprimer</button></div>
+   <label class="f">Compétence visée</label><select data-p="objectifs.${b}.${i}.comp">${compOpts(o.comp)}</select>
+   ${fld(`objectifs.${b}.${i}.objectif`,'Objectif, en une phrase',true)}
+   <div class="two">${fld(`objectifs.${b}.${i}.actions`,'Actions concrètes',true)}${fld(`objectifs.${b}.${i}.indic`,'Indicateurs observables',true)}</div>
+   ${fld(`objectifs.${b}.${i}.classes`,'Classes concernées')}
+   ${(()=>{const cr=o.crit||[];const p=cr.length?cr.reduce((a,x)=>a+(+x.etat||0),0)/(3*cr.length)*100:null;return `<label class="f">Critères de réussite <span class="note">(un clic fait avancer l'état)</span></label>
+   ${p!=null?`<div class="row" style="gap:10px;margin-bottom:4px"><div class="bar" style="flex:1;--c:${famC(f)}"><i style="width:${p}%"></i></div><b>${Math.round(p)} %</b></div>`:''}
+   ${cr.map((x,j)=>`<div class="crit"><button class="st st${+x.etat||0}" data-crit="${b}|${i}|${j}">${ETAT[+x.etat||0]}</button><input data-p="objectifs.${b}.${i}.crit.${j}.txt" value="${esc(x.txt)}" placeholder="Ce que je dois voir pour dire que c'est atteint"><button class="btn alt sm" data-delcrit="${b}|${i}|${j}" aria-label="Retirer">×</button></div>`).join('')}
+   <button class="btn alt sm" data-addcrit="${b}|${i}">+ Critère</button>`})()}</div>`}).join(''):`<div class="empty">Rien pour cette période.</div>`}
+  <button class="btn" id="addobj" style="margin-top:6px">Ajouter un objectif</button>`;
+},
+bil(){
+  const b=cur.bil,B=S.bilans[b]||{},L=S.objectifs[b]||[];const prev=BIL[Math.max(0,BIL.findIndex(x=>x[0]===b)-1)][0];const P=S.objectifs[prev]||[];
+  const tri=c=>{const e=ev(b,c);return `<div class="trip">${WHO.map(w=>`<div><div class="note">${w[1].split(' ')[0]}</div><b>${e[w[0]]?LV[e[w[0]]]:'–'}</b></div>`).join('')}</div>`};
+  return `<h2>Bilans mensuels</h2><p class="lead">Une fois par mois : mon regard, celui de mes MDS et celui de la HECh. Je note ce qu'on m'a dit, ce que je change, et ce que je vise pour la suite.</p>
+  <div class="row" style="margin-bottom:14px">${bilSeg('bil')}<button class="btn alt sm" id="exp-bil">Exporter ce bilan</button></div>
+  <div class="card"><div class="two">${fld(`bilans.${b}.date`,'Date du bilan',false,'jj/mm/aaaa')}${fld(`bilans.${b}.presents`,'Présents',false,'MDS, superviseur…')}</div></div>
+  ${b!=='init'?`<div class="card"><h3>Objectifs de la période écoulée</h3>${P.length?P.map(o=>`<div style="border-top:1px solid var(--line);padding:10px 0"><span class="tag" style="--c:${famC(CM[o.comp]?.[1]||3)}">${esc(o.comp)}</span> ${esc(o.objectif)}${tri(o.comp)}</div>`).join(''):'<p class="note">Pas d\'objectif fixé la période d\'avant.</p>'}<p class="note">Niveaux repris de l'onglet Compétences.</p></div>`:''}
+  <details class="card" ${cur.qeOpen?'open':''} id="qe"><summary style="cursor:pointer;font-weight:700;font-size:17px">Encoder les évaluations reçues <span class="note">· maîtres de stage et superviseur</span></summary>
+  <p class="note">Je recopie ici ce qu'ils m'envoient, ça va plus vite que carte par carte.</p>
+  <div class="scroll"><table><tr><th>Compétence</th><th>Moi</th><th>Maître de stage</th><th>Superviseur</th></tr>
+  ${C.map(c=>{const e=ev(b,c[0]);return `<tr><td><span class="tag" style="--c:${famC(c[1])}">${c[0]}</span> <span class="note">${esc(c[2].slice(0,70))}…</span></td><td style="white-space:nowrap">${e.moi?LV[e.moi]:'–'}</td>${['mds','sup'].map(w=>`<td><select data-qe="${c[0]}|${w}" style="min-width:130px"><option value="0">–</option>${[1,2,3,4].map(v=>`<option value="${v}" ${e[w]===v?'selected':''}>${LV[v]}</option>`).join('')}</select></td>`).join('')}</tr>`}).join('')}</table></div></details>
+  ${(()=>{const E=ecarts(b);return `<div class="card"><h3>Regards croisés</h3>${E.length?`<p class="note" style="margin-top:0">Là où je ne me vois pas comme eux me voient (deux niveaux d'écart ou plus). À aborder au bilan.</p>`+E.map(x=>`<p style="margin:6px 0"><span class="tag" style="--c:${famC(x.c[1])}">${x.c[0]}</span> Moi : <b>${LV[x.e.moi]}</b> · ${x.d.map(d=>`${d[0]} : <b>${LV[d[1]]}</b>`).join(' · ')}</p>`).join(''):`<p class="note" style="margin:0">Pas de gros écart entre mon regard et le leur pour ce bilan${Object.keys(S.evals[b]||{}).length?'':' (rien n\'est encore encodé)'}.</p>`}</div>`})()}
+  <div class="card"><div class="two">${fld(`bilans.${b}.retMds`,'Retours des maîtres de stage',true)}${fld(`bilans.${b}.retSup`,'Retours des superviseurs HECh',true)}${fld(`bilans.${b}.reussites`,'Ce qui a progressé',true)}${fld(`bilans.${b}.freins`,'Freins rencontrés',true)}</div>
+  ${fld(`bilans.${b}.ajust`,'Ce que j\'ajuste dans ma pratique',true)}</div>
+  <div class="card"><h3>Objectifs fixés pour la suite</h3>${L.length?L.map(o=>`<p style="margin:6px 0"><span class="tag" style="--c:${famC(CM[o.comp]?.[1]||3)}">${esc(o.comp)}</span> ${esc(o.objectif)}</p>`).join(''):'<p class="note">Pas encore d\'objectifs.</p>'}<button class="btn alt sm" data-goto="obj" data-b="${b}">Gérer ces objectifs</button></div>`;
+},
+deb(){
+  return `<h2>Débriefings</h2><p class="lead">Toutes les deux semaines, je fais le point avec mes MDS. Je garde une trace ici et dans mon portfolio Teams.</p>
+  ${DEB.map(d=>{const k=`debriefs.${d[0]}`,D=S.debriefs[d[0]]||{};const cs=D.comps||[];return `<details class="card" data-deb="${d[0]}" ${openDeb.has(d[0])?'open':''}><summary style="cursor:pointer;font-weight:700;font-size:17px">${d[1]} <span class="note">· ${d[2]}</span> ${D.date?'<span class="ok">✓ '+esc(D.date)+'</span>':''}</summary>
+   <div class="two">${fld(k+'.date','Date',false,'jj/mm')}${fld(k+'.avec','Avec')}</div>
+   <div class="two">${fld(k+'.marche','Ce qui a marché',true)}${fld(k+'.freins','Ce qui a coincé',true)}${fld(k+'.retours','Retours du maître de stage',true)}${fld(k+'.ajust','Ce que je change pour les 2 semaines qui viennent',true)}</div>
+   <label class="f">Compétences travaillées</label><div class="chips">${C.map(c=>`<button class="chip ${cs.includes(c[0])?'on':''}" style="--c:${famC(c[1])}" data-dc="${d[0]}|${c[0]}">${c[0]}</button>`).join('')}</div>
+   ${fld(k+'.lien','Lien vers la trace dans le portfolio Teams',false,'https://…')}</details>`}).join('')}`;
+},
+tra(){
+  const vis=S.traces.map((t,i)=>[t,i]).filter(([t])=>!cur.trf||(t.comps||[]).includes(cur.trf));
+  return `<h2>Traces</h2><p class="lead">Tout ce qui montre mon évolution : les retours reçus, mes réflexions, mes productions, ce qui bloque.</p>
+  <div class="row" style="margin-bottom:12px"><label class="f" style="margin:0">Compétence</label><select id="trf" style="max-width:420px"><option value="">Toutes les traces (${S.traces.length})</option>${C.map(c=>`<option value="${c[0]}" ${cur.trf===c[0]?'selected':''}>${c[0]} · ${S.traces.filter(t=>(t.comps||[]).includes(c[0])).length} trace(s)</option>`).join('')}</select></div>
+  ${vis.length?vis.map(([t,i])=>`<div class="card"><div class="two">${fld(`traces.${i}.date`,'Date',false,'jj/mm')}<div><label class="f">Type</label><select data-p="traces.${i}.type">${["Retour MDS","Retour superviseur","Réflexion personnelle","Production / préparation","Évolution","Frein","Autre"].map(x=>`<option ${t.type===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+   ${fld(`traces.${i}.titre`,'Titre')}${fld(`traces.${i}.note`,'Ce que j\'en retiens',true)}
+   <label class="f">Compétences liées</label><div class="chips">${C.map(c=>`<button class="chip ${(t.comps||[]).includes(c[0])?'on':''}" style="--c:${famC(c[1])}" data-tc="${i}|${c[0]}">${c[0]}</button>`).join('')}</div>
+   ${fld(`traces.${i}.lien`,'Lien Teams',false,'https://…')}
+   <div class="row" style="margin-top:10px">${/^https:\/\//.test(t.lien||'')?`<a href="${esc(t.lien)}" target="_blank" rel="noopener">Ouvrir la trace</a>`:''}<button class="btn alt sm" data-deltr="${i}">Supprimer</button></div></div>`).join(''):`<div class="empty">${cur.trf?'Pas encore de trace pour '+cur.trf+'.':'Pas encore de trace.'}</div>`}
+  <button class="btn" id="addtr" style="margin-top:6px">Ajouter une trace</button>`;
+},
+chg(){
+  const t=sumSem(),h=S.missions.reduce((a,m)=>a+(+m.h||0),0);
+  const byCat=Object.keys(CAT).map(k=>[k,S.missions.filter(m=>m.cat===k).reduce((a,m)=>a+(+m.h||0),0),S.missions.some(m=>m.cat===k)]);
+  const bar=(v,max,c)=>`<div class="bar" style="--c:${c}"><i style="width:${Math.min(100,v/max*100)}%"></i></div>`;
+  return `<h2>Charge de stage</h2><p class="lead">Le compte des heures. 14 semaines, 154 périodes (108 accompagnées, 46 seul) et 56 h d'autres missions, avec au moins une fois chaque catégorie.</p>
+  <div class="grid"><div class="card"><h3>Accompagnées : ${t.acc} / 108</h3>${bar(t.acc,108,'var(--or)')}</div><div class="card"><h3>Autonomie : ${t.auto} / 46</h3>${bar(t.auto,46,'var(--te)')}</div><div class="card"><h3>Autres missions : ${h} / 56 h</h3>${bar(h,56,'var(--mu)')}</div></div>
+  <div class="card"><h3>Périodes par semaine</h3><p class="note">Je remplis en même temps que l'horaire du jeudi. Ne pas oublier le paraphe des MDS.</p><div class="scroll"><table><tr><th>Semaine</th><th class="n">Observation</th><th class="n">Accompagné</th><th class="n">Autonomie</th><th>Paraphé</th><th>Horaire signé</th></tr>
+   ${SEM.map(s=>{const k=`semaines.${s[0]}`,w=S.semaines[s[0]]||{};return `<tr><td style="white-space:nowrap"><b>${s[0]}</b> <span class="note">${s[1]}</span></td>${['obs','acc','auto'].map(f=>`<td class="n"><input type="number" min="0" inputmode="numeric" data-p="${k}.${f}" data-num value="${esc(w[f]??'')}" style="width:74px"></td>`).join('')}<td><input type="checkbox" data-chk="${k}.visa" ${w.visa?'checked':''} style="width:22px;height:22px"></td><td style="white-space:nowrap">${fileList(k+'.files',true)}</td></tr>`}).join('')}
+   <tr><td><b>Total</b></td><td class="n"><b>${t.obs}</b></td><td class="n"><b>${t.acc}</b></td><td class="n"><b>${t.auto}</b></td><td></td><td></td></tr></table></div></div>
+  <div class="card"><h3>Les cinq catégories</h3>${byCat.map(c=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0"><span><b>${c[0]}.</b> ${CAT[c[0]]}</span><span class="${c[2]?'ok':'ko'}" style="white-space:nowrap">${c[2]?'✓':'○'} ${c[1]} h</span></div>`).join('')}
+   <h3 style="margin-top:14px">Activités obligatoires</h3>${OBL.map(o=>{const d=S.missions.some(m=>m.obl===o[0]);return `<div class="${d?'ok':'ko'}">${d?'✓':'○'} ${o[1]} (cat. ${o[2]})</div>`}).join('')}</div>
+  <div class="card"><h3>Mes missions</h3>${S.missions.length?`<div class="scroll"><table><tr><th>Date</th><th>Cat.</th><th>Description</th><th class="n">Heures</th><th>Obligatoire</th><th></th></tr>${S.missions.map((m,i)=>`<tr><td><input data-p="missions.${i}.date" value="${esc(m.date)}" placeholder="jj/mm" style="width:84px"></td><td><select data-p="missions.${i}.cat" style="width:70px">${Object.keys(CAT).map(k=>`<option ${m.cat===k?'selected':''}>${k}</option>`).join('')}</select></td><td><input data-p="missions.${i}.desc" value="${esc(m.desc)}"></td><td class="n"><input type="number" min="0" step="0.5" data-p="missions.${i}.h" data-num value="${esc(m.h??'')}" style="width:74px"></td><td><select data-p="missions.${i}.obl" style="width:150px"><option value="">Non</option>${OBL.map(o=>`<option value="${o[0]}" ${m.obl===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></td><td><button class="btn alt sm" data-delm="${i}">×</button></td></tr>`).join('')}</table></div>`:'<div class="empty">Pas encore de mission.</div>'}
+  <button class="btn" id="addm" style="margin-top:10px">Ajouter une mission</button></div>`;
+}};
+function rappels(){
+  const today=new Date().toISOString().slice(0,10);
+  const L=S.rappels.map((r,i)=>[r,i]).sort((a,b)=>(a[0].fait-b[0].fait)||(a[0].date||'9').localeCompare(b[0].date||'9'));
+  const todo=L.filter(([r])=>!r.fait).length;
+  return `<div class="card"><div class="row" style="justify-content:space-between"><h3>Mes rappels</h3><span class="note">${todo} à faire</span></div>
+  ${L.map(([r,i])=>`<div class="rm ${r.fait?'fait':''}"><input type="checkbox" ${r.fait?'checked':''} data-remchk="${i}" class="ck" aria-label="Fait"><div><input class="rtx" data-p="rappels.${i}.titre" value="${esc(r.titre)}"><input type="date" data-p="rappels.${i}.date" value="${esc(r.date)}" class="${!r.fait&&r.date&&r.date<today?'late':''}" aria-label="Date"></div><button class="btn alt sm" style="min-height:30px;padding:0 9px" data-remdel="${i}" aria-label="Supprimer">×</button></div>`).join('')||'<p class="note">Rien à faire pour l\'instant.</p>'}
+  <div class="rm"><span></span><div class="row" style="gap:6px;flex-wrap:nowrap"><input id="newrem" placeholder="Nouveau rappel, puis Entrée"><input type="date" id="newremd" style="width:auto"></div><span></span></div></div>`;
+}
+function rencontre(){
+  const auto={obs:`${S.observations.filter(o=>o.statut==='Réalisée').length} faite(s), ${S.observations.filter(o=>o.statut!=='Réalisée').length} prévue(s)`,outil:'',obj:`${(S.objectifs[latestObj()]||[]).length} objectif(s) en cours`,hor:`${Object.values(S.semaines).filter(w=>+w.acc||+w.auto||+w.obs).length}/14 semaines remplies`,seq:`${S.lecons.length} leçon(s), ${S.lecons.filter(l=>l.statut!=='À préparer').length} prête(s)`};
+  const n=RENC.filter(r=>S.rencontre[r[0]]).length;
+  return `<div class="card"><div class="row" style="justify-content:space-between"><h3>Première rencontre avec le superviseur</h3><span class="note">${n} / ${RENC.length} prêts</span></div>
+  ${RENC.map(r=>`<div class="rm"><input type="checkbox" class="ck" data-renc="${r[0]}" ${S.rencontre[r[0]]?'checked':''} aria-label="Prêt"><span>${r[1]}${auto[r[0]]?` <span class="note">· ${auto[r[0]]}</span>`:''}</span><button class="btn alt sm" style="min-height:30px" data-tab="${r[2]}">Voir</button></div>`).join('')}</div>`;
+}
+function echeances(){
+  const now=new Date();now.setHours(0,0,0,0);const L=[];
+  WK.forEach((w,i)=>L.push({d:addD(w,-4),t:`Déposer l'horaire de la semaine ${i+1} sur Teams`,tab:'chg'}));
+  DEB.forEach((d,i)=>L.push({d:addD(WK[i*2+1],4),t:`${d[1]} avec les maîtres de stage (${d[2]})`,tab:'deb',done:!!(S.debriefs[d[0]]||{}).date}));
+  Object.entries(BILW).forEach(([k,i])=>L.push({d:addD(WK[i],4),t:`${BIL.find(b=>b[0]===k)[1]} : bilan mensuel`,tab:'bil',done:!!(S.bilans[k]||{}).date}));
+  L.push({d:addD(WK[13],4),t:`Fin du stage : vérifier les 3 activités obligatoires et les 56 h`,tab:'chg'});
+  const next=L.filter(e=>e.d>=now&&!e.done).sort((a,b)=>a.d-b.d).slice(0,4);
+  const start=Math.round((WK[0]-now)/864e5);
+  return `<div class="card"><h3>À venir</h3>${start>0?`<p class="note" style="margin-top:0">Début du stage le lundi 4 janvier, dans ${start} jours. Le cahier des charges signé doit partir au moins 10 jours ouvrables avant.</p>`:''}
+  ${next.length?next.map(e=>`<div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding:8px 0"><span><b>${(x=>x[0].toUpperCase()+x.slice(1))(fmtD(e.d))}</b><br>${esc(e.t)}</span><button class="btn alt sm" data-tab="${e.tab}">Ouvrir</button></div>`).join(''):'<p class="note">Plus rien à l\'horizon : stage terminé.</p>'}</div>`;
+}
+function ecarts(b){
+  return C.map(c=>{const e=ev(b,c[0]);const d=[];if(e.moi&&e.mds&&Math.abs(e.moi-e.mds)>=2)d.push(['Maître de stage',e.mds]);if(e.moi&&e.sup&&Math.abs(e.moi-e.sup)>=2)d.push(['Superviseur',e.sup]);return d.length?{c,e,d}:null}).filter(Boolean);
+}
+function fileList(path,compact){
+  const L=getP(path)||[];const id='u'+path.replace(/\W/g,'');
+  return `${L.map((f,j)=>`<span class="row" style="gap:6px;display:${compact?'inline-flex':'flex'};margin:2px 8px 2px 0"><a href="${esc(safeUrl(f.url))}" target="_blank" rel="noopener">${esc(compact?'✓ '+f.name.slice(0,18):f.name)}</a><button class="btn alt sm" style="min-height:28px;padding:0 8px" data-rmf="${path}|${j}" aria-label="Retirer">×</button></span>`).join('')}${AS?`<label class="btn alt sm" style="display:inline-flex;align-items:center;min-height:32px">${compact?'Déposer':'Déposer des fichiers'}<input type="file" multiple accept=".pdf,image/*,.txt,.md,.csv" data-upp="${path}" hidden></label> <span class="note" id="${id}"></span>`:(compact?'<span class="note">–</span>':'<span class="note">Dépôt disponible sur la page en ligne.</span>')}`;
+}
+async function upTo(path,files){
+  const id='u'+path.replace(/\W/g,'');let ok=0,ko=[];
+  for(const f of files){const st=document.getElementById(id);if(st)st.textContent='Envoi…';try{const r=await AS.upload(f);const L=getP(path)||[];L.push({id:r.id,url:r.url||('/_blob/'+r.id),name:f.name,size:r.sizeBytes||f.size});setP(path,L);ok++}catch(e){ko.push(f.name)}}
+  mark();rr();const st=document.getElementById(id);if(st)st.textContent=ko.length?'Refusé : '+ko.join(', '):ok+' ajouté(s)';
+}
+function guessKind(n){n=n.toLowerCase();return n.includes('corrig')?'Corrigé':n.includes('dossier')?'Dossier documentaire':n.includes('struct')?'Structuration':n.includes('descript')||n.includes('méthodo')||n.includes('methodo')?'Fiche descriptive':n.includes('interro')||n.includes('eval')||n.includes('éval')?'Évaluation':n.includes('feuille')||n.includes('élève')||n.includes('eleve')?'Feuille élève':'Autre'}
+const BLOBS={}; // id du fichier -> adresse locale (blob:)
+const safeUrl=u=>{u=u||'';if(u.startsWith('/_fichier/'))return BLOBS[u.slice(10)]||'';return /^https:\/\//.test(u)?u:''};
+const numV=v=>{const x=parseFloat(String(v??'').replace(',','.'));return isNaN(x)?null:x};
+function evStats(E,cl){const v=cl.eleves.map(el=>numV((E.notes||{})[el.id])).filter(x=>x!=null);const sur=numV(E.sur)||0;if(!v.length||!sur)return null;const m=v.reduce((a,x)=>a+x,0)/v.length;return {m,pct:m/sur*100,n:v.length,ko:v.filter(x=>x/sur<.5).length}}
+function elMoy(cl,el){let tot=0,sur=0;cl.evals.forEach(E=>{const v=numV((E.notes||{})[el.id]),s=numV(E.sur);if(v!=null&&s){tot+=v;sur+=s}});return sur?tot/sur*100:null}
+const pctCell=p=>p==null?'<span class="note">–</span>':`<b style="color:${p<50?'var(--l1)':'inherit'}">${Math.round(p)} %</b>`;
+V.les=function(){
+  const f=cur.lesF||'';const L=S.lecons.map((l,i)=>[l,i]).filter(([l])=>!f||l.classe===f);
+  const cls=[...new Set(S.classes.map(c=>c.nom))];
+  const cnt=k=>S.lecons.filter(l=>l.statut===k).length;
+  return `<h2>Mes leçons</h2><p class="lead">Toutes mes préparations au même endroit : feuilles élèves, corrigés, dossiers, fiches descriptives, liens vers les canevas. PDF et images seulement : les Word, je les exporte en PDF d'abord.</p>
+  <div class="grid" style="margin-bottom:14px">${STAT.map(k=>`<div class="card kpi"><b>${cnt(k)}</b><span>${k.toLowerCase()}</span></div>`).join('')}</div>
+  <div class="row" style="margin-bottom:12px"><div class="seg"><button data-lesf="" class="${!f?'on':''}">Toutes</button>${cls.map(c=>`<button data-lesf="${esc(c)}" class="${f===c?'on':''}">${esc(c)}</button>`).join('')}</div><button class="btn" id="addles">Ajouter une leçon</button></div>
+  ${L.length?L.map(([l,i])=>{const k=`lecons.${i}`;return `<details class="card" data-les="${l.id}" ${cur.lesOpen===l.id?'open':''}><summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag" style="--c:${['#c95b7a','#e3b15a','#7b4fa0','#5b3a8c'][Math.max(0,STAT.indexOf(l.statut))]}">${esc(l.statut)}</span><b style="font-size:17px">${esc(l.titre||'Leçon sans titre')}</b><span class="note">${esc(l.classe)} · ${esc(l.date||'date ?')} · ${(l.files||[]).length} fichier(s)</span></summary>
+   <div class="two">${fld(k+'.titre','Titre de la leçon')}${fld(k+'.seq','Séquence / moment clé')}</div>
+   <div class="two"><div><label class="f">Classe</label><select data-p="${k}.classe">${cls.map(c=>`<option ${l.classe===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div><div><label class="f">Statut</label><select data-p="${k}.statut">${STAT.map(x=>`<option ${l.statut===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+   <div class="two">${fld(k+'.date','Date',false,'jj/mm')}${fld(k+'.per','Périodes',false,'ex. 2')}</div>
+   <label class="f">Fichiers</label>${(l.files||[]).length?`<div class="scroll"><table>${l.files.map((x,j)=>`<tr><td><a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener">${esc(x.name)}</a> <span class="note">${Math.round((x.size||0)/1024)} Ko</span></td><td style="width:200px"><select data-p="${k}.files.${j}.kind">${KIND.map(o=>`<option ${x.kind===o?'selected':''}>${o}</option>`).join('')}</select></td><td style="width:60px"><button class="btn alt sm" data-delf="${i}|${j}">×</button></td></tr>`).join('')}</table></div>`:'<p class="note" style="margin:0">Aucun fichier.</p>'}
+   ${AS?`<label class="btn alt sm" style="display:inline-flex;align-items:center;margin-top:8px">Déposer des fichiers<input type="file" multiple accept=".pdf,image/*,.txt,.md,.csv" data-up="${i}" hidden></label> <span class="note" id="up${i}"></span>`:'<p class="note">Le dépôt de fichiers ne marche que sur la page en ligne.</p>'}
+   ${fld(k+'.liens','Liens (un par ligne : canevas, Drive, appli…)',true,'https://…')}
+   ${(l.liens||'').split('\n').filter(u=>/^https:\/\//.test(u.trim())).map(u=>`<a href="${esc(u.trim())}" target="_blank" rel="noopener" style="margin-right:12px">${esc(u.trim().replace('https://','').slice(0,40))}…</a>`).join('')}
+   <div class="two">${fld(k+'.retour','Retour du maître de stage',true)}${fld(k+'.bilan','Mon regard après la leçon',true)}</div>
+   <label class="f">Compétences travaillées</label><div class="chips">${C.map(c=>`<button class="chip ${(l.comps||[]).includes(c[0])?'on':''}" style="--c:${famC(c[1])}" data-lc="${i}|${c[0]}">${c[0]}</button>`).join('')}</div>
+   <div class="row" style="margin-top:12px">${l.lecId?`<a class="btn alt sm" style="text-decoration:none;display:inline-flex;align-items:center" href="/lecons/?lecon=${encodeURIComponent(l.lecId)}">🖍️ Projeter cette leçon</a>`:''}<button class="btn alt sm" data-delles="${i}">Supprimer la leçon</button></div></details>`}).join(''):`<div class="empty">Pas encore de leçon${f?' en '+esc(f):''}.</div>`}`;
+};
+V.cla=function(){
+  if(!S.classes.length)return `<h2>Mes classes</h2><div class="empty">Aucune classe.</div><button class="btn" id="addcl" style="margin-top:10px">Ajouter une classe</button>`;
+  const ci=Math.min(cur.cl||0,S.classes.length-1),cl=S.classes[ci],k=`classes.${ci}`,sub=cur.sub||'el';
+  let body='';
+  if(sub==='el'){
+    body=`${cl.eleves.length?cl.eleves.map((el,j)=>{const m=elMoy(cl,el),a=el.att||[];return `<details class="card" data-el="${el.id}" ${cur.elOpen===el.id?'open':''}><summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:16px">${esc(el.nom||'Élève')}</b>${a.map(x=>`<span class="tag" style="--c:var(--te)">${esc(x)}</span>`).join(' ')}<span style="margin-left:auto">${pctCell(m)}</span></summary>
+      ${fld(`${k}.eleves.${j}.nom`,'Nom et prénom')}
+      <label class="f">Points d'attention</label><div class="chips">${ATT.map(x=>`<button class="chip ${a.includes(x)?'on':''}" style="--c:var(--te)" data-att="${ci}|${j}|${esc(x)}">${esc(x)}</button>`).join('')}</div>
+      <div class="two">${fld(`${k}.eleves.${j}.besoins`,'Besoins observés',true,'Ce que j\'ai remarqué en classe')}${fld(`${k}.eleves.${j}.amen`,'Différenciation mise en place',true,'Supports adaptés, temps, place, tutorat…')}</div>
+      ${fld(`${k}.eleves.${j}.suivi`,'Suivi (dates, échanges avec le MDS, l\'éducateur, les parents)',true)}
+      <h3 style="margin-top:12px;font-size:15px">Résultats</h3>${cl.evals.length?cl.evals.map(E=>{const v=(E.notes||{})[el.id],fb=(E.fb||{})[el.id];return `<p style="margin:4px 0"><b>${esc(E.titre||'Évaluation')}</b> : ${v!=null&&v!==''?esc(v)+' / '+esc(E.sur):'–'}${fb?' · <i>'+esc(fb)+'</i>':''}</p>`}).join(''):'<p class="note">Pas encore d\'évaluation.</p>'}
+      <div class="row" style="margin-top:10px"><button class="btn alt sm" data-delel="${ci}|${j}">Retirer l'élève</button></div></details>`}).join(''):'<div class="empty">Pas encore d\'élèves dans cette classe.</div>'}
+      <div class="row" style="margin-top:8px"><button class="btn" id="addel">Ajouter un élève</button><button class="btn alt" id="addels">Coller une liste d'élèves</button></div>
+      <div id="pastebox"></div>`;
+  }else if(sub==='ev'){
+    const evs=cl.evals;
+    body=`${evs.length&&cl.eleves.length?`<div class="card"><h3>Vue d'ensemble</h3><div class="scroll"><table><tr><th>Élève</th>${evs.map(E=>`<th class="n">${esc((E.titre||'Éval.').slice(0,18))}<br><span class="note">/ ${esc(E.sur)}</span></th>`).join('')}<th class="n">Moyenne</th></tr>
+      ${cl.eleves.map(el=>`<tr><td>${esc(el.nom)}</td>${evs.map(E=>{const v=numV((E.notes||{})[el.id]),s=numV(E.sur);const raw=(E.notes||{})[el.id];return `<td class="n" style="${v!=null&&s&&v/s<.5?'color:var(--l1);font-weight:700':''}">${raw!=null&&raw!==''?esc(raw):'–'}</td>`}).join('')}<td class="n">${pctCell(elMoy(cl,el))}</td></tr>`).join('')}
+      <tr><td><b>Moyenne de classe</b></td>${evs.map(E=>{const st=evStats(E,cl);return `<td class="n">${st?pctCell(st.pct):'–'}</td>`}).join('')}<td></td></tr></table></div><p class="note">En rouge : sous 50 %. « abs » ne compte pas.</p></div>`:''}
+    ${evs.map((E,x)=>{const st=evStats(E,cl);const p=`${k}.evals.${x}`;return `<details class="card" data-ev2="${E.id}" ${cur.evOpen===E.id?'open':''}><summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><b style="font-size:16px">${esc(E.titre||'Nouvelle évaluation')}</b><span class="note">${esc(E.type)} · ${esc(E.date||'date ?')} · sur ${esc(E.sur)}</span><span style="margin-left:auto">${st?`moyenne ${pctCell(st.pct)} · ${st.ko} sous 50 %`:''}</span></summary>
+      <div class="two">${fld(p+'.titre','Titre')}<div><label class="f">Type</label><select data-p="${p}.type">${ETYPE.map(t=>`<option ${E.type===t?'selected':''}>${t}</option>`).join('')}</select></div></div>
+      <div class="two">${fld(p+'.date','Date',false,'jj/mm')}<div><label class="f">Noté sur</label><input data-p="${p}.sur" data-rr value="${esc(E.sur)}" inputmode="decimal"></div></div>
+      ${fld(p+'.critere','Ce qui était évalué (savoirs, savoir-faire, compétences)',true)}
+      ${cl.eleves.length?`<div class="scroll" style="margin-top:10px"><table><tr><th>Élève</th><th class="n">Points</th><th>Feedback</th></tr>${cl.eleves.map(el=>`<tr><td style="white-space:nowrap">${esc(el.nom)}</td><td class="n"><input data-p="${p}.notes.${el.id}" data-rr value="${esc((E.notes||{})[el.id]??'')}" placeholder="abs" inputmode="decimal" style="width:76px"></td><td><input data-p="${p}.fb.${el.id}" value="${esc((E.fb||{})[el.id]??'')}" placeholder="Un point fort, un point à travailler"></td></tr>`).join('')}</table></div>`:'<p class="note">Il faut d\'abord ajouter les élèves.</p>'}
+      ${fld(p+'.bilan','Ce que je retiens pour la classe (remédiation, consignes à revoir…)',true)}
+      <div class="row" style="margin-top:10px"><button class="btn alt sm" data-delev="${ci}|${x}">Supprimer l'évaluation</button></div></details>`}).join('')||'<div class="empty">Pas encore d\'évaluation dans cette classe.</div>'}
+    <button class="btn" id="addev" style="margin-top:8px">Ajouter une évaluation</button>`;
+  }else{
+    const P=cl.periodes;
+    body=`${P.map((pe,x)=>{const p=`${k}.periodes.${x}`;return `<div class="card"><div class="row" style="justify-content:space-between"><input data-p="${p}.nom" value="${esc(pe.nom)}" style="max-width:320px;font-weight:700"><div class="row"><button class="btn alt sm" data-fillb="${ci}|${x}">Reprendre les moyennes</button><button class="btn alt sm" data-delpe="${ci}|${x}">Supprimer</button></div></div>
+      ${cl.eleves.length?`<div class="scroll" style="margin-top:10px"><table><tr><th>Élève</th><th class="n">Moyenne actuelle</th><th>Note / appréciation</th><th>Commentaire du bulletin</th></tr>${cl.eleves.map(el=>`<tr><td style="white-space:nowrap">${esc(el.nom)}</td><td class="n">${pctCell(elMoy(cl,el))}</td><td><input data-p="${p}.r.${el.id}.note" value="${esc(((pe.r||{})[el.id]||{}).note??'')}" style="width:110px"></td><td><input data-p="${p}.r.${el.id}.com" value="${esc(((pe.r||{})[el.id]||{}).com??'')}"></td></tr>`).join('')}</table></div>`:'<p class="note">Il faut d\'abord ajouter les élèves.</p>'}</div>`}).join('')||'<div class="empty">Pas encore de bulletin.</div>'}
+    <button class="btn" id="addpe" style="margin-top:8px">Ajouter une période de bulletin</button>`;
+  }
+  return `<h2>Mes classes</h2><p class="lead">Mes élèves, ce à quoi je dois faire attention pour chacun, les points aux interros, mes feedbacks et les bulletins. Ça reste ici : rien de tout ça ne part dans l'export du portfolio.</p>
+  <div class="row" style="margin-bottom:10px"><div class="seg">${S.classes.map((c,x)=>`<button data-cl="${x}" class="${x===ci?'on':''}">${esc(c.nom)}</button>`).join('')}</div><button class="btn alt sm" id="addcl">Ajouter une classe</button></div>
+  <div class="card"><div class="two">${fld(k+'.nom','Nom de la classe')}${fld(k+'.disc','Cours')}</div><p class="note" style="margin-bottom:0">${cl.eleves.length} élève(s) · ${cl.evals.length} évaluation(s) · ${cl.eleves.filter(e=>(e.att||[]).length).length} élève(s) avec un point d'attention</p></div>
+  <div class="row" style="margin:6px 0 14px"><div class="seg">${[['el','Élèves et différenciation'],['ev','Évaluations et feedbacks'],['bu','Bulletins']].map(t=>`<button data-sub="${t[0]}" class="${sub===t[0]?'on':''}">${t[1]}</button>`).join('')}</div></div>
+  ${body}`;
+};
+V.obs=function(){
+  const L=S.observations.map((o,i)=>[o,i]).sort((a,b)=>(a[0].date||'9').localeCompare(b[0].date||'9'));
+  const r=S.observations.filter(o=>o.statut==='Réalisée').length;
+  return `<h2>Observations</h2><p class="lead">Les cours que j'observe : chez qui, ce que je regarde, ce que j'en retire. ${r} faite(s), ${S.observations.length-r} prévue(s).</p>
+  <button class="btn" id="addobs" style="margin-bottom:14px">Ajouter une observation</button>
+  ${L.length?L.map(([o,i])=>{const k='observations.'+i,done=o.statut==='Réalisée';return `<details class="card" data-obs="${o.id}" ${cur.obsOpen===o.id?'open':''}><summary style="cursor:pointer;display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="tag" style="--c:${done?'var(--l4)':'var(--l2)'};${done?'':'color:#2a1f35'}">${esc(o.statut)}</span><b style="font-size:16px">${esc(o.classe||'Classe ?')}${o.disc?' · '+esc(o.disc):''}</b><span class="note">${esc(o.date||'date ?')}${o.prof?' · '+esc(o.prof):''}</span></summary>
+   <div class="row" style="margin-top:10px"><button class="btn alt sm" data-stobs="${i}">${done?'Remettre en prévue':'Marquer comme faite'}</button></div>
+   <div class="two"><div><label class="f">Date</label><input type="date" data-p="${k}.date" value="${esc(o.date)}"></div>${fld(k+'.classe','Classe')}</div>
+   <div class="two">${fld(k+'.disc','Cours')}${fld(k+'.prof','Enseignant·e observé·e')}</div>
+   ${fld(k+'.focus','Ce que je regarde',false,'Gestion du début de cours, consignes, différenciation…')}
+   ${fld(k+'.notes','Ce que je retiens pour moi',true)}
+   <label class="f">Compétences liées</label><div class="chips">${C.map(c=>`<button class="chip ${(o.comps||[]).includes(c[0])?'on':''}" style="--c:${famC(c[1])}" data-oc="${i}|${c[0]}">${c[0]}</button>`).join('')}</div>
+   <label class="f">Fichiers (grille d'observation, photos du tableau…)</label>${fileList(k+'.files')}
+   <div class="row" style="margin-top:12px"><button class="btn alt sm" data-delobs="${i}">Supprimer</button></div></details>`}).join(''):'<div class="empty">Pas encore d\'observation.</div>'}`;
+};
+function sumSem(){const t={obs:0,acc:0,auto:0};Object.values(S.semaines).forEach(w=>['obs','acc','auto'].forEach(k=>t[k]+=+w[k]||0));return t}
+function keep(b,c){if(cur.filt==='todo')return !ev(b,c).moi;if(cur.filt==='obj'){const o=[...(S.objectifs[b]||[]),...(S.objectifs[prevB(b)]||[])];return o.some(x=>x.comp===c)}return true}
+function prevB(b){return BIL[Math.max(0,BIL.findIndex(x=>x[0]===b)-1)][0]}
+function latestObj(){return [...BIL].reverse().find(b=>(S.objectifs[b[0]]||[]).length)?.[0]||'init'}
+function rr(){const y=window.scrollY;render();window.scrollTo(0,y)}
+
+/* ---------- Liens avec mes autres outils ---------- */
+// Suivi → Leçons : les leçons notées où j'ai travaillé cette compétence
+function lecTrav(code){
+  const L=S.lecons.filter(l=>(l.comps||[]).includes(code));
+  if(!L.length)return '';
+  return `<span style="flex-basis:100%;height:0"></span><span>Travaillée dans :</span>${L.map(l=>`<button class="chip" data-goles="${esc(l.id)}">${esc((l.titre||'Leçon').slice(0,28))}${l.classe?' · '+esc(l.classe):''}</button>`).join('')}`;
+}
+// Leçons → Suivi : « Noter ce cours » arrive ici avec ?noter=1&lecon=…&titre=…&classe=…&date=…&capture=…
+function noterCeCours(){
+  const q=new URLSearchParams(location.search);if(!q.get('noter'))return;
+  history.replaceState(null,'',location.pathname);
+  const lecId=q.get('lecon')||'',titre=q.get('titre')||'Leçon',classe=q.get('classe')||'',date=q.get('date')||'',cap=q.get('capture');
+  const jj=date?date.split('-').reverse().slice(0,2).join('/'):'';
+  // même leçon, même classe : je complète la fiche existante
+  let L=lecId?S.lecons.find(l=>l.lecId===lecId&&l.classe===classe):null;
+  if(!L){L={id:'l'+Date.now(),titre,classe,seq:q.get('matiere')||'',date:jj,per:'',statut:'Donnée',files:[],liens:'',retour:'',bilan:'',comps:[],lecId};S.lecons.unshift(L)}
+  else{L.date=jj||L.date;if(STAT.indexOf(L.statut)<2)L.statut='Donnée'}
+  if(!S.classes.some(c=>c.nom===classe)&&classe)L.classe=classe;
+  if(cap){L.files=L.files||[];L.files.push({id:cap,url:'/_fichier/'+cap,name:`Tableau ${jj||''} p.${q.get('page')||1}.jpg`.replace('  ',' '),size:0,kind:'Autre'})}
+  tab='les';cur.lesOpen=L.id;cur.lesF='';mark();
+  setTimeout(()=>{const d=document.querySelector(`details[data-les="${CSS.escape(L.id)}"]`);if(d){d.scrollIntoView({block:'start'});const t=d.querySelector('textarea[data-p$=".bilan"]');if(t)t.focus({preventScroll:true})}},300);
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-goles]');if(!b)return;e.stopPropagation();cur.lesOpen=b.dataset.goles;cur.lesF='';tab='les';location.hash='les';render();setTimeout(()=>{const d=document.querySelector(`details[data-les="${CSS.escape(b.dataset.goles)}"]`);if(d)d.scrollIntoView({block:'start'})},50)},true);
+
+// Onglet « Mémoire DASPA » : les observations envoyées depuis l'appli DASPA (« utile pour le mémoire »)
+let MEM=[];
+async function chargerMem(){try{MEM=(await MesDonnees.collection('memoire').get()).map(d=>({...(d.data()||{}),id:d.id})).sort((a,b)=>(b.t||0)-(a.t||0))}catch(e){MEM=[]}}
+const memSauver=(m)=>{const o={...m};delete o.id;MesDonnees.doc('memoire/'+m.id).set(o).catch(()=>{})};
+V.mem=function(){
+  return `<h2>Mémoire DASPA</h2><p class="lead">Les observations d'élèves DASPA que j'ai marquées « utile pour le mémoire ». Elles restent sur cet appareil. L'export remplace les prénoms par É1, É2…</p>
+  <div class="row" style="margin-bottom:12px"><button class="btn" id="addmem">Ajouter une observation</button><button class="btn alt" id="exp-mem">Exporter pour le mémoire (anonyme)</button></div>
+  ${MEM.length?MEM.map(m=>`<div class="card"><div class="two"><div><label class="f">Élève (prénom)</label><input data-mem="${esc(m.id)}|prenom" value="${esc(m.prenom)}"></div><div><label class="f">Date</label><input type="date" data-mem="${esc(m.id)}|date" value="${esc(m.date)}"></div></div>
+   <label class="f">Ce que j'ai observé</label><textarea data-mem="${esc(m.id)}|texte">${esc(m.texte)}</textarea>
+   <label class="f">Ce que j'en tire pour le mémoire</label><textarea data-mem="${esc(m.id)}|analyse" placeholder="Lien avec ma question de recherche, piste, hypothèse…">${esc(m.analyse)}</textarea>
+   <div class="row" style="margin-top:10px;justify-content:space-between"><span class="note">${esc(m.source||'')}</span><button class="btn alt sm" data-delmem="${esc(m.id)}">Supprimer</button></div></div>`).join(''):'<div class="empty">Rien pour l\'instant. Dans l\'appli DASPA (suivi des élèves, mode prof), le bouton « Mémoire » à côté d\'une remarque l\'envoie ici.</div>'}`;
+};
+let memT={};
+document.addEventListener('input',e=>{const k=e.target.dataset&&e.target.dataset.mem;if(!k)return;const[id,ch]=k.split('|');const m=MEM.find(x=>x.id===id);if(!m)return;m[ch]=e.target.value;clearTimeout(memT[id]);memT[id]=setTimeout(()=>memSauver(m),600)});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.id==='addmem'){const d=new Date();const m={id:'m'+Date.now(),t:Date.now(),date:d.toISOString().slice(0,10),prenom:'',texte:'',analyse:'',source:'Ajoutée dans le Suivi'};MEM.unshift(m);memSauver(m);rr();return}
+  if(t.dataset.delmem){const id=t.dataset.delmem;const m=MEM.find(x=>x.id===id);MEM=MEM.filter(x=>x.id!==id);MesDonnees.doc('memoire/'+id).delete().catch(()=>{});rr();
+    toast('Observation supprimée');undo={arr:{splice:(i,n,it)=>{MEM.push(it);memSauver(it);MEM.sort((a,b)=>(b.t||0)-(a.t||0))}},i:0,item:m};return}
+  if(t.id==='exp-mem'){dl('memoire-daspa-anonyme.html',memoireDoc(),t);return}
+});
+function memoireDoc(){
+  // Pseudonymes stables : É1, É2… dans l'ordre d'apparition ; les prénoms sont aussi remplacés dans les textes
+  const ps={};let n=0;[...MEM].reverse().forEach(m=>{const p=(m.prenom||'').trim();if(p&&!ps[p.toLowerCase()])ps[p.toLowerCase()]='É'+(++n)});
+  const noms=Object.keys(ps).sort((a,b)=>b.length-a.length);
+  const anon=t=>{let x=String(t||'');noms.forEach(p=>{x=x.replace(new RegExp('(^|[^\\p{L}])'+p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\p{L}])','giu'),(m0,a)=>a+ps[p])});return x};
+  const rows=[...MEM].sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(ps[(m.prenom||'').trim().toLowerCase()]||'–')}</td><td>${esc(anon(m.texte))}</td><td>${esc(anon(m.analyse))}</td></tr>`).join('');
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Observations DASPA – mémoire</title><style>body{font:14px/1.5 Arial,sans-serif;max-width:900px;margin:30px auto;padding:0 20px;color:#222}h1{color:#7b4fa0}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;vertical-align:top}th{background:#f3ecfa;text-align:left}</style></head><body>
+  <h1>Observations DASPA (anonymisées)</h1><p>${MEM.length} observation(s). Les prénoms sont remplacés par des codes (É1, É2…).</p>
+  <table><tr><th>Date</th><th>Élève</th><th>Observation</th><th>Pour le mémoire</th></tr>${rows||'<tr><td colspan="4">Aucune observation.</td></tr>'}</table></body></html>`;
+}
+function render(){
+  document.getElementById('nav').innerHTML=TABS.map(t=>`<button data-tab="${t[0]}" class="${tab===t[0]?'on':''}">${t[1]}</button>`).join('');
+  document.getElementById('main').innerHTML=(V[tab]||V.dash)();
+  if(ro)ro.disconnect();const s=document.getElementById('chart');if(s){ro=new ResizeObserver(chart);ro.observe(s)}
+}
+const main=document.getElementById('main');
+main.addEventListener('focusout',()=>setTimeout(()=>{if(cur.pendR){const a=document.activeElement;if(!(a&&main.contains(a)&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))){cur.pendR=false;rr()}}},0));
+main.addEventListener('toggle',e=>{const ds=e.target.dataset||{};for(const[a,b]of[['les','lesOpen'],['el','elOpen'],['ev2','evOpen'],['obs','obsOpen']])if(ds[a]){if(e.target.open)cur[b]=ds[a];else if(cur[b]===ds[a])cur[b]=null}if(e.target.id==='qe')cur.qeOpen=e.target.open;const k=e.target.dataset&&e.target.dataset.deb;if(k){e.target.open?openDeb.add(k):openDeb.delete(k)}},true);
+main.addEventListener('input',e=>{const p=e.target.dataset.p;if(!p)return;setP(p,e.target.dataset.num!=null?(e.target.value===''?'':+e.target.value):e.target.value)});
+main.addEventListener('change',e=>{const t=e.target;
+  if(t.dataset.chk){setP(t.dataset.chk,t.checked);return}
+  if(t.id==='trf'){cur.trf=t.value;render();return}
+  if(t.dataset.up!=null&&t.files.length){upload(+t.dataset.up,[...t.files]);return}
+  if(t.dataset.upp&&t.files.length){upTo(t.dataset.upp,[...t.files]);return}
+  if(t.dataset.remchk!=null){const r=S.rappels[+t.dataset.remchk];r.fait=t.checked;mark();rr();return}
+  if(t.dataset.renc){S.rencontre[t.dataset.renc]=t.checked;mark();rr();return}
+  if(t.dataset.rr!=null){rr();return}
+  if(t.dataset.qe){const[c,w]=t.dataset.qe.split('|');S.evals[cur.bil]=S.evals[cur.bil]||{};S.evals[cur.bil][c]=S.evals[cur.bil][c]||{};S.evals[cur.bil][c][w]=+t.value||0;mark();cur.qeOpen=true;const y=window.scrollY;render();window.scrollTo(0,y);document.querySelector(`[data-qe="${c}|${w}"]`)?.focus();return}
+  if(t.id==='imp'&&t.files[0]){t.files[0].text().then(x=>{try{const d=JSON.parse(x);if(d&&d.evals&&d.objectifs){S=d;mark();render()}}catch(err){}});return}
+  if(t.tagName==='SELECT'||t.dataset.num!=null)rr();
+});
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;const d=t.dataset;
+  if(d.tab){tab=d.tab;location.hash=tab;render();window.scrollTo(0,0);return}
+  if(d.seg){cur[d.seg]=d.v;render();return}
+  if(d.src){cur.src=d.src;render();return}
+  if(d.ev){const[c,w]=d.ev.split('|');setEv(cur.comp,c,w,+d.v);render();return}
+  if(d.goto){tab=d.goto;cur.obj=d.b;location.hash=tab;render();return}
+  if(d.delobj!=null){del(S.objectifs[cur.obj],+d.delobj,'Objectif supprimé');return}
+  if(d.deltr!=null){del(S.traces,+d.deltr,'Trace supprimée');return}
+  if(d.delm!=null){del(S.missions,+d.delm,'Mission supprimée');return}
+  if(t.id==='undo'&&undo){undo.arr.splice(undo.i,0,undo.item);undo=null;mark();render();toast('');return}
+  if(d.filt){cur.filt=d.filt;render();return}
+  if(d.rmf){const k=d.rmf.lastIndexOf('|');const p=d.rmf.slice(0,k),j=+d.rmf.slice(k+1);const L=getP(p);const f=L.splice(j,1)[0];mark();rr();if(AS&&f&&f.id)AS.delete(f.id).catch(()=>{});return}
+  if(d.crit){const[b,i,j]=d.crit.split('|');const c=S.objectifs[b][+i].crit[+j];c.etat=((+c.etat||0)+1)%4;mark();rr();return}
+  if(d.addcrit){const[b,i]=d.addcrit.split('|');const o=S.objectifs[b][+i];(o.crit=o.crit||[]).push({txt:'',etat:0});mark();rr();return}
+  if(d.delcrit){const[b,i,j]=d.delcrit.split('|');S.objectifs[b][+i].crit.splice(+j,1);mark();rr();return}
+  if(d.remdel!=null){del(S.rappels,+d.remdel,'Rappel supprimé');return}
+  if(t.id==='addobs'){const id='b'+Date.now();S.observations.unshift({id,statut:'Planifiée',date:'',classe:'',disc:'',prof:'',focus:'',notes:'',files:[],comps:[]});cur.obsOpen=id;mark();rr();return}
+  if(d.stobs!=null){const o=S.observations[+d.stobs];o.statut=o.statut==='Réalisée'?'Planifiée':'Réalisée';mark();rr();return}
+  if(d.delobs!=null){del(S.observations,+d.delobs,'Observation supprimée');return}
+
+  if(d.lesf!=null){cur.lesF=d.lesf;render();return}
+  if(t.id==='addles'){const id='l'+Date.now();S.lecons.unshift({id,titre:'',classe:cur.lesF||(S.classes[0]||{}).nom||'',seq:'',date:'',per:'',statut:'À préparer',files:[],liens:'',retour:'',bilan:'',comps:[]});cur.lesOpen=id;mark();render();return}
+  if(d.delles!=null){del(S.lecons,+d.delles,'Leçon supprimée');return}
+  if(d.delf){const[i,j]=d.delf.split('|').map(Number);const f=S.lecons[i].files[j];S.lecons[i].files.splice(j,1);mark();rr();if(AS&&f&&f.id)AS.delete(f.id).catch(()=>{});return}
+  if(d.oc){const[i,c]=d.oc.split('|');const O=S.observations[+i];O.comps=O.comps||[];O.comps=O.comps.includes(c)?O.comps.filter(x=>x!==c):[...O.comps,c];mark();t.classList.toggle('on');return}
+  if(d.lc){const[i,c]=d.lc.split('|');const L=S.lecons[+i];L.comps=L.comps||[];L.comps=L.comps.includes(c)?L.comps.filter(x=>x!==c):[...L.comps,c];mark();t.classList.toggle('on');return}
+  if(d.cl!=null){cur.cl=+d.cl;render();return}
+  if(d.sub){cur.sub=d.sub;render();return}
+  if(t.id==='addcl'){S.classes.push({id:'c'+Date.now(),nom:'Nouvelle classe',disc:'',eleves:[],evals:[],periodes:[]});cur.cl=S.classes.length-1;mark();render();return}
+  const CL=()=>S.classes[Math.min(cur.cl||0,S.classes.length-1)];
+  if(t.id==='addel'){const id='e'+Date.now();CL().eleves.push({id,nom:'',att:[],besoins:'',amen:'',suivi:''});cur.elOpen=id;mark();rr();return}
+  if(t.id==='addels'){document.getElementById('pastebox').innerHTML=`<div class="card"><label class="f">Un élève par ligne (copié depuis une liste de classe)</label><textarea id="pastetxt" style="min-height:140px"></textarea><button class="btn" id="pasteok" style="margin-top:8px">Ajouter ces élèves</button></div>`;return}
+  if(t.id==='pasteok'){const v=document.getElementById('pastetxt').value.split('\n').map(x=>x.trim()).filter(Boolean);v.forEach((n,x)=>CL().eleves.push({id:'e'+Date.now()+x,nom:n,att:[],besoins:'',amen:'',suivi:''}));mark();rr();return}
+  if(d.att){const[ci,j,x]=d.att.split('|');const el=S.classes[+ci].eleves[+j];el.att=el.att||[];el.att=el.att.includes(x)?el.att.filter(y=>y!==x):[...el.att,x];mark();rr();return}
+  if(d.delel){const[ci,j]=d.delel.split('|').map(Number);del(S.classes[ci].eleves,j,'Élève retiré');return}
+  if(t.id==='addev'){const id='v'+Date.now();CL().evals.push({id,titre:'',type:'Interro',date:'',sur:'20',critere:'',notes:{},fb:{},bilan:''});cur.evOpen=id;mark();rr();return}
+  if(d.delev){const[ci,x]=d.delev.split('|').map(Number);del(S.classes[ci].evals,x,'Évaluation supprimée');return}
+  if(t.id==='addpe'){CL().periodes.push({nom:'Bulletin '+(CL().periodes.length+1),r:{}});mark();rr();return}
+  if(d.delpe){const[ci,x]=d.delpe.split('|').map(Number);del(S.classes[ci].periodes,x,'Période supprimée');return}
+  if(d.fillb){const[ci,x]=d.fillb.split('|').map(Number);const cl=S.classes[ci],pe=cl.periodes[x];pe.r=pe.r||{};cl.eleves.forEach(el=>{const m=elMoy(cl,el);if(m!=null){pe.r[el.id]=pe.r[el.id]||{};if(!pe.r[el.id].note)pe.r[el.id].note=Math.round(m)+' %'}});mark();rr();return}
+  if(d.seetr){cur.trf=d.seetr;tab='tra';location.hash=tab;render();window.scrollTo(0,0);return}
+  if(t.id==='copyobj'){S.objectifs[cur.obj]=JSON.parse(JSON.stringify(S.objectifs[prevB(cur.obj)]||[])).map((o,i)=>({...o,id:'o'+Date.now()+i}));mark();render();return}
+  if(d.dc){const[k,c]=d.dc.split('|');const D=S.debriefs[k]=S.debriefs[k]||{};D.comps=D.comps||[];D.comps=D.comps.includes(c)?D.comps.filter(x=>x!==c):[...D.comps,c];mark();t.classList.toggle('on');return}
+  if(d.tc){const[i,c]=d.tc.split('|');const T=S.traces[+i];T.comps=T.comps||[];T.comps=T.comps.includes(c)?T.comps.filter(x=>x!==c):[...T.comps,c];mark();t.classList.toggle('on');return}
+  if(t.id==='addobj'){(S.objectifs[cur.obj]=S.objectifs[cur.obj]||[]).push({id:'o'+Date.now(),comp:'3i',objectif:'',actions:'',indic:'',classes:''});mark();render();return}
+  if(t.id==='addtr'){S.traces.unshift({date:'',type:'Réflexion personnelle',titre:'',note:'',comps:cur.trf?[cur.trf]:[],lien:''});mark();render();return}
+  if(t.id==='addm'){S.missions.push({date:'',cat:'A',desc:'',h:'',obl:''});mark();render();return}
+  if(t.id==='exp-port'){dl('portfolio-stage-M1.html',portfolioDoc(),t);return}
+  if(t.id==='exp-json'){dl('suivi-stage-M1.json',JSON.stringify(S,null,1),t);return}
+  if(t.id==='exp-bil'){dl('bilan-'+cur.bil+'.html',bilanDoc(cur.bil),t);return}
+});
+function del(arr,i,msg){undo={arr,i,item:arr[i]};arr.splice(i,1);mark();render();toast(msg)}
+let tt=null;
+function toast(msg){let el=document.getElementById('toast');if(!msg){if(el)el.remove();return}
+  if(!el){el=document.createElement('div');el.id='toast';document.body.appendChild(el)}
+  el.innerHTML=`<span>${esc(msg)}</span><button class="btn sm" id="undo">Annuler</button>`;clearTimeout(tt);tt=setTimeout(()=>{el.remove();undo=null},7000)}
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-jump]');if(a){e.preventDefault();document.getElementById(a.dataset.jump)?.scrollIntoView({behavior:'smooth'})}});
+main.addEventListener('keydown',e=>{if(e.target.id==='newrem'&&e.key==='Enter'){const v=e.target.value.trim();if(!v)return;e.preventDefault();const dt=document.getElementById('newremd').value;S.rappels.push({id:'r'+Date.now(),titre:v,date:dt,fait:false});mark();rr();document.getElementById('newrem')?.focus()}});
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();save()}});
+window.addEventListener('beforeunload',e=>{if(dirty&&DB){save();e.preventDefault();e.returnValue=''}});
+// iPad : quand je quitte l'appli, j'enregistre tout de suite
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&dirty)save()});
+async function upload(i,files){
+  const st=document.getElementById('up'+i);const L=S.lecons[i];L.files=L.files||[];let ok=0,ko=[];
+  for(const f of files){if(st)st.textContent=`Envoi de ${f.name}…`;try{const r=await AS.upload(f);L.files.push({id:r.id,url:r.url||('/_blob/'+r.id),name:f.name,size:r.sizeBytes||f.size,kind:guessKind(f.name)});ok++}catch(e){ko.push(f.name)}}
+  mark();rr();const s2=document.getElementById('up'+i);if(s2)s2.textContent=ko.length?`Refusé : ${ko.join(', ')} (PDF ou image uniquement, 20 Mo max)`:`${ok} fichier(s) ajouté(s)`;
+}
+let DL=null;
+async function dl(name,data,btn){
+  const type=name.endsWith('.json')?'application/json':'text/html';
+  const f=new File([data],name,{type});
+  try{
+    // Sur iPad : la feuille de partage (Enregistrer dans Fichiers, OneDrive, Teams…)
+    if(navigator.canShare&&navigator.canShare({files:[f]})&&/iPad|iPhone|Macintosh/.test(navigator.userAgent)&&'ontouchend' in document){await navigator.share({files:[f],title:name});return}
+  }catch(e){if(e&&e.name==='AbortError')return}
+  // Sur ordinateur : téléchargement classique
+  const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+}
+function portfolioDoc(){
+  const body=h=>h.slice(h.indexOf('<body>')+6,h.lastIndexOf('</body>'));
+  const head=bilanDoc('init');const css=head.slice(head.indexOf('<style>'),head.indexOf('</style>')+8);
+  const t=sumSem(),h=S.missions.reduce((a,m)=>a+(+m.h||0),0);
+  const done=BIL.filter(b=>b[0]==='init'||(S.bilans[b[0]]||{}).date||Object.keys(S.evals[b[0]]||{}).length);
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Portfolio – stage long M1</title>${css}<style>.pb{page-break-before:always;margin-top:40px}</style></head><body>
+  <h1>Portfolio · stage long M1</h1><p>${esc(S.profil.nom)} · ${esc(S.profil.etab)} · janvier – avril 2027<br>MDS : ${esc(S.profil.mds)} · Superviseurs : ${esc(S.profil.sup)}</p>
+  <h2>Charge de stage</h2><p>Périodes accompagnées : ${t.acc} / 108 · en autonomie : ${t.auto} / 46 · observation : ${t.obs}<br>Autres missions : ${h} / 56 h · ${OBL.map(o=>(S.missions.some(m=>m.obl===o[0])?'✓ ':'○ ')+o[1]).join(' · ')}</p>
+  ${S.missions.length?`<table><tr><th>Date</th><th>Cat.</th><th>Mission</th><th>Heures</th></tr>${S.missions.map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.cat)}</td><td>${esc(m.desc)}</td><td>${esc(m.h)}</td></tr>`).join('')}</table>`:''}
+  ${done.map(b=>`<div class="pb">${body(bilanDoc(b[0]))}</div>`).join('')}
+  <div class="pb"><h1>Débriefings</h1>${DEB.map(d=>{const D=S.debriefs[d[0]]||{};if(!D.date&&!D.marche)return'';return `<h2>${d[1]} (${d[2]})${D.date?' · '+esc(D.date):''}</h2><p>Avec : ${esc(D.avec||'–')}<br>Ce qui a marché : ${esc(D.marche||'–')}<br>Ce qui a coincé : ${esc(D.freins||'–')}<br>Retours : ${esc(D.retours||'–')}<br>Ajustements : ${esc(D.ajust||'–')}<br>Compétences : ${esc((D.comps||[]).join(', ')||'–')}</p>`}).join('')||'<p>Aucun débriefing encodé.</p>'}</div>
+  <div class="pb"><h1>Traces</h1>${S.traces.map(x=>`<h2>${esc(x.titre||'Sans titre')}</h2><p><i>${esc(x.type)} · ${esc(x.date)} · ${esc((x.comps||[]).join(', '))}</i><br>${esc(x.note)}${/^https:\/\//.test(x.lien||'')?`<br><a href="${esc(x.lien)}">${esc(x.lien)}</a>`:''}</p>`).join('')||'<p>Aucune trace encodée.</p>'}</div>
+  </body></html>`;
+}
+function bilanDoc(b){
+  const B=S.bilans[b]||{},bl=BIL.find(x=>x[0]===b),prev=BIL[Math.max(0,BIL.findIndex(x=>x[0]===b)-1)][0];
+  const rows=C.map(c=>{const e=ev(b,c[0]);if(!e.moi&&!e.mds&&!e.sup)return'';return `<tr><td><b>${c[0]}</b> ${esc(c[2])}${e.com?'<br><i>'+esc(e.com)+'</i>':''}</td>${WHO.map(w=>`<td>${e[w[0]]?LV[e[w[0]]]:'–'}</td>`).join('')}</tr>`}).join('');
+  const ol=L=>(L||[]).map(o=>`<li><b>${esc(o.comp)}</b> · ${esc(o.objectif)}<br><small>Actions : ${esc(o.actions)} · Indicateurs : ${esc(o.indic)}</small></li>`).join('');
+  return `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>${bl[1]} – stage long</title><style>body{font:14px/1.5 Arial,sans-serif;color:#222;max-width:760px;margin:30px auto;padding:0 20px}h1{color:#7b4fa0;margin:0}h2{color:#5b3a8c;border-bottom:2px solid #c9a6e3;padding-bottom:3px;font-size:17px;margin-top:22px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px;vertical-align:top;font-size:13px}th{background:#f3ecfa;text-align:left}</style></head><body>
+  <h1>${bl[1]} · stage long M1</h1><p>${esc(S.profil.nom)} · ${esc(S.profil.etab)} · ${esc(B.date||'')}<br>MDS : ${esc(S.profil.mds)} · Superviseurs : ${esc(S.profil.sup)} · Présents : ${esc(B.presents||'')}</p>
+  ${b!=='init'?`<h2>Objectifs de la période écoulée</h2><ul>${ol(S.objectifs[prev])}</ul>`:''}
+  <h2>Ma trajectoire (autoévaluation)</h2><svg width="700" height="260" viewBox="0 0 700 260" style="max-width:100%">${svgChart(700,260,'moi',true)}</svg>
+  <p style="font-size:12px">${FAM.map(f=>`<span style="color:${famC(f.id,true)};font-weight:bold">━ ${f.id}. ${esc(f.nom)}</span>`).join(' &nbsp; ')}</p>
+  ${b!=='init'?`<h2>Débriefings de la période</h2>${(DEBP[b]||[]).map(k=>{const D=S.debriefs[k]||{};const n=DEB.find(x=>x[0]===k);return `<p><b>${n[1]} (${n[2]})${D.date?' · '+esc(D.date):''}</b><br>Ce qui a marché : ${esc(D.marche||'–')}<br>Ce qui a coincé : ${esc(D.freins||'–')}<br>Retours : ${esc(D.retours||'–')}<br>Ajustements : ${esc(D.ajust||'–')}</p>`}).join('')}`:''}
+  <h2>Évaluation des compétences</h2><table><tr><th>Compétence</th><th>Moi</th><th>MDS</th><th>Superviseur</th></tr>${rows||'<tr><td colspan="4">Aucune évaluation encodée.</td></tr>'}</table>
+  <h2>Retours des maîtres de stage</h2><p>${esc(B.retMds||'')}</p><h2>Retours des superviseurs</h2><p>${esc(B.retSup||'')}</p>
+  <h2>Ce qui a progressé</h2><p>${esc(B.reussites||'')}</p><h2>Freins</h2><p>${esc(B.freins||'')}</p><h2>Ajustements</h2><p>${esc(B.ajust||'')}</p>
+  <h2>Objectifs fixés pour la suite</h2><ul>${ol(S.objectifs[b])}</ul></body></html>`;
+}
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(TABS.some(t=>t[0]===h)&&h!==tab){tab=h;render()}});
+if(!TABS.some(t=>t[0]===tab))tab='dash';
+render();
+{const sw=document.getElementById('sw'),Rt=document.documentElement;const sync=()=>{const d=isDark();sw.setAttribute('aria-checked',d);sw.setAttribute('aria-label',d?'Passer en mode jour':'Passer en mode nuit')};
+try{const m=localStorage.getItem('stageM1-mode');if(m)Rt.dataset.mode=m}catch(e){}sync();
+sw.addEventListener('click',()=>{const m=isDark()?'light':'dark';Rt.dataset.mode=m;try{localStorage.setItem('stageM1-mode',m)}catch(e){}sync();rr()});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',sync);new MutationObserver(sync).observe(Rt,{attributes:true,attributeFilter:['data-theme']});}
+/* Démarrage : je relis mon carnet gardé sur cet appareil */
+function idsFichiers(o,acc){if(Array.isArray(o))o.forEach(x=>idsFichiers(x,acc));else if(o&&typeof o==='object'){if(typeof o.url==='string'&&o.url.startsWith('/_fichier/'))acc.push(o.url.slice(10));Object.values(o).forEach(x=>idsFichiers(x,acc))}return acc}
+async function chargerFichiers(){await Promise.all(idsFichiers(S,[]).filter(id=>!BLOBS[id]).map(async id=>{try{const b=await MesDonnees.fichiers.lire(id);if(b)BLOBS[id]=URL.createObjectURL(b)}catch(e){}}))}
+AS={ // fichiers déposés : gardés sur l'appareil
+  async upload(f){const id=await MesDonnees.fichiers.ajouter(f);BLOBS[id]=URL.createObjectURL(f);return {id,url:'/_fichier/'+id,sizeBytes:f.size}},
+  delete(id){return MesDonnees.fichiers.supprimer(id)}
+};
+(async()=>{
+  DB=MesDonnees;
+  try{
+    for(const k of SECS){
+      REFS[k]=DB.doc('carnet/'+k);
+      const snap=await REFS[k].get();
+      if(snap.exists){const v=(snap.data()||{}).v;if(v!=null){LAST[k]=JSON.stringify(v);if(!dirty)S[k]=v}}
+    }
+    await chargerMem();
+    noterCeCours();
+    await chargerFichiers();
+    render();
+    if(dirty)save();else setPill();
+  }catch(e){pillT('Je n\'arrive pas à lire mes données',true)}
+})();
+// Visionneuse : les fichiers gardés sur l'appareil s'ouvrent ici, sans quitter l'appli
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a[href^="blob:"]:not([download])');if(!a)return;e.preventDefault();
+  const id=Object.keys(BLOBS).find(k=>BLOBS[k]===a.href);
+  const v=document.createElement('div');v.className='visio';
+  v.innerHTML='<div class="visio-barre"><b></b><span style="flex:1"></span><button class="btn alt sm" data-v="partager">Ouvrir ailleurs</button><button class="btn sm" data-v="fermer">Fermer</button></div><div class="visio-corps"></div>';
+  v.querySelector('b').textContent=a.textContent.replace(/^✓ /,'');
+  MesDonnees.fichiers.lire(id).then(blob=>{
+    const corps=v.querySelector('.visio-corps');
+    if(blob&&/^image\//.test(blob.type)){const im=document.createElement('img');im.src=a.href;corps.appendChild(im)}
+    else{const fr=document.createElement('iframe');fr.src=a.href;fr.title='Aperçu';corps.appendChild(fr)}
+    v.querySelector('[data-v=partager]').onclick=async()=>{const f=new File([blob],v.querySelector('b').textContent||'fichier',{type:blob.type});
+      try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(err){if(err&&err.name==='AbortError')return}
+      const l=document.createElement('a');l.href=a.href;l.download=f.name;l.click()};
+  });
+  v.querySelector('[data-v=fermer]').onclick=()=>{v.remove();document.documentElement.removeAttribute('data-projection')};
+  document.documentElement.setAttribute('data-projection','');document.body.appendChild(v);
+},true);
+}
+</script>
+</body></html>

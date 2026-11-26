@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="/commun/lexend.css">
 <link rel="stylesheet" href="/commun/outils.css">
 <script src="/commun/outils.js"></script>
+<script src="/commun/sauvegarde.js"></script>
 </head>
 <body>
 <main class="page">
@@ -39,11 +40,29 @@
     </div>
     <div class="carte" id="compte"></div>
   </div>
+
+  <!-- Sauvegarde et synchro iPad ↔ Mac -->
+  <div class="carte" style="margin-top:16px">
+    <h2>Sauvegarde et synchro</h2>
+    <p class="note" id="sauv-info">Mes données restent sur cet appareil. Pour les passer sur l'autre, j'exporte ici et j'importe là-bas.</p>
+    <div class="boutons">
+      <button class="bouton" id="b-export">Exporter tout</button>
+      <label class="bouton alt">Importer une sauvegarde<input type="file" id="f-import" accept=".json,application/json" hidden></label>
+    </div>
+    <p class="note" id="sauv-etat" aria-live="polite"></p>
+    <p class="note">Le fichier contient les prénoms et les notes de mes élèves : je le garde dans un endroit privé (iCloud Drive, mon OneDrive), jamais dans un dossier partagé.</p>
+  </div>
 </main>
 
 <style>
   .bloc-bas { margin-top: 24px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
   @media (max-width: 760px) { .bloc-bas { grid-template-columns: 1fr; } }
+  .boutons { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 8px; }
+  .bouton { display: inline-flex; align-items: center; min-height: 52px; padding: 0 20px; border-radius: 14px; border: 0; background: var(--mauve); color: #fff; font: 600 16px/1.2 "Lexend", system-ui, sans-serif; cursor: pointer; }
+  .bouton.alt { background: var(--panneau); color: var(--encre); border: 1px solid var(--trait); }
+  .rappel { color: #b45309; font-weight: 600; }
+  :root[data-mode="dark"] .rappel { color: #f6b26b; }
+  @media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) .rappel { color: #f6b26b; } }
   .gros { font-size: 40px; font-weight: 700; color: var(--mauve); line-height: 1; margin: 4px 0; }
   :root[data-mode="dark"] .gros { color: #d9c3ee; }
   @media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) .gros { color: #d9c3ee; } }
@@ -60,6 +79,26 @@
     else if (auj <= fin) html = '<h2>Stage long</h2><div class="gros">S' + Math.min(16, Math.floor((auj - debut) / 6048e5) + 1) + '</div><p class="note">en cours, jusqu\'au 23 avril</p>';
     else html = '<h2>Stage long</h2><div class="gros">✓</div><p class="note">terminé</p>';
     document.getElementById("compte").innerHTML = html;
+  })();
+
+  /* Sauvegarde : boutons + rappel si ma dernière sauvegarde date de plus d'une semaine */
+  (function () {
+    var etat = function (t) { document.getElementById("sauv-etat").textContent = t; };
+    var b = document.getElementById("b-export");
+    b.addEventListener("click", function () {
+      b.disabled = true;
+      MaSauvegarde.exporter(etat).catch(function (e) { etat("Problème : " + ((e && e.message) || e)); }).then(function () { b.disabled = false; info(); });
+    });
+    document.getElementById("f-import").addEventListener("change", function (e) {
+      var f = e.target.files[0]; if (!f) return;
+      MaSauvegarde.importer(f, etat).catch(function (err) { etat("Problème : " + ((err && err.message) || err)); }).then(function () { e.target.value = ""; });
+    });
+    function info() {
+      var j = MaSauvegarde.joursDepuisExport(), el = document.getElementById("sauv-info");
+      if (j === null) { el.innerHTML = 'Mes données restent sur cet appareil. <span class="rappel">Je n\'ai encore jamais fait de sauvegarde.</span>'; return; }
+      el.innerHTML = "Dernière sauvegarde : " + (j === 0 ? "aujourd'hui" : j === 1 ? "hier" : "il y a " + j + " jours") + "." + (j >= 7 ? ' <span class="rappel">Il est temps d\'en refaire une.</span>' : "");
+    }
+    info();
   })();
 </script>
 </body>

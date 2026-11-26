@@ -39,20 +39,22 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:va
 /* accueil */
 #accueil{max-width:1180px;margin:0 auto;padding:26px max(4vw,14px) 60px}
 .top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
-.top h1{font-size:clamp(26px,4vw,38px);line-height:1.05;margin:0;color:var(--accent)}
+.top h1{font-size:clamp(28px,4.4vw,40px);line-height:1.1;margin:0;color:var(--encre);letter-spacing:-.015em}
 .sous{color:var(--muted);margin:6px 0 22px}
 .outils{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .outils select{min-height:50px;font-weight:600}
 #etat{font-size:13px;color:var(--muted)}
 .matiere{margin-bottom:26px}
 .matiere h2{font-size:21px;margin:0 0 12px;display:flex;align-items:center;gap:10px}
-.matiere h2::before{content:"";width:14px;height:14px;border-radius:4px;background:var(--c)}
+.matiere h2::before{content:"";width:4px;height:20px;border-radius:2px;background:var(--c)}
 .cartes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
 .carte{padding:0;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);position:relative;cursor:pointer;transition:transform .15s;text-align:left}
-.carte:hover{transform:translateY(-3px)}
+.carte:hover{border-color:var(--gris)}
 .carte .vig{height:150px;border-bottom:4px solid var(--c);background:#fff center top/cover no-repeat}
 .carte .vig.tb{background-color:#fff;background-image:linear-gradient(#d9e2f1 1px,transparent 1px),linear-gradient(90deg,#d9e2f1 1px,transparent 1px);background-size:16px 16px;display:grid;place-items:center;font-size:44px}
-.carte .vig.add{background:var(--acc2);color:var(--acc);display:grid;place-items:center;font-size:76px;font-weight:300}
+.carte .vig.add{background:transparent;color:var(--gris);display:grid;place-items:center;font-size:56px;font-weight:300;border-bottom:1px dashed var(--line)}
+.carte:has(.vig.add){border-style:dashed;box-shadow:none;background:transparent}
+.carte .vig.tb svg{width:44px;height:44px;color:#7a8aa6}
 .carte .inf{padding:12px 14px 14px}
 .carte b{display:block;font-size:17px;margin-bottom:2px}
 .carte .et{color:var(--muted);font-size:14px}.carte .et.on{color:var(--acc);font-weight:600}
@@ -365,7 +367,7 @@ function accueil(){
       const commence=pr&&(pr.page>0||montrees>0);
       let et=doc?pages:`${pages} · ${n} réponses`;
       if(commence)et=`Arrêté page ${pr.page+1}/${l.pages.length}`+(doc?"":` · ${montrees}/${n} montrées`);
-      b.innerHTML=`<div class="vig ${l.type==="tableau"?"tb":""}">${l.type==="tableau"?"✏️":""}</div><span class="badge"></span><div class="inf"><b></b><span class="et ${commence?"on":""}"></span><div class="mini"></div></div>`;
+      b.innerHTML=`<div class="vig ${l.type==="tableau"?"tb":""}">${l.type==="tableau"?MesOutils.icone("crayon"):""}</div><span class="badge"></span><div class="inf"><b></b><span class="et ${commence?"on":""}"></span><div class="mini"></div></div>`;
       if(l.type!=="tableau"&&l.pages[0])b.querySelector(".vig").style.backgroundImage=`url("${urlDe(l.pages[0].l)}")`;
       b.querySelector(".badge").textContent={tableau:"Outil",document:"Document"}[l.type]||"Leçon";
       b.querySelector("b").textContent=l.titre;b.querySelector(".et").textContent=et;

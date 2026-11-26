@@ -13,7 +13,7 @@
   --trait: #e2d8ee;
   --mauve: #7b4fa0;
   --mauve-clair: #efe6f7;
-  --ombre: 0 2px 12px rgba(40, 20, 60, .12);
+  --ombre: 0 1px 2px rgba(40, 20, 60, .06);
 
   /* Une couleur d'accent par outil (texte blanc lisible dessus) */
   --c-aujourdhui: #0369a1;
@@ -29,13 +29,13 @@
 /* --- Couleurs du mode nuit (choisi par l'interrupteur, ou par l'iPad si je n'ai rien choisi) --- */
 :root[data-mode="dark"] {
   --fond: #16111c; --panneau: #221a2b; --encre: #f1ebf7; --gris: #b3a6c2;
-  --trait: #3c2f4a; --mauve-clair: #3a2a4c; --ombre: 0 2px 12px rgba(0, 0, 0, .4);
+  --trait: #3c2f4a; --mauve-clair: #3a2a4c; --ombre: none;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-mode="light"]) {
     --fond: #16111c; --panneau: #221a2b; --encre: #f1ebf7; --gris: #b3a6c2;
-    --trait: #3c2f4a; --mauve-clair: #3a2a4c; --ombre: 0 2px 12px rgba(0, 0, 0, .4);
+    --trait: #3c2f4a; --mauve-clair: #3a2a4c; --ombre: none;
     color-scheme: dark;
   }
 }
@@ -57,6 +57,9 @@ body {
   padding-bottom: calc(var(--barre-h) + env(safe-area-inset-bottom));
 }
 button { font: inherit; color: inherit; cursor: pointer; }
+a { color: var(--mauve); text-underline-offset: 3px; }
+:root[data-mode="dark"] a { color: #d9c3ee; }
+@media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) a { color: #d9c3ee; } }
 [hidden] { display: none !important; }
 a:focus-visible, button:focus-visible { outline: 3px solid #c9a6e3; outline-offset: 2px; }
 
@@ -64,26 +67,25 @@ a:focus-visible, button:focus-visible { outline: 3px solid #c9a6e3; outline-offs
 @media (min-width: 700px) { .page { padding-left: 32px; padding-right: 32px; } }
 
 .entete { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
-h1 { margin: 0; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.1; color: var(--accent); font-weight: 700; }
+h1 { margin: 0; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.1; color: var(--encre); font-weight: 700; letter-spacing: -.015em; }
 .sous { margin: 4px 0 24px; color: var(--gris); }
 
-.carte { background: var(--panneau); border: 1px solid var(--trait); border-radius: 20px; padding: 20px; box-shadow: var(--ombre); }
-.carte h2 { margin: 0 0 8px; font-size: 19px; }
+.carte { background: var(--panneau); border: 1px solid var(--trait); border-radius: 14px; padding: 20px; box-shadow: var(--ombre); }
+.carte h2 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.01em; }
 .note { color: var(--gris); font-size: 14px; margin: 0; }
 
-/* --- Grandes tuiles (accueil) --- */
-.tuiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+/* --- Liens vers mes outils (accueil) : une ligne compacte, l'icône donne la couleur --- */
+.tuiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
 .tuile {
-  position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 8px;
-  min-height: 170px; padding: 22px 20px 18px; border-radius: 22px;
-  background: var(--panneau); border: 1px solid var(--trait); box-shadow: var(--ombre);
+  display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px;
+  border-radius: 12px; background: var(--panneau); border: 1px solid var(--trait);
   color: var(--encre); text-decoration: none;
 }
-.tuile::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 8px; background: var(--c); }
-.tuile .pic { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; font-size: 30px; background: color-mix(in srgb, var(--c) 16%, var(--panneau)); }
-.tuile b { font-size: 20px; line-height: 1.2; }
-.tuile p { margin: 0; color: var(--gris); font-size: 15px; flex: 1; }
-.tuile:active { transform: scale(.98); }
+.tuile .pic { flex: none; width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--panneau)); }
+.tuile b { display: block; font-size: 16px; line-height: 1.25; }
+.tuile p { margin: 0; color: var(--gris); font-size: 13px; line-height: 1.35; }
+.tuile:hover { border-color: color-mix(in srgb, var(--c) 45%, var(--trait)); }
+.tuile:active { background: color-mix(in srgb, var(--c) 6%, var(--panneau)); }
 
 /* --- Interrupteur jour / nuit --- */
 .sw { position: relative; flex: none; width: 72px; height: 44px; padding: 0; border-radius: 99px; border: 1px solid var(--trait); background: var(--mauve-clair); }
@@ -98,18 +100,19 @@ h1 { margin: 0; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.1; color: va
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
   display: grid; grid-template-columns: repeat(4, 1fr);
   background: var(--panneau); border-top: 1px solid var(--trait);
-  box-shadow: 0 -2px 12px rgba(40, 20, 60, .08);
   padding-bottom: env(safe-area-inset-bottom);
 }
 .barre-outils a {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   min-height: var(--barre-h); color: var(--gris); text-decoration: none;
   font: 600 13px/1.2 "Lexend", system-ui, sans-serif;
-  border-top: 4px solid transparent;
+  border-top: 3px solid transparent; margin-top: -1px;
 }
-.barre-outils a span { font-size: 24px; line-height: 1; }
-.barre-outils a[aria-current="page"] { color: var(--encre); border-top-color: var(--a); background: color-mix(in srgb, var(--a) 10%, transparent); }
-@media (min-width: 700px) { .barre-outils a { flex-direction: row; gap: 10px; font-size: 16px; } }
+.barre-outils a svg { width: 24px; height: 24px; }
+.barre-outils a[aria-current="page"] { color: var(--a); border-top-color: var(--a); }
+:root[data-mode="dark"] .barre-outils a[aria-current="page"] { color: color-mix(in srgb, var(--a) 45%, #fff); }
+@media (prefers-color-scheme: dark) { :root:not([data-mode="light"]) .barre-outils a[aria-current="page"] { color: color-mix(in srgb, var(--a) 45%, #fff); } }
+@media (min-width: 700px) { .barre-outils a { flex-direction: row; gap: 8px; font-size: 15px; } }
 
 /* En projection (Leçons), la barre disparaît : <html data-projection> */
 :root[data-projection] .barre-outils { display: none; }

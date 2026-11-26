@@ -41,7 +41,7 @@
     var der = DERNIERES[classe];
     if (!der || !LECONS.some(function (l) { return l.id === der.id; })) return '<a class="petit-bouton" href="/lecons/">Choisir une leçon</a>';
     var q = new URLSearchParams({ lecon: der.id, page: String(der.page || 1), classe: classe });
-    return '<a class="petit-bouton plein" href="/lecons/?' + q + '">▶ Projeter « ' + esc((der.titre || "").slice(0, 30)) + ' » p.' + (der.page || 1) + "</a>";
+    return '<a class="petit-bouton plein" href="/lecons/?' + q + '">' + MesOutils.icone("lecons") + 'Projeter « ' + esc((der.titre || "").slice(0, 30)) + ' » p.' + (der.page || 1) + "</a>";
   }
 
   // Ouvre mon Suivi sur une fiche « Mes leçons » préremplie (classe, date, dernière leçon projetée)
@@ -57,16 +57,16 @@
     var titre = JOURS[j].charAt(0).toUpperCase() + JOURS[j].slice(1) + " " + jjmm(d);
     if (!HORAIRE.length) { box.innerHTML = '<h2>Mes cours du jour</h2><p class="note">J\'encode mon horaire une fois (plus bas, « Mon horaire ») et mes cours apparaîtront ici chaque jour.</p>'; return; }
     var L = HORAIRE.filter(function (c) { return c.jour === j; }).sort(tri);
-    var html = "<h2>Mes cours · " + esc(titre) + "</h2>";
+    var html = "<h2>Mes cours · <span style=\"font-weight:400;color:var(--gris)\">" + esc(titre) + "</span></h2>";
     if (!L.length) html += '<p class="note">Pas de cours aujourd\'hui.</p>';
     var maintenant = new Date(), minNow = maintenant.getHours() * 60 + maintenant.getMinutes(), estAujourdhui = d.toDateString() === new Date(new Date().setHours(0, 0, 0, 0)).toDateString();
     L.forEach(function (c) {
       var fini = estAujourdhui && minutes(c.fin) && minNow > minutes(c.fin), enCours = estAujourdhui && minNow >= minutes(c.debut) && minNow <= minutes(c.fin);
       html += '<div class="cours' + (enCours ? " en-cours" : "") + (fini ? " fini" : "") + '">' +
         '<div class="heure">' + esc(c.debut) + "<span>" + esc(c.fin) + "</span></div>" +
-        '<div class="quoi"><b>' + esc(c.classe) + "</b>" + (c.local ? ' <span class="note">· ' + esc(c.local) + "</span>" : "") + (enCours ? ' <span class="badge">en cours</span>' : "") + "</div>" +
+        '<div class="quoi"><b>' + esc(c.classe) + "</b>" + (c.local ? ' <span class="note">· ' + esc(c.local) + "</span>" : "") + (enCours ? ' <span class="badge">· en cours</span>' : "") + "</div>" +
         '<div class="actions">' + lienProjeter(c.classe) +
-        (dejaNote(c.classe, d) ? '<span class="note">✓ noté</span>' : '<a class="petit-bouton" href="' + lienNoter(c.classe, d) + '">📝 Noter</a>') + "</div></div>";
+        (dejaNote(c.classe, d) ? '<span class="note">✓ noté</span>' : '<a class="petit-bouton" href="' + lienNoter(c.classe, d) + '">Noter</a>') + "</div></div>";
     });
     // Cours des 7 derniers jours de stage pas encore notés dans mon Suivi
     var manque = [];

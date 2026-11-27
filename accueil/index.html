@@ -46,7 +46,12 @@
     <summary><h2>Mon horaire</h2></summary>
     <p class="note">Une ligne par cours de la semaine. Les classes viennent de Leçons au tableau.</p>
     <div id="horaire-liste"></div>
-    <div class="boutons"><button class="bouton alt" id="h-ajouter">+ Ajouter un cours</button></div>
+    <div class="boutons"><button class="bouton alt" id="h-ajouter">+ Ajouter un cours</button><button class="bouton alt" id="h-coller">Coller mon horaire</button></div>
+    <div id="coller" hidden>
+      <p class="note">Je colle ici le texte de mon horaire (celui que Claude m'a donné), puis je touche Charger.</p>
+      <textarea id="coller-texte" rows="5" spellcheck="false" aria-label="Texte de mon horaire"></textarea>
+      <div class="boutons"><button class="bouton" id="coller-ok">Charger</button></div>
+    </div>
     <h3 class="sous-titre">Jours sans cours</h3>
     <p class="note">Formations, voyage, conseils de classe : ces jours-là, mon horaire ne s'affiche pas.</p>
     <div id="sans-liste"></div>
@@ -102,6 +107,7 @@
   #horaire[open] summary::after { content: "Fermer"; }
   .ligne-horaire { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 1fr 44px; gap: 8px; margin: 8px 0; }
   .ligne-sans { display: grid; grid-template-columns: 1fr 1fr 2fr 44px; gap: 8px; margin: 8px 0; }
+  #coller-texte { width: 100%; box-sizing: border-box; border: 1px solid var(--trait); border-radius: 10px; padding: 10px; background: var(--panneau); color: var(--encre); font: 13px/1.4 ui-monospace, Menlo, monospace; }
   .sous-titre { margin: 22px 0 4px; font-size: 16px; }
   .ligne-horaire select, .ligne-horaire input, .ligne-sans input { min-height: 44px; min-width: 0; border: 1px solid var(--trait); border-radius: 10px; padding: 0 8px; background: var(--panneau); color: var(--encre); font: 15px "Lexend", system-ui, sans-serif; }
   @media (max-width: 560px) { .ligne-horaire { grid-template-columns: 1fr 1fr 1fr; } .ligne-horaire [data-suppr] { grid-column: 3; } .ligne-sans { grid-template-columns: 1fr 1fr; } .ligne-sans [data-h], .ligne-sans [data-s="motif"] { grid-column: 1 / -1; } }

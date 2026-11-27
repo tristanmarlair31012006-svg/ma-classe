@@ -158,6 +158,26 @@
   document.addEventListener("DOMContentLoaded", async function () {
     await charger();
     coursDuJour(); editeur(); editeurSans();
+    // Coller mon horaire : le texte (JSON) que Claude m'a donné, ou un fichier de sauvegarde
+    $("#h-coller").addEventListener("click", function () { var c = $("#coller"); c.hidden = !c.hidden; if (!c.hidden) $("#coller-texte").focus(); });
+    var confirme = false;
+    $("#coller-ok").addEventListener("click", function () {
+      var j, etat = $("#horaire-etat");
+      try { j = JSON.parse($("#coller-texte").value.trim()); } catch (e) { etat.textContent = "Je ne reconnais pas ce texte : il faut le copier en entier."; return; }
+      if (j && j.docs) j = { cours: ((j.docs["commun/horaire"] || {}).d || {}).cours, calendrier: (j.docs["commun/calendrier"] || {}).d };
+      if (!j || !Array.isArray(j.cours) || !j.cours.length) { etat.textContent = "Je ne trouve pas de cours dans ce texte."; return; }
+      if (HORAIRE.length && !confirme) { confirme = true; $("#coller-ok").textContent = "Oui, remplacer mes " + HORAIRE.length + " cours"; return; }
+      confirme = false; $("#coller-ok").textContent = "Charger";
+      var envoi = [MesDonnees.doc("commun/horaire").set({ cours: j.cours })];
+      if (j.calendrier) envoi.push(MesDonnees.doc("commun/calendrier").set(j.calendrier));
+      Promise.all(envoi).then(function () {
+        $("#coller-texte").value = ""; $("#coller").hidden = true;
+        return recharger();
+      }).then(function () { etat.textContent = "Horaire chargé : " + HORAIRE.length + " cours, " + (CAL.sansCours || []).length + " jours sans cours."; })
+        .catch(function () { etat.textContent = "Échec de l'enregistrement."; });
+    });
+    // Horaire vide : j'ouvre directement la carte pour l'encoder ou le coller
+    if (!HORAIRE.length) $("#horaire").open = true;
     $("#s-ajouter").addEventListener("click", function () {
       var k = iso(aujourdhui());
       CAL.sansCours = (CAL.sansCours || []).concat([{ id: "s" + Date.now(), du: k, au: k, motif: "" }]);

@@ -272,6 +272,7 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
     <label>Type<select id="imp-type"><option value="lecon">Leçon avec corrigé (les réponses apparaissent au clic)</option><option value="document">Document seul (dossier, carte…)</option></select></label>
     <label>PDF de la leçon (feuille élève)<input id="imp-l" type="file" accept="application/pdf,.pdf"></label>
     <label id="lg-c">PDF du corrigé<input id="imp-c" type="file" accept="application/pdf,.pdf"></label>
+    <label id="lg-dec">Le corrigé commence à<select id="imp-dec"><option value="1">la page 2 de la feuille (page de garde sans corrigé)</option><option value="0">la page 1 de la feuille</option></select></label>
     <label>Dossier documentaire (PDF, facultatif)<input id="imp-d" type="file" accept="application/pdf,.pdf"></label>
     <p class="aide">Le corrigé doit être <b>la même feuille</b> que la leçon (mêmes pages, même mise en page) avec les réponses en plus. La page compare les deux et crée un cadre pour chaque réponse. Les cadres se corrigent ensuite à la main.</p>
     <div class="ligne"><button class="btn pri" id="b-imp-ok">Ajouter</button><span id="imp-etat"></span></div>
@@ -794,10 +795,10 @@ const importer={
   ouvrir(){
     const conn=[...new Set(["Histoire","Géographie","FHG","FES","Sciences économiques","Sciences sociales",...LECONS.map(l=>l.matiere)])];
     const dl=$("#mats");dl.innerHTML="";conn.forEach(m=>{const o=document.createElement("option");o.value=m;dl.appendChild(o)});
-    $("#imp-titre").value="";$("#imp-l").value="";$("#imp-c").value="";$("#imp-d").value="";$("#imp-etat").textContent="";$("#b-imp-ok").disabled=false;
+    $("#imp-titre").value="";$("#imp-l").value="";$("#imp-c").value="";$("#imp-d").value="";$("#imp-dec").value=String(loc.lire("decalage",1));$("#imp-etat").textContent="";$("#b-imp-ok").disabled=false;
     this.majType();$("#v-imp").classList.add("ouvert");$("#imp-titre").focus();
   },
-  majType(){$("#lg-c").hidden=$("#imp-type").value!=="lecon"},
+  majType(){$("#lg-c").hidden=$("#lg-dec").hidden=$("#imp-type").value!=="lecon"},
   async ajouter(){
     const titre=$("#imp-titre").value.trim(),matiere=$("#imp-mat").value.trim()||"Mes leçons",type=$("#imp-type").value,fl=$("#imp-l").files[0],fc=$("#imp-c").files[0];
     const et=t=>$("#imp-etat").textContent=t;
@@ -807,6 +808,7 @@ const importer={
     try{
       et("Préparation…");const lib=await chargerPdf();
       const pdfL=await ouvrirPdf(lib,await fl.arrayBuffer()),pdfC=type==="lecon"?await ouvrirPdf(lib,await fc.arrayBuffer()):null;
+      const dec=pdfC?+$("#imp-dec").value||0:0;if(pdfC)loc.ecrire("decalage",dec); // je garde mon choix pour la prochaine fois
       if(pdfL.numPages>40)throw new Error("40 pages maximum par leçon");
       const pages=[];
       for(let i=1;i<=pdfL.numPages;i++){
@@ -814,8 +816,9 @@ const importer={
         const pl=await pdfL.getPage(i),v=pl.getViewport({scale:1}),net=Math.min(170/72,2600/v.width,Math.sqrt(4e6/(v.width*v.height))); // max 4 millions de points : l'iPad limite la mémoire des images
         const imgL=await rendrePage(pl,net);
         const p={ratio:Math.round(v.height/v.width*1e4)/1e4,zones:[],l:await stocker(await enJpeg(imgL)),c:null};
-        if(pdfC&&i<=pdfC.numPages){
-          const imgC=await rendrePage(await pdfC.getPage(i),net);p.c=await stocker(await enJpeg(imgC));
+        const j=i-dec; // page du corrigé qui correspond à la page i de la feuille (la page de garde n'a pas de corrigé)
+        if(pdfC&&j>=1&&j<=pdfC.numPages){
+          const imgC=await rendrePage(await pdfC.getPage(j),net);p.c=await stocker(await enJpeg(imgC));
           const petit=c=>{const k=(75/72)/net,r=document.createElement("canvas");r.width=Math.round(c.width*k);r.height=Math.round(c.height*k);r.getContext("2d").drawImage(c,0,0,r.width,r.height);return r};
           const pL=petit(imgL),pC=petit(imgC);p.zones=zonesDiff(pL,pC);
           libere(pL);libere(pC);libere(imgC);

@@ -47,6 +47,10 @@
     <p class="note">Une ligne par cours de la semaine. Les classes viennent de Leçons au tableau.</p>
     <div id="horaire-liste"></div>
     <div class="boutons"><button class="bouton alt" id="h-ajouter">+ Ajouter un cours</button></div>
+    <h3 class="sous-titre">Jours sans cours</h3>
+    <p class="note">Formations, voyage, conseils de classe : ces jours-là, mon horaire ne s'affiche pas.</p>
+    <div id="sans-liste"></div>
+    <div class="boutons"><button class="bouton alt" id="s-ajouter">+ Ajouter un jour sans cours</button></div>
     <p class="note" id="horaire-etat" aria-live="polite"></p>
   </details>
 
@@ -96,9 +100,11 @@
   #horaire summary h2 { margin: 0; }
   #horaire summary::after { content: "Modifier"; color: var(--gris); font-size: 14px; }
   #horaire[open] summary::after { content: "Fermer"; }
-  .ligne-horaire { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 44px; gap: 8px; margin: 8px 0; }
-  .ligne-horaire select, .ligne-horaire input { min-height: 44px; min-width: 0; border: 1px solid var(--trait); border-radius: 10px; padding: 0 8px; background: var(--panneau); color: var(--encre); font: 15px "Lexend", system-ui, sans-serif; }
-  @media (max-width: 560px) { .ligne-horaire { grid-template-columns: 1fr 1fr 1fr; } }
+  .ligne-horaire { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr 1fr 44px; gap: 8px; margin: 8px 0; }
+  .ligne-sans { display: grid; grid-template-columns: 1fr 1fr 2fr 44px; gap: 8px; margin: 8px 0; }
+  .sous-titre { margin: 22px 0 4px; font-size: 16px; }
+  .ligne-horaire select, .ligne-horaire input, .ligne-sans input { min-height: 44px; min-width: 0; border: 1px solid var(--trait); border-radius: 10px; padding: 0 8px; background: var(--panneau); color: var(--encre); font: 15px "Lexend", system-ui, sans-serif; }
+  @media (max-width: 560px) { .ligne-horaire { grid-template-columns: 1fr 1fr 1fr; } .ligne-horaire [data-suppr] { grid-column: 3; } .ligne-sans { grid-template-columns: 1fr 1fr; } .ligne-sans [data-h], .ligne-sans [data-s="motif"] { grid-column: 1 / -1; } }
 </style>
 <script>
   /* Date du jour + compte à rebours avant le stage (4 janvier → 23 avril 2027) */
@@ -124,7 +130,7 @@
     });
     document.getElementById("f-import").addEventListener("change", function (e) {
       var f = e.target.files[0]; if (!f) return;
-      MaSauvegarde.importer(f, etat).catch(function (err) { etat("Problème : " + ((err && err.message) || err)); }).then(function () { e.target.value = ""; });
+      MaSauvegarde.importer(f, etat).catch(function (err) { etat("Problème : " + ((err && err.message) || err)); }).then(function () { e.target.value = ""; if (window.Aujourdhui) Aujourdhui.recharger(); });
     });
     function info() {
       var j = MaSauvegarde.joursDepuisExport(), el = document.getElementById("sauv-info");

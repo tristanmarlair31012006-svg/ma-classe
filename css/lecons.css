@@ -153,3 +153,9 @@ a.ligne-seq:active { transform: translate(4px, 4px); box-shadow: none; }
 .doc-credit { font: var(--t-petit); color: var(--ink-muted); }
 .zone + .doc, .consigne + .doc { margin-bottom: var(--s-3); }
 .consigne + .doc .doc-cadre img { max-height: 42vh; }
+
+/* Chapitres fermés (verrou des rappels) et bonus */
+.chapitre.ferme { opacity: .8; }
+.chapitre.ferme .ligne-seq.verrou { border-style: dashed; box-shadow: none; }
+.msg-ferme { display: flex; gap: var(--s-2); align-items: flex-start; margin: var(--s-2) 0 var(--s-3); font: 700 16px/22px var(--font-fr); }
+.etiquette.bonus { background: #fff1c2; border-color: #c99a00; }

@@ -492,3 +492,11 @@ a.btn { text-decoration: none; }
 .liste-ordre .place-vide { opacity: .55; }
 .liste-ordre .argent.jeton { max-width: none; flex: 1; }
 .bout-ordre { font: 700 16px/22px var(--font-fr); color: var(--ink-muted); }
+
+/* Situer sur une carte : repères à toucher */
+.carte-reperes { position: relative; border: var(--trait-fort); border-radius: var(--r-md); box-shadow: var(--ombre); background: var(--papier); overflow: hidden; }
+.carte-reperes img { display: block; width: 100%; height: auto; }
+.repere { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--ink); background: #fff; font: 700 20px/1 var(--font-fr); display: grid; place-items: center; box-shadow: 0 2px 0 var(--ink); cursor: pointer; }
+.repere[aria-pressed="true"] { background: #f2c200; }
+.repere.juste { background: var(--succes, #2e7d32); color: #fff; }
+.repere.faux { background: var(--erreur, #c62828); color: #fff; }

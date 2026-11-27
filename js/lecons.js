@@ -77,7 +77,23 @@
   const discipline = id => A.D.disciplines.find(d => d.id === id);
   const seq = id => P.sequences.find(s => s.id === id);
   const test = id => P.tests.find(t => t.id === id);
-  const chapitresDe = d => P.chapitres.filter(c => c.discipline === d);
+  const tousChapitresDe = d => P.chapitres.filter(c => c.discipline === d);
+  /* Chapitre verrouillé ?
+     verrou: { test, min }      → s'ouvre quand le test (ex. rappels) est réussi à au moins « min » (0.5 = 50 %).
+     recompense: { nb, min }    → BONUS : s'ouvre quand « nb » tests de fin de module (chapitres avec verrou) sont réussis.
+     Le prof peut ouvrir un chapitre pour une tablette : S.parcours.ouverts[id] = true. */
+  const reussi = (id, min) => { const r = E().tests[id]; return !!r && r.total > 0 && r.meilleurNb / r.total >= (min == null ? 0.5 : min); };
+  function ouvert(ch) {
+    if ((E().ouverts || {})[ch.id]) return true;
+    if (A.S.profil && A.S.profil.demo) return true; // profil de démonstration : tout est ouvert pour que le prof voie tout
+    if (ch.verrou && !reussi(ch.verrou.test, ch.verrou.min)) return false;
+    if (ch.recompense) {
+      const faits = P.chapitres.filter(c => c.verrou && c.bilan && reussi(c.bilan, ch.recompense.min)).length;
+      if (faits < ch.recompense.nb) return false;
+    }
+    return true;
+  }
+  const chapitresDe = d => tousChapitresDe(d).filter(ouvert);
   const seqsDe = ch => ch.sequences.map(seq).filter(Boolean);
   const chapitreDeSeq = id => P.chapitres.find(c => c.sequences.includes(id));
   const chapitreDeBilan = id => P.chapitres.find(c => c.bilan === id);
@@ -162,7 +178,8 @@
     </div>`;
   }
   const exemple = o => o && o.exemple ? `<span class="etiquette exemple">Exemple</span>`
-    : o && o.prerequis ? `<span class="etiquette rappel">${esc(fr({ fr: "Rappel" }))}</span>` : "";
+    : o && o.prerequis ? `<span class="etiquette rappel">${esc(fr({ fr: "Rappel" }))}</span>`
+    : o && o.recompense ? `<span class="etiquette bonus">${ic("etoile")} Bonus</span>` : "";
 
   /* ---------- Écran 1 : choisir sa matière ---------- */
   function ecranChoix() {
@@ -206,6 +223,20 @@
     cadre(entete(T.tout, "lecons", "", "neutre") + `<div class="grille-prochaines bloc">${cartes}</div>`, "", "lecons");
   }
 
+  /* Chapitre encore fermé : on montre ce qui arrive (titres) et comment l'ouvrir. */
+  const T_FERME = {
+    verrou: { fr: "Réussis d'abord le test des rappels pour ouvrir ce module.", uk: "Спочатку склади тест повторення, щоб відкрити цей модуль.", pl: "Najpierw zalicz test powtórki, żeby otworzyć ten moduł.", es: "Primero aprueba la prueba de repaso para abrir este módulo.", rn: null },
+    bonus: { fr: "Module bonus : réussis 2 tests de fin de module pour l'ouvrir.", uk: "Бонусний модуль: склади 2 тести в кінці модулів, щоб його відкрити.", pl: "Moduł bonusowy: zalicz 2 testy końcowe modułów, żeby go otworzyć.", es: "Módulo extra: aprueba 2 pruebas de fin de módulo para abrirlo.", rn: null }
+  };
+  function chapitreFerme(ch, ci) {
+    const msg = ch.recompense ? T_FERME.bonus : T_FERME.verrou;
+    return `<section class="bloc chapitre ferme">
+      <h2><span class="petit">${esc(fr(T.chapitre))} ${ci + 1}</span> ${esc(fr(ch.titre))} ${ch.recompense ? `<span class="etiquette bonus">${ic("etoile")} Bonus</span>` : ""}</h2>${ligneTrad(ch.titre)}
+      <p class="msg-ferme">${ic("verrou")} ${texte(msg)}</p>
+      <ol class="parcours">${seqsDe(ch).map((s, si) => `<li class="ligne-seq verrou"><span class="num-seq">${si + 1}</span><span class="txt"><b>${esc(fr(s.titre))}</b>${ligneTrad(s.titre)}</span></li>`).join("")}</ol>
+    </section>`;
+  }
+
   /* ---------- Écran 3 : une matière (chapitres et séquences) ---------- */
   function ecranDisc(id) {
     const d = discipline(id);
@@ -215,7 +246,8 @@
     const resume = av ? `<div class="resume-av">
         <span>${esc(fr(T.avancement))} ${barre(av.pct)} <b>${av.pct} %</b></span>
         <span>${esc(fr(T.maitrise))} <b>${av.critOk} / ${av.crit}</b></span></div>` : "";
-    const chapitres = chapitresDe(id).map((ch, ci) => {
+    const chapitres = tousChapitresDe(id).map((ch, ci) => {
+      if (!ouvert(ch)) return chapitreFerme(ch, ci);
       const seqs = seqsDe(ch).map((s, si) => {
         const a = avSeq(s);
         if (!a) return `<li class="ligne-seq bientot"><span class="num-seq">${si + 1}</span><span class="txt"><b>${esc(fr(s.titre))}</b>${ligneTrad(s.titre)}</span><span class="etiquette">${esc(fr(A.D.ui.bientot))}</span></li>`;
@@ -258,6 +290,7 @@
     const s = seq(id);
     if (!s) return aller("lecons");
     const ch = chapitreDeSeq(id);
+    if (ch && !ouvert(ch)) return aller("disc-" + ch.discipline);
     const d = ch ? ch.discipline : "";
     if (!A.S.dernier || A.S.dernier.r !== "seq-" + id) { A.S.dernier = { r: "seq-" + id, t: Date.now() }; A.sauver(); }
     const a = avSeq(s) || { f: 0, n: 0, pct: 0 };

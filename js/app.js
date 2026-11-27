@@ -366,6 +366,15 @@
         </button>`).join("")}</div>
       </div>`;
     }
+    if (e.type === "carte") {
+      // Situer sur une carte : des repères (A, B, C…) posés sur l'image ; on touche le bon. Positions en % de l'image.
+      return `<div class="carte-reperes"><img src="${esc(e.carte)}" alt="">${e.points.map((pt, i) => {
+        let etat = "";
+        if (A.resultat && A.choix === pt.id) etat = pt.id === e.bonne ? "juste" : "faux";
+        if (A.resultat === "ok" && pt.id === e.bonne) etat = "juste";
+        return `<button class="repere ${etat}" data-option="${pt.id}" aria-pressed="${A.choix === pt.id}" style="left:${pt.x}%;top:${pt.y}%" aria-label="Repère ${"ABCDEFGH"[i]}">${"ABCDEFGH"[i]}</button>`;
+      }).join("")}</div>`;
+    }
     if (e.type === "ordre") {
       // Remettre dans l'ordre : on touche les étiquettes une par une (1er, 2e…). Les éléments sont écrits dans le BON ordre ;
       // l'écran les mélange toujours de la même façon (pas de hasard → la classe voit la même chose).
@@ -412,7 +421,7 @@
   }
 
   function boutonAvancer(e) {
-    const verifiable = ["choix", "classer", "nombre", "ordre"].includes(e.type);
+    const verifiable = ["choix", "classer", "nombre", "ordre", "carte"].includes(e.type);
     if (e.facultatif && !A.resultat) return `<button class="btn-discret" data-passer>${esc(fr(D.ui.passer))}</button><button class="btn btn-principal" data-valider ${A.choix ? "" : "disabled"}>${esc(fr(D.ui.suivant))} ${ic("droite")}</button>`;
     if (verifiable && A.resultat !== "ok") {
       const pret = e.type === "classer" ? Object.keys(A.place).length === e.elements.length
@@ -430,7 +439,7 @@
       A.resultat = null;
       if (e.type === "classer") { A.place = {}; A.selection = null; }
       if (e.type === "ordre") A.ordre = [];
-      if (e.type === "choix") A.choix = null;
+      if (e.type === "choix" || e.type === "carte") A.choix = null;
       return rendre();
     }
     let juste = false;
@@ -438,6 +447,7 @@
     if (e.type === "classer") juste = e.elements.every(x => A.place[x.id] === x.bac);
     if (e.type === "nombre") juste = parseInt(A.choix, 10) === e.reponse;
     if (e.type === "ordre") juste = e.elements.every((x, i) => A.ordre[i] === x.id);
+    if (e.type === "carte") juste = A.choix === e.bonne;
     A.resultat = juste ? "ok" : "ko";
     S.reponses[`${act.id}-${A.etape}-essais`] = (S.reponses[`${act.id}-${A.etape}-essais`] || 0) + 1;
     sauver();
@@ -755,7 +765,7 @@
     if (d.recommencer) { S.progres[d.recommencer] = { etape: 0, fini: false }; A = null; sauver(); return rendre(); }
 
     if (b.id === "demo") {
-      S.profil = { tablette: "7", prenom: "Olena", langue: "uk", genre: "f", code: "1234" };
+      S.profil = { tablette: "7", prenom: "Olena", langue: "uk", genre: "f", code: "1234", demo: true };
       sauver(); setDeverrouille(false); profOk = false;
       return aller("accueil");
     }

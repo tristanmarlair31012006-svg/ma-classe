@@ -43,6 +43,7 @@
   function texte(o, opts) { return `${opts && opts.gras ? grasVerbes(fr(o)) : esc(fr(o))}${ligneTrad(o, opts)}`; }
 
   const ICONES = {
+    loupe: '<circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/>',
     house: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
     book: '<path d="M12 5v16"/><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"/>',
     palette: '<path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>',
@@ -333,7 +334,8 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">${boutonsSon(e.consigne)}</div>
       </div>
-      ${e.image ? `<div class="doc-cadre bloc"><img src="${esc(e.image)}" alt=""></div>` : ""}
+      ${e.image ? `<div class="doc-cadre bloc"><img src="${esc(e.image)}" alt="">${e.legendeImage ? `<p class="petit legende-image">${texte(e.legendeImage)}</p>` : ""}</div>` : ""}
+      ${e.lien ? `<a class="lien-recherche bloc" href="${esc(e.lien.url)}" target="_blank" rel="noopener noreferrer">${ic("loupe")}<span><strong>${esc(fr(e.lien.label))}</strong><br><span class="petit">${esc(e.lien.site)}</span></span></a>` : ""}
       <div class="zone">${zoneEtape(e)}</div>
       ${retourEtape(e)}
       ${A.aides ? `<div class="aides">${e.aides.slice(0, A.aides).map((a, i) => `<div class="aide">${ic("ampoule")}<div><span class="n">${esc(fr(D.ui.coupDePouce))} ${i + 1}</span><p>${texte(a)}</p></div></div>`).join("")}</div>` : ""}

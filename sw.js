@@ -1,6 +1,6 @@
 /* Mode hors ligne : l'app est gardée sur l'iPad.
    À CHAQUE MISE À JOUR DE L'APP, augmenter VERSION (ex. "v2" → "v3") pour que les iPad téléchargent la nouvelle version. */
-const VERSION = "v22";
+const VERSION = "v23";
 const CACHE = "ma-classe-" + VERSION;
 const FICHIERS = [
   "./", "./index.html", "./manifest.webmanifest",
@@ -44,6 +44,14 @@ self.addEventListener("fetch", e => {
   // Contenu du jour : toujours la version en ligne si possible, sinon la dernière gardée
   if (url.pathname.endsWith("/jour.json")) {
     e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(CACHE).then(k => k.put("./jour.json", c)); return r; }).catch(() => caches.match("./jour.json")));
+    return;
+  }
+  // Mes outils (prof) : d'abord le réseau, pour avoir toujours la dernière version ; le cache seulement hors ligne
+  if (/^\/(accueil|lecons|suivi|commun)\//.test(url.pathname) && !/\/(pdfjs|fonts)\//.test(url.pathname)) {
+    e.respondWith(fetch(e.request).then(rep => {
+      if (rep.ok) { const c = rep.clone(); caches.open(CACHE).then(k => k.put(e.request, c)); }
+      return rep;
+    }).catch(() => caches.match(e.request, { ignoreSearch: true }).then(r => r || caches.match("./accueil/"))));
     return;
   }
   // Fichiers de l'app : d'abord le cache (rapide, hors ligne), sinon le réseau

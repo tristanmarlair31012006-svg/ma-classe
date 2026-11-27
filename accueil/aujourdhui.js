@@ -176,6 +176,21 @@
       }).then(function () { etat.textContent = "Horaire chargé : " + HORAIRE.length + " cours, " + (CAL.sansCours || []).length + " jours sans cours."; })
         .catch(function () { etat.textContent = "Échec de l'enregistrement."; });
     });
+    // Lien « #horaire=… » que Claude m'a donné : je propose de charger l'horaire en un geste.
+    // Les données sont dans le lien lui-même (après #), jamais envoyées au serveur ni écrites dans le code.
+    var m = /^#horaire=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if (m) {
+      try {
+        var b = atob(m[1].replace(/-/g, "+").replace(/_/g, "/")), u = new Uint8Array(b.length);
+        for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+        var lu = JSON.parse(new TextDecoder().decode(u));
+        $("#horaire").open = true; $("#coller").hidden = false;
+        $("#coller-texte").value = JSON.stringify(lu);
+        $("#horaire-etat").textContent = "Mon horaire est prêt (" + (lu.cours || []).length + " cours) : je touche Charger.";
+        $("#horaire").scrollIntoView({ block: "start" });
+      } catch (e) { $("#horaire-etat").textContent = "Ce lien d'horaire est incomplet."; }
+      history.replaceState(null, "", location.pathname + location.search);
+    }
     // Horaire vide : j'ouvre directement la carte pour l'encoder ou le coller
     if (!HORAIRE.length) $("#horaire").open = true;
     $("#s-ajouter").addEventListener("click", function () {

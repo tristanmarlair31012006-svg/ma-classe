@@ -29,21 +29,45 @@
     monde: { n: 1, src: MONDE,
       legende: L("Carte du monde : les continents et les océans.", "Карта світу: континенти й океани.", "Mapa świata: kontynenty i oceany.", "Mapa del mundo: los continentes y los océanos."),
       credit: "Réalisé par T.Marlair sur base de la carte de Cogito ergo sumo (Wikimedia Commons, CC BY-SA 3.0)" },
-    biface: { n: 1, src: IMG + "pre-biface.jpg",
+    biface: { n: 2, src: IMG + "pre-biface.jpg",
       legende: L("Photographie d'un biface en silex (une pierre taillée des deux côtés), trouvé à Presles-et-Boves (France). Paléolithique, il y a plusieurs centaines de milliers d'années. Musée Saint-Remi, Reims.",
         "Фотографія біфаса з кременю (каменя, обробленого з двох боків), знайденого в Прель-е-Бов (Франція). Палеоліт, кілька сотень тисяч років тому. Музей Сен-Ремі, Реймс.",
         "Zdjęcie pięściaka z krzemienia (kamienia obrobionego z dwóch stron), znalezionego w Presles-et-Boves (Francja). Paleolit, kilkaset tysięcy lat temu. Muzeum Saint-Remi, Reims.",
         "Fotografía de un bifaz de sílex (una piedra tallada por los dos lados), encontrado en Presles-et-Boves (Francia). Paleolítico, hace varios cientos de miles de años. Museo Saint-Remi, Reims."),
       credit: "Photo : Vassil, 2016 (Wikimedia Commons, CC0)" },
-    replique: { n: 2, src: IMG + "pre-replique.jpg",
+    replique: { n: 3, src: IMG + "pre-replique.jpg",
       legende: L("Photographie d'une copie des peintures de la grotte de Lascaux (France), exposée au musée Anthropos de Brno (République tchèque). Les vraies peintures ont environ 17 000 ans.",
         "Фотографія копії малюнків печери Ласко (Франція) у музеї «Антропос» у Брно (Чехія). Справжнім малюнкам приблизно 17 000 років.",
         "Zdjęcie kopii malowideł z jaskini Lascaux (Francja), wystawionej w muzeum Anthropos w Brnie (Czechy). Prawdziwe malowidła mają około 17 000 lat.",
         "Fotografía de una copia de las pinturas de la cueva de Lascaux (Francia), expuesta en el museo Anthropos de Brno (República Checa). Las pinturas verdaderas tienen unos 17 000 años."),
       credit: "Photo : HTO, 2009 (Wikimedia Commons, domaine public)" },
-    belgique: { n: 1, src: BELGIQUE,
+    belgique: { n: 4, src: BELGIQUE,
       legende: L("Carte de la Belgique avec Huy et Liège, au bord de la Meuse.", "Карта Бельгії з Юї та Льєжем на березі Маасу.", "Mapa Belgii z Huy i Liège nad Mozą.", "Mapa de Bélgica con Huy y Lieja, a orillas del Mosa."),
-      credit: "Réalisé par T.Marlair sur base de la carte de Jules Rohault (Wikimedia Commons, CC BY-SA 4.0)" }
+      credit: "Réalisé par T.Marlair sur base de la carte de Jules Rohault (Wikimedia Commons, CC BY-SA 4.0)" },
+    crane: { n: 5, src: IMG + "pre-engis2.jpg",
+      legende: L("Photographie du crâne d'un enfant néandertalien (appelé « Engis 2 »), trouvé par Philippe-Charles Schmerling dans une grotte d'Engis en 1829-1830. Université de Liège.",
+        "Фотографія черепа дитини-неандертальця («Енжі 2»), знайденого Філіппом-Шарлем Шмерлінгом у печері Енжі в 1829–1830 роках. Льєзький університет.",
+        "Zdjęcie czaszki dziecka neandertalczyka (zwanej „Engis 2”), znalezionej przez Philippe'a-Charlesa Schmerlinga w jaskini w Engis w latach 1829–1830. Uniwersytet w Liège.",
+        "Fotografía del cráneo de un niño neandertal (llamado «Engis 2»), encontrado por Philippe-Charles Schmerling en una cueva de Engis en 1829-1830. Universidad de Lieja."),
+      credit: "Photo : Thilo Parg, 2015 (Wikimedia Commons, CC BY-SA 3.0)" },
+    moulage: { n: 6, src: IMG + "pre-engis2-moulage.jpg",
+      legende: L("Photographie d'un moulage (une copie) du crâne Engis 2, présenté à l'exposition sur Néandertal des musées de Reims (France) en 2023.",
+        "Фотографія зліпка (копії) черепа «Енжі 2» на виставці про неандертальців у музеях Реймса (Франція) у 2023 році.",
+        "Zdjęcie odlewu (kopii) czaszki Engis 2, pokazanego na wystawie o neandertalczyku w muzeach w Reims (Francja) w 2023 roku.",
+        "Fotografía de un molde (una copia) del cráneo Engis 2, presentado en la exposición sobre los neandertales de los museos de Reims (Francia) en 2023."),
+      credit: "Photo : Gérald Garitan, 2023 (Wikimedia Commons, CC BY-SA 4.0)" },
+    planche: { n: 7, src: IMG + "pre-schmerling-1833.jpg",
+      legende: L("Gravure du livre de Philippe-Charles Schmerling sur les os fossiles des grottes de la province de Liège, publié à Liège en 1833. Elle montre des crânes humains trouvés à Engis.",
+        "Гравюра з книжки Філіппа-Шарля Шмерлінга про скам'янілі кістки з печер провінції Льєж, виданої в Льєжі в 1833 році. На ній черепи людей, знайдені в Енжі.",
+        "Rycina z książki Philippe'a-Charlesa Schmerlinga o skamieniałych kościach z jaskiń prowincji Liège, wydanej w Liège w 1833 roku. Pokazuje ludzkie czaszki znalezione w Engis.",
+        "Grabado del libro de Philippe-Charles Schmerling sobre los huesos fósiles de las cuevas de la provincia de Lieja, publicado en Lieja en 1833. Muestra cráneos humanos encontrados en Engis."),
+      credit: "Domaine public (Wikimedia Commons)" },
+    vase: { n: 8, src: IMG + "pre-vase-rubane.jpg",
+      legende: L("Photographie d'un vase en terre cuite décoré de lignes de points, fait par des premiers paysans de la culture « rubanée » (vers − 5000). Musée de Rothenburg (Allemagne).",
+        "Фотографія глиняної посудини, прикрашеної лініями з крапок, зробленої першими селянами «культури лінійно-стрічкової кераміки» (близько − 5000). Музей Ротенбурга (Німеччина).",
+        "Zdjęcie glinianego naczynia ozdobionego liniami z kropek, zrobionego przez pierwszych rolników kultury ceramiki wstęgowej rytej (około − 5000). Muzeum w Rothenburgu (Niemcy).",
+        "Fotografía de un vaso de barro cocido decorado con líneas de puntos, hecho por los primeros campesinos de la cultura «de la cerámica de bandas» (hacia − 5000). Museo de Rothenburg (Alemania)."),
+      credit: "Photo : Wolfgang Sauber, 2019 (Wikimedia Commons, CC BY-SA 4.0)" }
   };
 
   /* ---------- Chapitre (juste après les rappels d'histoire) ---------- */
@@ -81,7 +105,7 @@
 
     /* 2. Chasseurs-cueilleurs + savoir-faire trace / travail postérieur */
     { id: "pre-chasseurs",
-      titre: L("Chasser, cueillir, se déplacer", "Полювати, збирати, переміщатися", "Polować, zbierać, wędrować", "Cazar, recolectar, desplazarse"),
+      titre: L("Comment vivent les chasseurs-cueilleurs ?", "Як живуть мисливці-збирачі?", "Jak żyją łowcy-zbieracze?", "¿Cómo viven los cazadores-recolectores?"),
       objectif: L("Je décris une trace du passé et je dis ce qu'elle m'apprend. Je distingue une trace et un travail postérieur.", "Я описую слід минулого й кажу, що він мені розповідає. Я розрізняю слід і пізнішу працю.", "Opisuję ślad przeszłości i mówię, czego mnie uczy. Odróżniam ślad od pracy późniejszej.", "Describo una huella del pasado y digo lo que me enseña. Distingo una huella y un trabajo posterior."),
       criteres: [
         crit("pre-decrire", "Je décris un objet préhistorique : la matière, la forme, l'usage.", "Я описую доісторичний предмет: матеріал, форму, використання.", "Opisuję przedmiot z prehistorii: materiał, kształt, użycie.", "Describo un objeto prehistórico: el material, la forma, el uso."),
@@ -113,11 +137,12 @@
 
     /* 3. La Préhistoire près de chez nous */
     { id: "pre-engis",
-      titre: L("La Préhistoire près de Huy", "Доісторичні часи біля Юї", "Prehistoria niedaleko Huy", "La Prehistoria cerca de Huy"),
+      titre: L("Qu'a-t-on découvert à Engis, près de Huy ?", "Що знайшли в Енжі, біля Юї?", "Co odkryto w Engis, niedaleko Huy?", "¿Qué se descubrió en Engis, cerca de Huy?"),
       objectif: L("Je situe Engis sur la carte et je comprends pourquoi on y a fait une découverte importante.", "Я знаходжу Енжі на карті й розумію, чому там зробили важливе відкриття.", "Znajduję Engis na mapie i rozumiem, dlaczego dokonano tam ważnego odkrycia.", "Localizo Engis en el mapa y entiendo por qué allí se hizo un descubrimiento importante."),
       criteres: [
         crit("pre-engis-carte", "Je situe Engis, entre Huy et Liège, au bord de la Meuse.", "Я знаходжу Енжі між Юї та Льєжем на березі Маасу.", "Znajduję Engis między Huy a Liège, nad Mozą.", "Localizo Engis, entre Huy y Lieja, a orillas del Mosa."),
-        crit("pre-engis-calcul", "Je calcule depuis combien de temps une découverte a été faite.", "Я обчислюю, скільки часу минуло від відкриття.", "Obliczam, ile czasu minęło od odkrycia.", "Calculo cuánto tiempo hace que se hizo un descubrimiento.")
+        crit("pre-engis-calcul", "Je calcule depuis combien de temps une découverte a été faite.", "Я обчислюю, скільки часу минуло від відкриття.", "Obliczam, ile czasu minęło od odkrycia.", "Calculo cuánto tiempo hace que se hizo un descubrimiento."),
+        crit("pre-engis-source", "Je dis si un document vient de la Préhistoire ou a été fait plus tard, et je justifie.", "Я кажу, чи документ походить із доісторичних часів, чи зроблений пізніше, і пояснюю.", "Mówię, czy dokument pochodzi z prehistorii, czy powstał później, i uzasadniam.", "Digo si un documento viene de la Prehistoria o se hizo más tarde, y lo justifico.")
       ],
       etapes: [
         { type: "ressource", titre: L("Un crâne dans une grotte d'Engis", "Череп у печері Енжі", "Czaszka w jaskini w Engis", "Un cráneo en una cueva de Engis"),
@@ -126,7 +151,7 @@
             L("En 1829-1830, le médecin Philippe-Charles Schmerling fouille ces grottes. Il trouve des os d'animaux, des outils en silex et le crâne d'un enfant.", "У 1829–1830 роках лікар Філіпп-Шарль Шмерлінг розкопує ці печери. Він знаходить кістки тварин, знаряддя з кременю й череп дитини.", "W latach 1829–1830 lekarz Philippe-Charles Schmerling prowadzi wykopaliska w tych jaskiniach. Znajduje kości zwierząt, narzędzia z krzemienia i czaszkę dziecka.", "En 1829-1830, el médico Philippe-Charles Schmerling excava esas cuevas. Encuentra huesos de animales, herramientas de sílex y el cráneo de un niño."),
             L("Bien plus tard, les savants comprennent que c'est un enfant néandertalien : une autre espèce humaine, qui vivait en Europe avant nous. C'est le premier fossile de Néandertalien jamais découvert.", "Набагато пізніше вчені зрозуміли, що це дитина-неандерталець — інший вид людей, що жив у Європі до нас. Це перша знахідка неандертальця в історії.", "Dużo później naukowcy zrozumieli, że to dziecko neandertalczyka: innego gatunku człowieka, który żył w Europie przed nami. To pierwsza skamielina neandertalczyka, jaką kiedykolwiek odkryto.", "Mucho más tarde, los científicos entienden que es un niño neandertal: otra especie humana que vivía en Europa antes que nosotros. Es el primer fósil de neandertal jamás descubierto."),
             L("Aujourd'hui, à Ramioul (Flémalle), tout près, le Préhistomuseum montre la vie à la Préhistoire.", "Сьогодні зовсім поруч, у Раміулі (Флемаль), Музей доісторії показує життя в доісторичні часи.", "Dziś w pobliskim Ramioul (Flémalle) Préhistomuseum pokazuje życie w prehistorii.", "Hoy, muy cerca, en Ramioul (Flémalle), el Préhistomuseum muestra la vida en la Prehistoria.")
-          ], docs: [DOC.belgique] } },
+          ], docs: [DOC.belgique, DOC.crane, DOC.moulage, DOC.planche] } },
         { type: "activite", activite: "pre-act-engis" },
         { type: "minitest", test: "test-pre-engis" },
         { type: "synthese", titre: RETIENS, contenu: { liste: [
@@ -137,7 +162,7 @@
 
     /* 4. Néolithique */
     { id: "pre-paysans",
-      titre: L("Devenir paysans : le Néolithique", "Стати селянами: неоліт", "Zostać rolnikami: neolit", "Hacerse campesinos: el Neolítico"),
+      titre: L("Comment les humains deviennent-ils paysans ?", "Як люди стають селянами?", "Jak ludzie stają się rolnikami?", "¿Cómo se hacen campesinos los humanos?"),
       objectif: L("Je compare la vie des nomades et des premiers paysans, et je situe le Proche-Orient sur la carte.", "Я порівнюю життя кочівників і перших селян та знаходжу Близький Схід на карті.", "Porównuję życie koczowników i pierwszych rolników oraz znajduję Bliski Wschód na mapie.", "Comparo la vida de los nómadas y de los primeros campesinos, y localizo Oriente Próximo en el mapa."),
       criteres: [
         crit("pre-comparer", "Je compare nomade et sédentaire.", "Я порівнюю кочівника й осілу людину.", "Porównuję koczownika i osiadłego.", "Comparo nómada y sedentario."),
@@ -149,7 +174,7 @@
             L("Vers − 10 000, au Proche-Orient (aujourd'hui l'Irak, la Syrie, la Turquie…), des humains commencent à cultiver des céréales et à élever des animaux.", "Близько − 10 000 року на Близькому Сході (сьогодні Ірак, Сирія, Туреччина…) люди починають вирощувати зернові й розводити тварин.", "Około − 10 000 na Bliskim Wschodzie (dziś Irak, Syria, Turcja…) ludzie zaczynają uprawiać zboża i hodować zwierzęta.", "Hacia − 10 000, en Oriente Próximo (hoy Irak, Siria, Turquía…), unos humanos empiezan a cultivar cereales y a criar animales."),
             L("Ils deviennent sédentaires : ils restent au même endroit, construisent des maisons et forment des villages. Ils fabriquent des poteries pour garder les graines.", "Вони стають осілими: залишаються на одному місці, будують будинки й утворюють села. Вони роблять глиняний посуд, щоб зберігати зерно.", "Stają się osiadli: zostają w jednym miejscu, budują domy i tworzą wioski. Robią naczynia gliniane, żeby przechowywać ziarno.", "Se vuelven sedentarios: se quedan en el mismo lugar, construyen casas y forman aldeas. Fabrican cerámica para guardar las semillas."),
             L("Ce nouveau mode de vie arrive très lentement en Europe. Vers − 5300, les premiers paysans s'installent en Hesbaye, tout près de Huy, sur les bonnes terres.", "Цей новий спосіб життя дуже повільно приходить до Європи. Близько − 5300 року перші селяни оселяються в Есбаї, зовсім поруч із Юї, на добрих землях.", "Ten nowy sposób życia bardzo powoli dociera do Europy. Około − 5300 pierwsi rolnicy osiedlają się w Hesbaye, tuż obok Huy, na dobrych ziemiach.", "Esta nueva forma de vida llega muy lentamente a Europa. Hacia − 5300, los primeros campesinos se instalan en Hesbaye, muy cerca de Huy, en las buenas tierras.")
-          ], docs: [DOC.monde] } },
+          ], docs: [DOC.monde, DOC.vase] } },
         { type: "activite", activite: "pre-act-paysans" },
         { type: "minitest", test: "test-pre-paysans" },
         { type: "synthese", titre: RETIENS, contenu: { liste: [
@@ -194,6 +219,16 @@
           L("Oui ! L'Europe, au nord de l'Afrique. C'est là que se trouve la Belgique.", "Так! Європа, на північ від Африки. Там знаходиться Бельгія.", "Tak! Europa, na północ od Afryki. Tam leży Belgia.", "¡Sí! Europa, al norte de África. Allí está Bélgica."),
           L("Pas encore. L'Europe est au-dessus (au nord) de l'Afrique.", "Ще ні. Європа — над Африкою (на півночі).", "Jeszcze nie. Europa jest nad Afryką (na północy).", "Todavía no. Europa está encima (al norte) de África."),
           [L("Le nord est en haut de la carte.", "Північ — угорі карти.", "Północ jest na górze mapy.", "El norte está arriba en el mapa.")]),
+        CLASSER(L("CLASSE : un événement (un moment précis, une date) ou un phénomène (ça dure longtemps) ?", "РОЗПОДІЛИ: подія (певний момент, дата) чи явище (триває довго)?", "PRZYPORZĄDKUJ: wydarzenie (konkretna chwila, data) czy zjawisko (trwa długo)?", "CLASIFICA: ¿un acontecimiento (un momento preciso, una fecha) o un fenómeno (dura mucho tiempo)?"),
+          [{ id: "ev", label: L("Événement", "Подія", "Wydarzenie", "Acontecimiento") }, { id: "ph", label: L("Phénomène", "Явище", "Zjawisko", "Fenómeno") }],
+          [el("decouv", "Schmerling découvre un crâne à Engis (1830)", "Шмерлінг знаходить череп в Енжі (1830)", "Schmerling odkrywa czaszkę w Engis (1830)", "Schmerling descubre un cráneo en Engis (1830)", "ev"),
+           el("ferme", "La grotte de Lascaux est fermée aux visiteurs (1963)", "Печеру Ласко закривають для відвідувачів (1963)", "Jaskinia Lascaux zostaje zamknięta dla zwiedzających (1963)", "La cueva de Lascaux se cierra a los visitantes (1963)", "ev"),
+           el("depart", "Les humains partent d'Afrique vers l'Asie et l'Europe", "Люди вирушають з Африки до Азії та Європи", "Ludzie wędrują z Afryki do Azji i Europy", "Los humanos salen de África hacia Asia y Europa", "ph"),
+           el("paleo", "Les humains vivent de la chasse et de la cueillette", "Люди живуть полюванням і збиранням", "Ludzie żyją z polowania i zbieractwa", "Los humanos viven de la caza y la recolección", "ph"),
+           el("agri", "L'agriculture arrive lentement en Europe", "Землеробство повільно приходить до Європи", "Rolnictwo powoli dociera do Europy", "La agricultura llega lentamente a Europa", "ph")],
+          L("Bravo ! Un événement a une date. Un phénomène dure des centaines ou des milliers d'années.", "Молодець! Подія має дату. Явище триває сотні або тисячі років.", "Brawo! Wydarzenie ma datę. Zjawisko trwa setki albo tysiące lat.", "¡Bien! Un acontecimiento tiene una fecha. Un fenómeno dura cientos o miles de años."),
+          L("Pas encore. Cherche ce qui a une date précise : ce sont les événements.", "Ще ні. Шукай те, що має точну дату: це події.", "Jeszcze nie. Szukaj tego, co ma dokładną datę: to wydarzenia.", "Todavía no. Busca lo que tiene una fecha precisa: son los acontecimientos."),
+          [L("Sur une frise, un événement = un point ; un phénomène = une bande.", "На стрічці часу подія = крапка; явище = смуга.", "Na osi czasu wydarzenie = punkt; zjawisko = pasek.", "En una línea del tiempo, un acontecimiento = un punto; un fenómeno = una franja.")]),
         AUTO("CHOISIS : est-ce que tu sais placer la Préhistoire dans le temps et dans l'espace ?", "ВИБЕРИ: чи вмієш ти розмістити доісторичні часи в часі й просторі?", "WYBIERZ: czy umiesz umieścić prehistorię w czasie i przestrzeni?", "ELIGE: ¿sabes situar la Prehistoria en el tiempo y en el espacio?")
       ] },
 
@@ -201,12 +236,10 @@
       titre: L("J'enquête sur une pierre taillée", "Я досліджую оброблений камінь", "Badam obrobiony kamień", "Investigo una piedra tallada"),
       objectif: L("Je décris une trace du passé et je la distingue d'un travail postérieur.", "Я описую слід минулого й відрізняю його від пізнішої праці.", "Opisuję ślad przeszłości i odróżniam go od pracy późniejszej.", "Describo una huella del pasado y la distingo de un trabajo posterior."),
       etapes: [
-        CHOIX(L("REGARDE le biface. CHOISIS : en quelle matière est-il fait ?", "ПОДИВИСЬ на біфас. ВИБЕРИ: з якого матеріалу він зроблений?", "SPÓJRZ na pięściak. WYBIERZ: z jakiego materiału jest zrobiony?", "MIRA el bifaz. ELIGE: ¿de qué material está hecho?"),
-          [opt("a", "en métal", "з металу", "z metalu", "de metal"), opt("b", "en pierre (silex)", "з каменю (кременю)", "z kamienia (krzemienia)", "de piedra (sílex)", true), opt("c", "en plastique", "з пластику", "z plastiku", "de plástico")],
-          L("Oui ! En silex, une pierre dure qu'on peut tailler.", "Так! З кременю — твердого каменю, який можна обробляти.", "Tak! Z krzemienia, twardego kamienia, który można obrabiać.", "¡Sí! De sílex, una piedra dura que se puede tallar."),
-          L("Pas encore. Lis la légende : « biface en silex ».", "Ще ні. Прочитай підпис: «біфас з кременю».", "Jeszcze nie. Przeczytaj podpis: „pięściak z krzemienia”.", "Todavía no. Lee la leyenda: «bifaz de sílex»."),
-          [L("À la Préhistoire, on ne connaît pas encore le métal.", "У доісторичні часи метал ще не знали.", "W prehistorii nie znano jeszcze metalu.", "En la Prehistoria todavía no se conoce el metal.")],
-          { image: IMG + "pre-biface.jpg" }),
+        { type: "ecrire", picto: null, verbe: "OBSERVE", image: IMG + "pre-biface.jpg",
+          consigne: L("OBSERVE le biface (document N°2). ÉCRIS : Je VOIS… (la matière, la forme, les bords). J'en DÉDUIS… (à quoi il servait).", "РОЗГЛЯНЬ біфас (документ №2). НАПИШИ: Я БАЧУ… (матеріал, форма, краї). Я РОБЛЮ ВИСНОВОК… (для чого він служив).", "OBEJRZYJ pięściak (dokument nr 2). NAPISZ: WIDZĘ… (materiał, kształt, krawędzie). WNIOSKUJĘ… (do czego służył).", "OBSERVA el bifaz (documento N.º 2). ESCRIBE: VEO… (el material, la forma, los bordes). DEDUZCO… (para qué servía)."),
+          amorces: ["Je vois une pierre", "Les bords sont", "J'en déduis qu'il servait à"], placeholder: "Je vois une pierre… J'en déduis que…", astuce: ASTUCE_MICRO,
+          aides: [L("Lis aussi la légende : elle dit la matière et l'époque.", "Прочитай також підпис: там матеріал і епоха.", "Przeczytaj też podpis: mówi o materiale i epoce.", "Lee también la leyenda: dice el material y la época.")] },
         CHOIX(L("CHOISIS : à quoi servait sans doute ce biface ?", "ВИБЕРИ: для чого, мабуть, служив цей біфас?", "WYBIERZ: do czego prawdopodobnie służył ten pięściak?", "ELIGE: ¿para qué servía seguramente este bifaz?"),
           [opt("a", "à couper la viande et le bois", "різати м'ясо й дерево", "do cięcia mięsa i drewna", "para cortar la carne y la madera", true), opt("b", "à écrire", "писати", "do pisania", "para escribir"), opt("c", "à décorer la maison", "прикрашати дім", "do ozdabiania domu", "para decorar la casa")],
           L("Oui ! Ses bords sont tranchants : c'est un outil pour couper.", "Так! Його краї гострі: це знаряддя для різання.", "Tak! Jego krawędzie są ostre: to narzędzie do cięcia.", "¡Sí! Sus bordes cortan: es una herramienta para cortar."),
@@ -224,40 +257,37 @@
           L("Bravo ! Une copie ressemble au passé, mais elle est faite aujourd'hui : c'est un travail postérieur.", "Молодець! Копія схожа на минуле, але зроблена сьогодні: це пізніша праця.", "Brawo! Kopia przypomina przeszłość, ale jest zrobiona dzisiaj: to praca późniejsza.", "¡Bien! Una copia se parece al pasado, pero está hecha hoy: es un trabajo posterior."),
           L("Pas encore. Une copie, un dessin d'artiste ou un film sont faits plus tard.", "Ще ні. Копію, малюнок художника чи фільм зроблено пізніше.", "Jeszcze nie. Kopia, rysunek artysty czy film są zrobione później.", "Todavía no. Una copia, un dibujo de artista o una película se hacen más tarde."),
           [L("Demande-toi : est-ce qu'un humain préhistorique l'a fait lui-même ?", "Запитай себе: чи доісторична людина зробила це сама?", "Zapytaj siebie: czy człowiek prehistoryczny sam to zrobił?", "Pregúntate: ¿lo hizo un humano prehistórico él mismo?")]),
-        CHOIX(L("CHOISIS : pourquoi a-t-on fait des copies de Lascaux ?", "ВИБЕРИ: чому зробили копії Ласко?", "WYBIERZ: dlaczego zrobiono kopie Lascaux?", "ELIGE: ¿por qué se hicieron copias de Lascaux?"),
-          [opt("a", "pour protéger la vraie grotte, fermée aux visiteurs", "щоб захистити справжню печеру, закриту для відвідувачів", "żeby chronić prawdziwą jaskinię, zamkniętą dla zwiedzających", "para proteger la cueva verdadera, cerrada a los visitantes", true), opt("b", "parce que les vraies peintures ont disparu", "бо справжні малюнки зникли", "bo prawdziwe malowidła zniknęły", "porque las pinturas verdaderas desaparecieron"), opt("c", "pour faire des peintures plus belles", "щоб зробити гарніші малюнки", "żeby zrobić ładniejsze malowidła", "para hacer pinturas más bonitas")],
-          L("Oui ! Trop de visiteurs abîmaient les peintures. La grotte est fermée depuis 1963.", "Так! Забагато відвідувачів псували малюнки. Печеру закрито з 1963 року.", "Tak! Zbyt wielu zwiedzających niszczyło malowidła. Jaskinia jest zamknięta od 1963 roku.", "¡Sí! Demasiados visitantes estropeaban las pinturas. La cueva está cerrada desde 1963."),
-          L("Pas encore. Les vraies peintures existent toujours. Il faut les protéger.", "Ще ні. Справжні малюнки досі існують. Їх треба захищати.", "Jeszcze nie. Prawdziwe malowidła wciąż istnieją. Trzeba je chronić.", "Todavía no. Las pinturas verdaderas siguen existiendo. Hay que protegerlas."),
-          [L("Notre souffle et la chaleur des visiteurs abîment les murs.", "Наше дихання й тепло відвідувачів псують стіни.", "Nasz oddech i ciepło zwiedzających niszczą ściany.", "Nuestro aliento y el calor de los visitantes estropean las paredes.")]),
-        ECRIRE(L("ÉCRIS : qu'est-ce que le biface nous apprend sur la vie des humains préhistoriques ?", "НАПИШИ: що біфас розповідає нам про життя доісторичних людей?", "NAPISZ: czego pięściak uczy nas o życiu ludzi prehistorycznych?", "ESCRIBE: ¿qué nos enseña el bifaz sobre la vida de los humanos prehistóricos?"),
-          ["Le biface nous apprend que", "Les humains savaient", "Ils l'utilisaient pour"], "Le biface nous apprend que les humains…",
-          [L("Pense à : la matière, le travail pour le tailler, à quoi il servait.", "Подумай про: матеріал, роботу, щоб його обробити, для чого він служив.", "Pomyśl o: materiale, pracy, żeby go obrobić, do czego służył.", "Piensa en: el material, el trabajo para tallarlo, para qué servía.")]),
         AUTO("CHOISIS : est-ce que tu sais décrire une trace et la distinguer d'un travail postérieur ?", "ВИБЕРИ: чи вмієш ти описати слід і відрізнити його від пізнішої праці?", "WYBIERZ: czy umiesz opisać ślad i odróżnić go od pracy późniejszej?", "ELIGE: ¿sabes describir una huella y distinguirla de un trabajo posterior?")
       ] },
 
     { id: "pre-act-engis", discipline: "histoire", picto: null, motsAppris: [],
       titre: L("Une découverte près de chez nous", "Відкриття біля нас", "Odkrycie niedaleko nas", "Un descubrimiento cerca de casa"),
-      objectif: L("Je situe Engis et je calcule depuis quand on connaît le crâne.", "Я знаходжу Енжі й обчислюю, відколи відомий череп.", "Znajduję Engis i obliczam, od kiedy znamy czaszkę.", "Localizo Engis y calculo desde cuándo se conoce el cráneo."),
+      objectif: L("Je situe Engis et je critique trois documents sur le crâne.", "Я знаходжу Енжі й аналізую три документи про череп.", "Znajduję Engis i analizuję trzy dokumenty o czaszce.", "Localizo Engis y analizo tres documentos sobre el cráneo."),
       etapes: [
         CARTE(L("TOUCHE le repère d'Engis : au bord de la Meuse, entre Huy et Liège.", "ТОРКНИСЯ позначки Енжі: на березі Маасу, між Юї та Льєжем.", "DOTKNIJ znacznika Engis: nad Mozą, między Huy a Liège.", "TOCA la marca de Engis: a orillas del Mosa, entre Huy y Lieja."),
           BELGIQUE, [pt("ost", 10, 24), pt("nam", 55, 52), pt("eng", 73.4, 46.4), pt("arl", 80, 84)], "eng",
           L("Oui ! Engis est entre Huy et Liège. C'est à environ 15 km de l'école.", "Так! Енжі між Юї та Льєжем. Це приблизно 15 км від школи.", "Tak! Engis leży między Huy a Liège. To około 15 km od szkoły.", "¡Sí! Engis está entre Huy y Lieja. Está a unos 15 km de la escuela."),
           L("Pas encore. Trouve Huy et Liège, puis le repère entre les deux.", "Ще ні. Знайди Юї та Льєж, потім позначку між ними.", "Jeszcze nie. Znajdź Huy i Liège, potem znacznik między nimi.", "Todavía no. Busca Huy y Lieja, y luego la marca entre las dos."),
           [L("Huy et Liège sont écrits sur la carte, à droite.", "Юї та Льєж підписані на карті праворуч.", "Huy i Liège są napisane na mapie, po prawej.", "Huy y Lieja están escritos en el mapa, a la derecha.")]),
-        { type: "nombre", picto: null, verbe: "CALCULE", unite: "ans", reponse: 196,
-          consigne: L("CALCULE : Schmerling trouve le crâne en 1830. Combien d'années jusqu'en 2026 ?", "ПОРАХУЙ: Шмерлінг знаходить череп у 1830 році. Скільки років до 2026?", "POLICZ: Schmerling znajduje czaszkę w 1830 roku. Ile lat do 2026?", "CALCULA: Schmerling encuentra el cráneo en 1830. ¿Cuántos años hasta 2026?"),
-          bravo: L("Oui ! 2026 − 1830 = 196 ans. Mais le crâne lui-même a des dizaines de milliers d'années !", "Так! 2026 − 1830 = 196 років. Але самому черепу десятки тисяч років!", "Tak! 2026 − 1830 = 196 lat. Ale sama czaszka ma dziesiątki tysięcy lat!", "¡Sí! 2026 − 1830 = 196 años. ¡Pero el cráneo tiene decenas de miles de años!"),
-          erreur: L("Pas encore. Fais : grande date − petite date.", "Ще ні. Зроби: більша дата − менша дата.", "Jeszcze nie. Zrób: większa data − mniejsza data.", "Todavía no. Haz: fecha grande − fecha pequeña."),
-          aides: [L("2026 − 1830 = ?", "2026 − 1830 = ?", "2026 − 1830 = ?", "2026 − 1830 = ?")] },
+        CLASSER(L("CLASSE les documents N°5, 6 et 7 : fait à la Préhistoire (trace) ou fait plus tard (travail postérieur) ? Lis bien les légendes.", "РОЗПОДІЛИ документи №5, 6 і 7: зроблено в доісторичні часи (слід) чи пізніше (пізніша праця)? Уважно прочитай підписи.", "PRZYPORZĄDKUJ dokumenty nr 5, 6 i 7: z prehistorii (ślad) czy zrobione później (praca późniejsza)? Uważnie przeczytaj podpisy.", "CLASIFICA los documentos N.º 5, 6 y 7: ¿de la Prehistoria (huella) o hecho más tarde (trabajo posterior)? Lee bien las leyendas."),
+          [TRACE, POST],
+          [el("d5", "Document N°5 : le crâne de l'université de Liège", "Документ №5: череп з Льєзького університету", "Dokument nr 5: czaszka z uniwersytetu w Liège", "Documento N.º 5: el cráneo de la Universidad de Lieja", "trace"),
+           el("d6", "Document N°6 : le moulage exposé à Reims", "Документ №6: зліпок на виставці в Реймсі", "Dokument nr 6: odlew wystawiony w Reims", "Documento N.º 6: el molde expuesto en Reims", "post"),
+           el("d7", "Document N°7 : la gravure du livre de 1833", "Документ №7: гравюра з книжки 1833 року", "Dokument nr 7: rycina z książki z 1833 roku", "Documento N.º 7: el grabado del libro de 1833", "post")],
+          L("Bravo ! Seul le vrai crâne vient de la Préhistoire. Le moulage et la gravure ont été faits bien plus tard.", "Молодець! Лише справжній череп походить із доісторичних часів. Зліпок і гравюру зробили набагато пізніше.", "Brawo! Tylko prawdziwa czaszka pochodzi z prehistorii. Odlew i rycinę zrobiono dużo później.", "¡Bien! Solo el cráneo verdadero viene de la Prehistoria. El molde y el grabado se hicieron mucho más tarde."),
+          L("Pas encore. Pour chaque document, cherche QUAND il a été fait.", "Ще ні. Для кожного документа шукай, КОЛИ його зроблено.", "Jeszcze nie. Dla każdego dokumentu szukaj, KIEDY powstał.", "Todavía no. Para cada documento, busca CUÁNDO se hizo."),
+          [L("1833 et 2023, c'est longtemps après la Préhistoire.", "1833 і 2023 — це довго після доісторичних часів.", "1833 i 2023 to długo po prehistorii.", "1833 y 2023 es mucho después de la Prehistoria.")]),
+        CHOIX(L("CHOISIS : Schmerling, l'auteur du livre de 1833, a-t-il vu vivre l'enfant néandertalien ?", "ВИБЕРИ: Шмерлінг, автор книжки 1833 року, бачив живою дитину-неандертальця?", "WYBIERZ: czy Schmerling, autor książki z 1833 roku, widział to dziecko neandertalczyka za życia?", "ELIGE: Schmerling, el autor del libro de 1833, ¿vio vivir al niño neandertal?"),
+          [opt("a", "Oui, c'est un témoin : il était là.", "Так, він свідок: він був там.", "Tak, to świadek: był tam.", "Sí, es un testigo: estaba allí."), opt("b", "Non : il vit des milliers d'années plus tard. Il étudie les os, comme un spécialiste.", "Ні: він живе через тисячі років. Він вивчає кістки, як фахівець.", "Nie: żyje tysiące lat później. Bada kości jak specjalista.", "No: vive miles de años después. Estudia los huesos, como un especialista.", true)],
+          L("Oui ! Schmerling n'est pas un témoin. Il étudie des traces : c'est un spécialiste.", "Так! Шмерлінг не свідок. Він вивчає сліди: це фахівець.", "Tak! Schmerling nie jest świadkiem. Bada ślady: to specjalista.", "¡Sí! Schmerling no es un testigo. Estudia huellas: es un especialista."),
+          L("Pas encore. Schmerling vit au 19e siècle. L'enfant a vécu à la Préhistoire.", "Ще ні. Шмерлінг живе в 19 столітті. Дитина жила в доісторичні часи.", "Jeszcze nie. Schmerling żyje w XIX wieku. Dziecko żyło w prehistorii.", "Todavía no. Schmerling vive en el siglo XIX. El niño vivió en la Prehistoria."),
+          [L("Un témoin a vu les faits de ses yeux.", "Свідок бачив події на власні очі.", "Świadek widział wydarzenia na własne oczy.", "Un testigo vio los hechos con sus propios ojos.")]),
         CHOIX(L("CHOISIS : la date de la découverte (1830) et l'âge du crâne, c'est la même chose ?", "ВИБЕРИ: дата відкриття (1830) і вік черепа — це те саме?", "WYBIERZ: data odkrycia (1830) i wiek czaszki to to samo?", "ELIGE: ¿la fecha del descubrimiento (1830) y la edad del cráneo son lo mismo?"),
           [opt("a", "Oui, l'enfant a vécu en 1830.", "Так, дитина жила в 1830 році.", "Tak, dziecko żyło w 1830 roku.", "Sí, el niño vivió en 1830."), opt("b", "Non : l'enfant a vécu il y a très longtemps, on l'a seulement trouvé en 1830.", "Ні: дитина жила дуже давно, її лише знайшли в 1830 році.", "Nie: dziecko żyło bardzo dawno, znaleziono je dopiero w 1830 roku.", "No: el niño vivió hace muchísimo tiempo, solo se encontró en 1830.", true)],
           L("Oui ! On distingue le moment où on vit et le moment où on découvre une trace.", "Так! Ми розрізняємо час, коли жили, і час, коли знайшли слід.", "Tak! Odróżniamy czas, gdy ktoś żył, od czasu, gdy odkryto ślad.", "¡Sí! Se distingue el momento en que se vive y el momento en que se descubre una huella."),
           L("Pas encore. En 1830, ce sont les fouilles. L'enfant a vécu bien avant, à la Préhistoire.", "Ще ні. У 1830 році — розкопки. Дитина жила набагато раніше, у доісторичні часи.", "Jeszcze nie. W 1830 roku są wykopaliska. Dziecko żyło dużo wcześniej, w prehistorii.", "Todavía no. En 1830 son las excavaciones. El niño vivió mucho antes, en la Prehistoria."),
           [L("Néandertal = une espèce humaine très ancienne.", "Неандерталець — дуже давній вид людей.", "Neandertalczyk = bardzo stary gatunek człowieka.", "Neandertal = una especie humana muy antigua.")]),
-        ECRIRE(L("ÉCRIS : as-tu déjà visité une grotte ou un musée ? Ou : connais-tu un lieu préhistorique dans ton pays ?", "НАПИШИ: чи бував(-ла) ти в печері або музеї? Або: чи знаєш доісторичне місце у своїй країні?", "NAPISZ: czy byłeś/byłaś kiedyś w jaskini albo muzeum? Albo: czy znasz miejsce z prehistorii w swoim kraju?", "ESCRIBE: ¿has visitado alguna vez una cueva o un museo? O: ¿conoces un lugar prehistórico en tu país?"),
-          ["J'ai déjà visité", "Dans mon pays, il y a", "Je voudrais visiter"], "Dans mon pays, il y a…",
-          [L("Tu peux écrire dans ta langue puis demander de l'aide pour le français.", "Можеш написати своєю мовою, а потім попросити допомоги з французькою.", "Możesz napisać w swoim języku, a potem poprosić o pomoc z francuskim.", "Puedes escribir en tu idioma y luego pedir ayuda para el francés.")]),
-        AUTO("CHOISIS : est-ce que tu sais situer Engis et expliquer la découverte ?", "ВИБЕРИ: чи вмієш ти знайти Енжі й пояснити відкриття?", "WYBIERZ: czy umiesz znaleźć Engis i wyjaśnić odkrycie?", "ELIGE: ¿sabes localizar Engis y explicar el descubrimiento?")
+        AUTO("CHOISIS : est-ce que tu sais situer Engis et dire si un document est une trace ou un travail postérieur ?", "ВИБЕРИ: чи вмієш ти знайти Енжі й сказати, чи документ — слід, чи пізніша праця?", "WYBIERZ: czy umiesz znaleźć Engis i powiedzieć, czy dokument jest śladem, czy pracą późniejszą?", "ELIGE: ¿sabes localizar Engis y decir si un documento es una huella o un trabajo posterior?")
       ] },
 
     { id: "pre-act-paysans", discipline: "histoire", picto: null, motsAppris: [],
@@ -280,16 +310,15 @@
           L("Oui ! Le Proche-Orient, entre l'Afrique, l'Europe et l'Asie.", "Так! Близький Схід — між Африкою, Європою та Азією.", "Tak! Bliski Wschód, między Afryką, Europą a Azją.", "¡Sí! Oriente Próximo, entre África, Europa y Asia."),
           L("Pas encore. Cherche juste au-dessus de l'Afrique, à droite de la mer Méditerranée.", "Ще ні. Шукай трохи вище Африки, праворуч від Середземного моря.", "Jeszcze nie. Szukaj tuż nad Afryką, na prawo od Morza Śródziemnego.", "Todavía no. Busca justo encima de África, a la derecha del mar Mediterráneo."),
           [L("Si tu viens de Syrie ou d'Irak, c'est chez toi !", "Якщо ти з Сирії чи Іраку, це твій дім!", "Jeśli pochodzisz z Syrii albo Iraku, to twoje strony!", "Si vienes de Siria o de Irak, ¡es tu tierra!")]),
-        ORDRE(CONSIGNE_ORDRE("RANGE le chemin de l'agriculture, du plus ancien au plus récent.", "РОЗТАШУЙ шлях землеробства від найдавнішого до найновішого.", "UŁÓŻ drogę rolnictwa od najdawniejszego do najnowszego.", "ORDENA el camino de la agricultura, del más antiguo al más reciente."),
-          [el("a1", "Proche-Orient (− 10 000)", "Близький Схід (− 10 000)", "Bliski Wschód (− 10 000)", "Oriente Próximo (− 10 000)"),
-           el("a2", "Grèce (− 6500)", "Греція (− 6500)", "Grecja (− 6500)", "Grecia (− 6500)"),
-           el("a3", "Hesbaye, près de Huy (− 5300)", "Есбай, біля Юї (− 5300)", "Hesbaye, niedaleko Huy (− 5300)", "Hesbaye, cerca de Huy (− 5300)")],
-          L("Bravo ! L'agriculture voyage lentement du Proche-Orient jusque chez nous.", "Молодець! Землеробство повільно мандрує з Близького Сходу до нас.", "Brawo! Rolnictwo powoli wędruje z Bliskiego Wschodu do nas.", "¡Bien! La agricultura viaja lentamente de Oriente Próximo hasta nosotros."),
-          L("Pas encore. − 10 000 est le plus ancien.", "Ще ні. − 10 000 — найдавніше.", "Jeszcze nie. − 10 000 jest najdawniejsze.", "Todavía no. − 10 000 es lo más antiguo."),
-          [L("Avec « − », le plus grand nombre est le plus ancien.", "Зі знаком «−» найбільше число — найдавніше.", "Ze znakiem „−” największa liczba jest najdawniejsza.", "Con «−», el número más grande es el más antiguo.")]),
-        ECRIRE(L("ÉCRIS deux phrases pour comparer : avant, les humains… ; au Néolithique, ils…", "НАПИШИ два речення, щоб порівняти: раніше люди… ; у неоліті вони…", "NAPISZ dwa zdania, żeby porównać: wcześniej ludzie… ; w neolicie oni…", "ESCRIBE dos frases para comparar: antes, los humanos… ; en el Neolítico, ellos…"),
-          ["Avant, les humains", "Au Néolithique, ils", "La grande différence, c'est que"], "Avant, les humains étaient nomades. Au Néolithique…",
-          [L("Utilise les mots : nomade, sédentaire, chasser, cultiver.", "Вживай слова: nomade, sédentaire, chasser, cultiver.", "Użyj słów: nomade, sédentaire, chasser, cultiver.", "Usa las palabras: nomade, sédentaire, chasser, cultiver.")]),
+        { type: "ecrire", picto: null, verbe: "OBSERVE", image: IMG + "pre-vase-rubane.jpg",
+          consigne: L("OBSERVE le vase (document N°8). ÉCRIS : Je VOIS… (la matière, la forme, le décor). J'en DÉDUIS… (à quoi il servait).", "РОЗГЛЯНЬ посудину (документ №8). НАПИШИ: Я БАЧУ… (матеріал, форма, прикраси). Я РОБЛЮ ВИСНОВОК… (для чого вона служила).", "OBEJRZYJ naczynie (dokument nr 8). NAPISZ: WIDZĘ… (materiał, kształt, ozdoby). WNIOSKUJĘ… (do czego służyło).", "OBSERVA el vaso (documento N.º 8). ESCRIBE: VEO… (el material, la forma, la decoración). DEDUZCO… (para qué servía)."),
+          amorces: ["Je vois un vase en", "Le décor est fait de", "J'en déduis qu'il servait à"], placeholder: "Je vois un vase en terre cuite… J'en déduis que…", astuce: ASTUCE_MICRO,
+          aides: [L("Regarde sa taille : on peut y mettre beaucoup de choses.", "Подивись на розмір: туди можна покласти багато.", "Spójrz na rozmiar: można tam włożyć dużo rzeczy.", "Mira su tamaño: se pueden meter muchas cosas.")] },
+        CHOIX(L("CHOISIS : pourquoi les chasseurs-cueilleurs nomades ne fabriquaient-ils pas de grands vases comme celui-ci ?", "ВИБЕРИ: чому кочові мисливці-збирачі не робили великих посудин, як ця?", "WYBIERZ: dlaczego koczowniczy łowcy-zbieracze nie robili dużych naczyń jak to?", "ELIGE: ¿por qué los cazadores-recolectores nómadas no fabricaban grandes vasos como este?"),
+          [opt("a", "Un grand vase est lourd et fragile : difficile à porter quand on se déplace.", "Велика посудина важка й крихка: її важко нести в дорозі.", "Duże naczynie jest ciężkie i kruche: trudno je nosić w wędrówce.", "Un vaso grande pesa y es frágil: es difícil de llevar cuando uno se desplaza.", true), opt("b", "Ils n'aimaient pas les décorations.", "Вони не любили прикрас.", "Nie lubili ozdób.", "No les gustaban las decoraciones."), opt("c", "La terre n'existait pas encore.", "Глини ще не було.", "Gliny jeszcze nie było.", "El barro todavía no existía.")],
+          L("Oui ! Les paysans restent au même endroit : ils peuvent garder des réserves de graines dans des vases.", "Так! Селяни залишаються на одному місці: вони можуть зберігати запаси зерна в посудинах.", "Tak! Rolnicy zostają w jednym miejscu: mogą trzymać zapasy ziarna w naczyniach.", "¡Sí! Los campesinos se quedan en el mismo lugar: pueden guardar reservas de semillas en vasos."),
+          L("Pas encore. Pense à la vie des nomades : ils marchent souvent avec leurs affaires.", "Ще ні. Подумай про життя кочівників: вони часто ходять зі своїми речами.", "Jeszcze nie. Pomyśl o życiu koczowników: często wędrują ze swoimi rzeczami.", "Todavía no. Piensa en la vida de los nómadas: caminan a menudo con sus cosas."),
+          [L("Une trace nous apprend aussi un mode de vie.", "Слід розповідає нам і про спосіб життя.", "Ślad uczy nas też o sposobie życia.", "Una huella también nos enseña una forma de vida.")]),
         AUTO("CHOISIS : est-ce que tu sais comparer la vie des nomades et des premiers paysans ?", "ВИБЕРИ: чи вмієш ти порівняти життя кочівників і перших селян?", "WYBIERZ: czy umiesz porównać życie koczowników i pierwszych rolników?", "ELIGE: ¿sabes comparar la vida de los nómadas y de los primeros campesinos?")
       ] }
   );
@@ -318,7 +347,10 @@
           L("Elle a été faite à notre époque : c'est un travail postérieur.", "Її зроблено в наш час: це пізніша праця.", "Zrobiono ją w naszych czasach: to praca późniejsza.", "Se hizo en nuestra época: es un trabajo posterior."), DOC.replique),
         Q("pre-decrire", L("CHOISIS : quelle information vient de la légende d'un document ?", "ВИБЕРИ: яка інформація походить з підпису документа?", "WYBIERZ: jaka informacja pochodzi z podpisu dokumentu?", "ELIGE: ¿qué información viene de la leyenda de un documento?"),
           [o("où il a été trouvé et quand il a été fait", "де його знайшли й коли зробили", "gdzie go znaleziono i kiedy go zrobiono", "dónde se encontró y cuándo se hizo", true), o("s'il est joli", "чи він гарний", "czy jest ładny", "si es bonito"), o("son prix", "його ціна", "jego cena", "su precio")],
-          L("La légende dit QUOI, OÙ, QUAND et QUI.", "Підпис каже ЩО, ДЕ, КОЛИ і ХТО.", "Podpis mówi CO, GDZIE, KIEDY i KTO.", "La leyenda dice QUÉ, DÓNDE, CUÁNDO y QUIÉN."))
+          L("La légende dit QUOI, OÙ, QUAND et QUI.", "Підпис каже ЩО, ДЕ, КОЛИ і ХТО.", "Podpis mówi CO, GDZIE, KIEDY i KTO.", "La leyenda dice QUÉ, DÓNDE, CUÁNDO y QUIÉN.")),
+        Q("pre-trace", L("CHOISIS : pourquoi a-t-on fait des copies de Lascaux ?", "ВИБЕРИ: чому зробили копії Ласко?", "WYBIERZ: dlaczego zrobiono kopie Lascaux?", "ELIGE: ¿por qué se hicieron copias de Lascaux?"),
+          [o("pour protéger la vraie grotte, fermée aux visiteurs", "щоб захистити справжню печеру, закриту для відвідувачів", "żeby chronić prawdziwą jaskinię, zamkniętą dla zwiedzających", "para proteger la cueva verdadera, cerrada a los visitantes", true), o("parce que les vraies peintures ont disparu", "бо справжні малюнки зникли", "bo prawdziwe malowidła zniknęły", "porque las pinturas verdaderas desaparecieron"), o("pour faire des peintures plus belles", "щоб зробити гарніші малюнки", "żeby zrobić ładniejsze malowidła", "para hacer pinturas más bonitas")],
+          L("Trop de visiteurs abîmaient les peintures : la vraie grotte est fermée depuis 1963.", "Забагато відвідувачів псували малюнки: справжню печеру закрито з 1963 року.", "Zbyt wielu zwiedzających niszczyło malowidła: prawdziwa jaskinia jest zamknięta od 1963 roku.", "Demasiados visitantes estropeaban las pinturas: la cueva verdadera está cerrada desde 1963."))
       ] },
     { id: "test-pre-engis", titre: L("Mini-test : la Préhistoire près de Huy", "Міні-тест: доісторичні часи біля Юї", "Mini-test: prehistoria niedaleko Huy", "Mini-prueba: la Prehistoria cerca de Huy"),
       questions: [
@@ -330,7 +362,10 @@
           L("2030 − 1830 = 200 ans.", "2030 − 1830 = 200 років.", "2030 − 1830 = 200 lat.", "2030 − 1830 = 200 años.")),
         Q("pre-engis-calcul", L("CHOISIS : qui a trouvé le crâne d'Engis ?", "ВИБЕРИ: хто знайшов череп з Енжі?", "WYBIERZ: kto znalazł czaszkę z Engis?", "ELIGE: ¿quién encontró el cráneo de Engis?"),
           [o("le médecin Schmerling", "лікар Шмерлінг", "lekarz Schmerling", "el médico Schmerling", true), o("un roi de Belgique", "король Бельгії", "król Belgii", "un rey de Bélgica"), o("un enfant néandertalien", "дитина-неандерталець", "dziecko neandertalczyka", "un niño neandertal")],
-          L("Philippe-Charles Schmerling, en 1829-1830.", "Філіпп-Шарль Шмерлінг, у 1829–1830 роках.", "Philippe-Charles Schmerling, w latach 1829–1830.", "Philippe-Charles Schmerling, en 1829-1830."))
+          L("Philippe-Charles Schmerling, en 1829-1830.", "Філіпп-Шарль Шмерлінг, у 1829–1830 роках.", "Philippe-Charles Schmerling, w latach 1829–1830.", "Philippe-Charles Schmerling, en 1829-1830.")),
+        Q("pre-engis-source", L("CHOISIS : le moulage du crâne exposé à Reims en 2023 est…", "ВИБЕРИ: зліпок черепа на виставці в Реймсі у 2023 році — це…", "WYBIERZ: odlew czaszki wystawiony w Reims w 2023 roku to…", "ELIGE: el molde del cráneo expuesto en Reims en 2023 es…"),
+          [o("une trace du passé", "слід минулого", "ślad przeszłości", "una huella del pasado"), o("un travail postérieur", "пізніша праця", "praca późniejsza", "un trabajo posterior", true)],
+          L("C'est une copie faite à notre époque : un travail postérieur.", "Це копія, зроблена в наш час: пізніша праця.", "To kopia zrobiona w naszych czasach: praca późniejsza.", "Es una copia hecha en nuestra época: un trabajo posterior."), DOC.moulage)
       ] },
     { id: "test-pre-paysans", titre: L("Mini-test : les premiers paysans", "Міні-тест: перші селяни", "Mini-test: pierwsi rolnicy", "Mini-prueba: los primeros campesinos"),
       questions: [

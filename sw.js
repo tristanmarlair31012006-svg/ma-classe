@@ -1,11 +1,11 @@
 /* Mode hors ligne : l'app est gardée sur l'iPad.
    À CHAQUE MISE À JOUR DE L'APP, augmenter VERSION (ex. "v2" → "v3") pour que les iPad téléchargent la nouvelle version. */
-const VERSION = "v11";
+const VERSION = "v12";
 const CACHE = "ma-classe-" + VERSION;
 const FICHIERS = [
   "./", "./index.html", "./manifest.webmanifest",
   "./css/fonts.css", "./css/tokens.css", "./css/app.css", "./css/lecons.css", "./css/groupes.css", "./css/suivi.css",
-  "./js/data.js", "./js/parcours.js", "./js/parcours-belgique.js", "./js/parcours-prerequis.js", "./js/app.js", "./js/accueil.js", "./js/cartes.js", "./js/atelier.js", "./js/lecons.js", "./js/groupes.js", "./js/suivi.js",
+  "./js/data.js", "./js/parcours.js", "./js/parcours-belgique.js", "./js/parcours-prerequis.js", "./js/parcours-prerequis-activites.js", "./js/app.js", "./js/accueil.js", "./js/cartes.js", "./js/atelier.js", "./js/lecons.js", "./js/groupes.js", "./js/suivi.js",
   "./img/belgique/carte-1815.jpg", "./img/belgique/fort-huy.jpg", "./img/belgique/wappers-1835.jpg", "./img/belgique/soubre-1878.jpg", "./img/belgique/serment-1831.jpg", "./img/belgique/cockerill-1852.jpg", "./img/belgique/loncin-1918.jpg", "./img/belgique/regions-aujourdhui.jpg",
   "./img/prerequis/continents-oceans.png", "./img/prerequis/ue-27.png", "./img/prerequis/frise-periodes.svg", "./img/prerequis/hydrographie.svg", "./img/prerequis/echelle.svg",
   "./icones/icone-192.png", "./icones/icone-512.png", "./icones/apple-touch-icon.png",

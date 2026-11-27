@@ -111,11 +111,15 @@
     return `<${tag} class="argent ${cls}" ${attrs || ""}>${esc(valeur)}</${tag}>`;
   }
 
+  // Petit nombre stable tiré d'un texte (pour mélanger toujours de la même façon).
+  const hash = t => { let h = 7; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) % 100003; return h; };
+  const T_ENLEVER = { fr: "Enlever le dernier", uk: "Прибрати останнє", pl: "Usuń ostatnie", es: "Quitar el último", rn: null };
+
   // Élément à classer : de l'argent (valeur) ou un jeton (texte traduit, image facultative).
-  function jeton(x, bouton, attrs) {
+  function jeton(x, bouton, attrs, trad) {
     if (x.valeur) return argent(x.valeur, bouton, attrs);
     const tag = bouton ? "button" : "span";
-    return `<${tag} class="argent jeton" ${attrs || ""}>${x.img ? `<img src="${esc(x.img)}" alt="">` : ""}<span>${esc(fr(x.label))}${bouton ? ligneTrad(x.label) : ""}</span></${tag}>`;
+    return `<${tag} class="argent jeton" ${attrs || ""}>${x.img ? `<img src="${esc(x.img)}" alt="">` : ""}<span>${esc(fr(x.label))}${bouton || trad ? ligneTrad(x.label) : ""}</span></${tag}>`;
   }
 
   /* ---------- Voix ---------- */
@@ -310,7 +314,7 @@
     const act = D.activites.find(a => a.id === id);
     if (!act) return aller("accueil");
     const pr = S.progres[id] = S.progres[id] || { etape: 0, fini: false };
-    if (!A || A.id !== id || A.etape !== pr.etape) A = { id, etape: pr.etape, aides: 0, choix: null, resultat: null, place: {}, selection: null };
+    if (!A || A.id !== id || A.etape !== pr.etape) A = { id, etape: pr.etape, aides: 0, choix: null, resultat: null, place: {}, selection: null, ordre: [] };
     const fin = pr.etape >= act.etapes.length;
     const pastilles = act.etapes.map((_, i) => `<i class="${i < pr.etape ? "fait" : i === pr.etape ? "actuel" : ""}"></i>`).join("");
     const tete = `<div class="bandeau">
@@ -362,6 +366,24 @@
         </button>`).join("")}</div>
       </div>`;
     }
+    if (e.type === "ordre") {
+      // Remettre dans l'ordre : on touche les étiquettes une par une (1er, 2e…). Les éléments sont écrits dans le BON ordre ;
+      // l'écran les mélange toujours de la même façon (pas de hasard → la classe voit la même chose).
+      const melange = [...e.elements].sort((a, b) => hash(a.id) - hash(b.id));
+      const restants = melange.filter(x => !A.ordre.includes(x.id));
+      const juste = id => e.elements.findIndex(x => x.id === id) === A.ordre.indexOf(id);
+      return `<div class="ordre">
+        ${e.debut ? `<p class="bout-ordre">${texte(e.debut)}</p>` : ""}
+        <ol class="liste-ordre">${A.ordre.map((id, i) => {
+          const x = e.elements.find(y => y.id === id);
+          const etat = A.resultat ? (juste(id) ? "bien" : "mal") : "";
+          return `<li><span class="rang">${i + 1}</span>${jeton(x, false, "", true).replace('class="argent ', `class="argent ${etat} `)}</li>`;
+        }).join("")}${restants.length ? `<li class="place-vide"><span class="rang">${A.ordre.length + 1}</span><span class="petit">…</span></li>` : ""}</ol>
+        ${e.fin ? `<p class="bout-ordre">${texte(e.fin)}</p>` : ""}
+        <div class="stock" aria-label="À mettre dans l'ordre">${restants.map(x => jeton(x, true, `data-ordre-el="${x.id}"`)).join("") || `<span class="petit">${ic("ok")}</span>`}</div>
+        ${A.ordre.length && A.resultat !== "ok" ? `<button class="btn-discret" data-ordre-retour>${ic("gauche")} ${esc(fr(T_ENLEVER))}${ligneTrad(T_ENLEVER)}</button>` : ""}
+      </div>`;
+    }
     if (e.type === "nombre") {
       return `<div class="carte-plate">${(e.visuel || []).length ? `<div class="visuel">${e.visuel.map((v, i) => (i ? '<span class="plus">+</span>' : "") + argent(v)).join("")}</div>` : ""}
         <div class="saisie-nombre"><span>=</span><input id="nombre" inputmode="numeric" pattern="[0-9]*" aria-label="Ta réponse" value="${A.choix != null ? esc(A.choix) : ""}"><span>${esc(e.unite)}</span></div></div>`;
@@ -390,10 +412,11 @@
   }
 
   function boutonAvancer(e) {
-    const verifiable = ["choix", "classer", "nombre"].includes(e.type);
+    const verifiable = ["choix", "classer", "nombre", "ordre"].includes(e.type);
     if (e.facultatif && !A.resultat) return `<button class="btn-discret" data-passer>${esc(fr(D.ui.passer))}</button><button class="btn btn-principal" data-valider ${A.choix ? "" : "disabled"}>${esc(fr(D.ui.suivant))} ${ic("droite")}</button>`;
     if (verifiable && A.resultat !== "ok") {
-      const pret = e.type === "classer" ? Object.keys(A.place).length === e.elements.length : A.choix != null && A.choix !== "";
+      const pret = e.type === "classer" ? Object.keys(A.place).length === e.elements.length
+        : e.type === "ordre" ? A.ordre.length === e.elements.length : A.choix != null && A.choix !== "";
       return `<button class="btn btn-principal" data-verifier ${pret ? "" : "disabled"}>${esc(A.resultat === "ko" ? fr(D.ui.reessaie) : fr(D.ui.verifier))}</button>`;
     }
     if (e.type === "auto") return `<button class="btn btn-principal" data-suivant ${A.choix ? "" : "disabled"}>${esc(fr(D.ui.suivant))} ${ic("droite")}</button>`;
@@ -406,6 +429,7 @@
     if (A.resultat === "ko") { // « Essaie encore » : on remet à zéro la réponse
       A.resultat = null;
       if (e.type === "classer") { A.place = {}; A.selection = null; }
+      if (e.type === "ordre") A.ordre = [];
       if (e.type === "choix") A.choix = null;
       return rendre();
     }
@@ -413,6 +437,7 @@
     if (e.type === "choix") juste = !!(e.options.find(o => o.id === A.choix) || {}).correct;
     if (e.type === "classer") juste = e.elements.every(x => A.place[x.id] === x.bac);
     if (e.type === "nombre") juste = parseInt(A.choix, 10) === e.reponse;
+    if (e.type === "ordre") juste = e.elements.every((x, i) => A.ordre[i] === x.id);
     A.resultat = juste ? "ok" : "ko";
     S.reponses[`${act.id}-${A.etape}-essais`] = (S.reponses[`${act.id}-${A.etape}-essais`] || 0) + 1;
     sauver();
@@ -719,6 +744,8 @@
         return;
       }
       if (d.feu) { A.choix = d.feu; return rendre(); }
+      if (d.ordreEl) { if (A.resultat) return; if (!A.ordre.includes(d.ordreEl)) A.ordre.push(d.ordreEl); return rendre(); }
+      if (d.ordreRetour !== undefined) { if (A.resultat === "ok") return; A.ordre.pop(); A.resultat = null; return rendre(); }
       if (d.amorce) { const ta = $("#ecrit"); ta.value = (ta.value ? ta.value.trim() + " " : "") + d.amorce + " "; ta.focus(); return; }
       if (d.aide !== undefined) { A.aides++; S.reponses[`${A.id}-${A.etape}-aides`] = A.aides; sauver(); return rendre(); }
       if (d.verifier !== undefined) return verifier();

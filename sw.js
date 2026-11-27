@@ -1,6 +1,6 @@
 /* Mode hors ligne : l'app est gardée sur l'iPad.
    À CHAQUE MISE À JOUR DE L'APP, augmenter VERSION (ex. "v2" → "v3") pour que les iPad téléchargent la nouvelle version. */
-const VERSION = "v18";
+const VERSION = "v20";
 const CACHE = "ma-classe-" + VERSION;
 const FICHIERS = [
   "./", "./index.html", "./manifest.webmanifest",

@@ -88,6 +88,26 @@ body.rideau #rideau{display:block}
 #rideau .poig{position:absolute;left:50%;top:10px;transform:translateX(-50%);cursor:ns-resize;background:#8d78a8;color:#fff;border-radius:12px;padding:10px 24px;font-size:15px;font-weight:600;white-space:nowrap}
 #feuille.carreaux{background-image:linear-gradient(#c9bfe0 1.5px,transparent 1.5px),linear-gradient(90deg,#c9bfe0 1.5px,transparent 1.5px);background-size:var(--pas) var(--pas)}
 #feuille.lignes{background-image:linear-gradient(transparent calc(var(--pas)*1.5 - 2px),#b6a6d4 2px);background-size:100% calc(var(--pas)*1.5)}
+/* dossier documentaire : à la place de la feuille ou à côté */
+#plan{flex:1;display:flex;min-height:0;position:relative}
+#plan>#scene{flex:1 1 0}
+#dossier{display:none;flex:1 1 0;flex-direction:column;min-width:0;border-left:3px solid var(--acc2)}
+body.vue-dossier #scene{display:none}body.vue-dossier #dossier{display:flex;border-left:none}
+body.vue-cote #dossier{display:flex}
+#d-barre{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;padding:6px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+#d-barre .btn{min-height:44px;min-width:44px}
+#d-titre{font-weight:600;color:var(--acc)}#d-num{font-weight:600;min-width:58px;text-align:center}
+#d-docs{min-height:44px;max-width:200px}
+#d-scene{flex:1;overflow:auto;display:flex;align-items:flex-start;padding:14px;background:var(--bg)}
+#d-feuille{position:relative;background:#fff;box-shadow:var(--shadow);flex:none;margin:0 auto;user-select:none;-webkit-user-select:none}
+#d-feuille>img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#d-mark{position:absolute;left:-8px;width:8px;height:7%;background:var(--acc);border-radius:4px 0 0 4px;display:none;pointer-events:none}
+#d-mark.on{display:block;animation:mark 2.4s forwards}@keyframes mark{0%,60%{opacity:1}100%{opacity:0}}
+#d-dessin{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;touch-action:none}
+body.crayon #d-dessin{pointer-events:auto;cursor:crosshair}
+body.vue-dossier .rep,body.vue-dossier #grp-pages{display:none}
+#grp-dos .btn{font-weight:600}
+@media(max-width:899px){#b-cote{display:none}body.vue-cote #dossier{display:none}}
 #bandeau-ed{display:none;background:#fff1e3;color:#8a4b00;text-align:center;padding:8px;font-size:15px}body.edition #bandeau-ed{display:block}
 
 #barre{background:var(--panel);border-top:1px solid var(--line);padding:8px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;position:relative}
@@ -111,7 +131,7 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
 .voile{position:fixed;inset:0;background:rgba(20,12,30,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
 .voile.ouvert{display:flex}
 .fen{background:var(--panel);border-radius:20px;box-shadow:var(--shadow2);width:min(720px,100%);padding:24px;position:relative;max-height:92vh;overflow:auto}
-.fen h3{margin:0 0 14px;font-size:21px}
+.fen h3{margin:0 0 14px;font-size:21px;padding-right:48px}
 .fermer{position:absolute;top:12px;right:12px}
 .form{display:flex;flex-direction:column;gap:14px}
 .form label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:15px}
@@ -157,6 +177,7 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
 
 <section id="lecon">
   <div id="bandeau-ed">Mode édition : je glisse sur la page pour ajouter un cadre, je touche un cadre pour le supprimer.</div>
+  <div id="plan">
   <div id="scene">
     <div id="feuille">
       <img id="img-l" alt=""><img id="img-c" alt="">
@@ -166,13 +187,32 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
       <div id="capture"></div>
     </div>
   </div>
+  <div id="dossier">
+    <div id="d-barre">
+      <span id="d-titre">Dossier</span>
+      <button class="btn" id="d-prec" title="Page précédente du dossier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span id="d-num"></span>
+      <button class="btn" id="d-suiv" title="Page suivante du dossier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg></button>
+      <select id="d-docs" aria-label="Aller au document"></select>
+      <button class="btn" id="d-moins" title="Dézoomer">−</button>
+      <button class="btn" id="d-plus" title="Zoomer">+</button>
+    </div>
+    <div id="d-scene">
+      <div id="d-feuille"><img id="d-img" alt=""><div id="d-mark"></div><canvas id="d-dessin"></canvas></div>
+    </div>
+  </div>
+  </div>
   <button id="retour-zoom">Revenir à la page entière</button>
   <nav id="barre">
     <div class="grp">
       <button class="btn" id="b-acc" title="Retour aux leçons (Échap)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></button>
       <span id="chip-cl"></span><span id="titre-l"></span>
     </div>
-    <div class="grp">
+    <div class="grp" id="grp-dos" hidden>
+      <button class="btn" id="b-dossier" title="Passer de la feuille au dossier documentaire (D)">Dossier</button>
+      <button class="btn" id="b-cote" title="Feuille et dossier côte à côte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg><span class="lib">Côte à côte</span></button>
+    </div>
+    <div class="grp" id="grp-pages">
       <button class="btn" id="b-prec" title="Page précédente (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 5l-7 7 7 7"/></svg></button>
       <span id="num"></span>
       <button class="btn" id="b-suiv" title="Page suivante (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -218,6 +258,7 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
       <button class="btn" id="m-cadres">Cadres pointillés : visibles</button>
       <button class="btn" id="m-ed">Éditer les cadres</button>
       <button class="btn" id="m-auto">Remettre les cadres automatiques</button>
+      <button class="btn" id="m-dossier">Joindre un dossier documentaire</button>
     </div>
   </nav>
 </section>
@@ -231,6 +272,7 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
     <label>Type<select id="imp-type"><option value="lecon">Leçon avec corrigé (les réponses apparaissent au clic)</option><option value="document">Document seul (dossier, carte…)</option></select></label>
     <label>PDF de la leçon (feuille élève)<input id="imp-l" type="file" accept="application/pdf,.pdf"></label>
     <label id="lg-c">PDF du corrigé<input id="imp-c" type="file" accept="application/pdf,.pdf"></label>
+    <label>Dossier documentaire (PDF, facultatif)<input id="imp-d" type="file" accept="application/pdf,.pdf"></label>
     <p class="aide">Le corrigé doit être <b>la même feuille</b> que la leçon (mêmes pages, même mise en page) avec les réponses en plus. La page compare les deux et crée un cadre pour chaque réponse. Les cadres se corrigent ensuite à la main.</p>
     <div class="ligne"><button class="btn pri" id="b-imp-ok">Ajouter</button><span id="imp-etat"></span></div>
   </div>
@@ -261,6 +303,17 @@ body.tableau .rep,body.tableau #b-rideau,body.tableau #m-cadres,body.tableau #m-
   <p class="aide">Je choisis la leçon adaptée (vocabulaire, consignes simplifiées, pictos). Elle s'ouvrira en un clic pendant le cours.</p>
   <select id="vd-choix" style="width:100%;margin:12px 0"></select>
   <div class="ligne"><button class="btn" id="vd-aucune">Aucune</button><button class="btn pri" id="vd-ok">Lier</button></div>
+</div></div>
+
+<div class="voile" id="v-dos"><div class="fen" style="width:min(520px,100%)">
+  <button class="btn fermer" data-ferme="v-dos" title="Fermer">✕</button>
+  <h3>Dossier documentaire de « <span id="vdo-titre"></span> »</h3>
+  <p class="aide" id="vdo-info"></p>
+  <div class="form" style="margin-top:12px">
+    <label>PDF du dossier<input id="vdo-f" type="file" accept="application/pdf,.pdf"></label>
+    <div class="ligne"><button class="btn" id="vdo-retirer">Retirer le dossier</button><button class="btn pri" id="vdo-ok">Joindre</button></div>
+    <p class="aide" id="vdo-etat" style="text-align:center"></p>
+  </div>
 </div></div>
 
 <div class="voile" id="v-dlg"><div class="fen" style="width:min(460px,100%)">
@@ -375,6 +428,7 @@ function accueil(){
       if(commence){const r=document.createElement("button");r.textContent="↺ Recommencer";r.title="Effacer la progression et les traits pour cette classe";
         r.onclick=async e=>{e.stopPropagation();if(await demander(`Recommencer « ${l.titre} » à zéro pour ${cls().nom} ? Les réponses montrées et les traits seront effacés.`,{ok:"Recommencer"})){recommencer(l)}};mini.appendChild(r)}
       if(l.type!=="tableau"){const v=document.createElement("button");const lie=l.daspa&&LECONS.find(x=>x.id===l.daspa);v.textContent=lie?"🌍 DASPA : "+lie.titre.slice(0,18):"🌍 Version DASPA";v.title="Lier la version DASPA de cette leçon";v.onclick=e=>{e.stopPropagation();lierDaspa(l)};mini.appendChild(v)}
+      if(l.type!=="tableau"){const d=document.createElement("button"),n=((l.dossier||{}).pages||[]).length;d.textContent=n?`Dossier · ${n} p.`:"+ Dossier";d.title="Dossier documentaire de cette leçon";d.onclick=e=>{e.stopPropagation();dossierUI.ouvrir(l)};mini.appendChild(d)}
       if(l.type!=="tableau"){const s=document.createElement("button");s.textContent="🗑 Supprimer";s.onclick=e=>{e.stopPropagation();importer.supprimer(l)};mini.appendChild(s)}
       const go=()=>ouvrir(l.id,pr?pr.page:0);b.onclick=go;b.onkeydown=e=>{if(e.key==="Enter")go()};
       box.appendChild(b);
@@ -408,11 +462,13 @@ async function ouvrir(id,page){
   if(DB){try{const s=await DB.doc("traits/"+trKey).get();if(s.exists)TR=clone((s.data()||{}).p||{})}catch(e){}}else TR=loc.lire("tr-"+trKey,{});
   if(lecon.type==="tableau"&&mode!=="crayon")changerMode("crayon");
   allerPage(Math.min(Math.max(page||0,0),lecon.pages.length-1));
+  $("#grp-dos").hidden=!aDossier();dZoom=1;
+  if(aDossier()){dAller(((PROG[lecon.id]||{}).dp)||0);changerVue(loc.lire("cote",false)?"cote":"")}else changerVue("");
   location.hash=id;
 }
 function fermer(){
   lecon=null;if(mode)changerMode(mode);
-  corps.classList.remove("en-lecon","rideau","tableau","document");document.documentElement.removeAttribute("data-projection");$("#b-rideau").classList.remove("actif");
+  corps.classList.remove("en-lecon","rideau","tableau","document","vue-dossier","vue-cote");vue="";document.documentElement.removeAttribute("data-projection");$("#b-rideau").classList.remove("actif");
   appliquerFond();if(location.hash)history.replaceState(null,"",location.pathname);accueil();
 }
 let traits=[];
@@ -468,9 +524,54 @@ function reponseSuivante(){
   majZones();
 }
 
+/* ---------- dossier documentaire ----------
+   lecon.dossier = {pages:[{ratio,l}], docs:[{n,p,y}]} (docs = titres « Document 4 » repérés dans le PDF)
+   vue : "" = feuille seule, "dossier" = dossier seul, "cote" = les deux côte à côte
+   Mes traits sur le dossier sont gardés avec ceux de la feuille, sous les clés "d0", "d1"… */
+let vue="",dPage=0,dZoom=1,dTraits=[],surface="f";
+const aDossier=()=>!!(lecon&&lecon.dossier&&Array.isArray(lecon.dossier.pages)&&lecon.dossier.pages.length);
+function changerVue(v){
+  vue=v;corps.classList.toggle("vue-dossier",v==="dossier");corps.classList.toggle("vue-cote",v==="cote");
+  $("#b-dossier").textContent=v==="dossier"?"Feuille":"Dossier";$("#b-dossier").classList.toggle("actif",v==="dossier");
+  $("#b-cote").classList.toggle("actif",v==="cote");
+  if(v==="dossier")surface="d";else if(v==="")surface="f";
+  if(v==="dossier"&&mode==="loupe")changerMode("loupe");
+  requestAnimationFrame(()=>{dimensionner();dDimensionner()});
+}
+function dAller(i,y){
+  if(!aDossier())return;const ps=lecon.dossier.pages;dPage=Math.min(Math.max(i||0,0),ps.length-1);
+  $("#d-img").src=urlDe(ps[dPage].l);$("#d-mark").classList.remove("on");
+  $("#d-num").textContent=`${dPage+1} / ${ps.length}`;$("#d-prec").disabled=dPage===0;$("#d-suiv").disabled=dPage===ps.length-1;
+  dTraits=TR["d"+dPage]||[];
+  const docs=lecon.dossier.docs||[],sel=$("#d-docs");sel.hidden=!docs.length;
+  if(docs.length){sel.innerHTML='<option value="">Aller au doc…</option>'+docs.map((d,k)=>`<option value="${k}">Doc ${d.n} · p. ${d.p+1}</option>`).join("");sel.value=""}
+  dDimensionner();const sc=$("#d-scene");sc.scrollLeft=0;
+  sc.scrollTop=y?Math.max(0,$("#d-feuille").offsetTop+y*$("#d-feuille").offsetHeight-12):0;
+  if(lecon.id!=="tableau"){const p=PROG[lecon.id]=PROG[lecon.id]||{vues:{}};if(p.dp!==dPage){p.dp=dPage;sauverProg()}}
+}
+function dDimensionner(){
+  if(!aDossier())return;const sc=$("#d-scene"),L=sc.clientWidth-28,H=sc.clientHeight-28;if(L<=0||H<=0)return;
+  const r=lecon.dossier.pages[dPage].ratio,w=Math.min(L,H/r)*dZoom,f=$("#d-feuille");
+  f.style.width=w+"px";f.style.height=w*r+"px";
+  const c=$("#d-dessin"),e=Math.min(devicePixelRatio,2);c.width=Math.round(w*e);c.height=Math.round(w*r*e);dRedessiner();
+}
+new ResizeObserver(()=>dDimensionner()).observe($("#d-scene"));
+function dZoomer(z){
+  const sc=$("#d-scene"),fx=(sc.scrollLeft+sc.clientWidth/2)/Math.max(1,sc.scrollWidth),fy=(sc.scrollTop+sc.clientHeight/2)/Math.max(1,sc.scrollHeight);
+  dZoom=Math.min(4,Math.max(1,z));dDimensionner();sc.scrollLeft=fx*sc.scrollWidth-sc.clientWidth/2;sc.scrollTop=fy*sc.scrollHeight-sc.clientHeight/2;
+}
+function dRedessiner(){const c=$("#d-dessin"),x=c.getContext("2d");x.clearRect(0,0,c.width,c.height);for(const t of dTraits)tracer(x,t,c)}
+function dGarder(){if(dTraits.length)TR["d"+dPage]=dTraits;else delete TR["d"+dPage];if(DB)sauverTraits();else loc.ecrire("tr-"+trKey,TR)}
+$("#b-dossier").onclick=()=>changerVue(vue==="dossier"?(loc.lire("cote",false)&&innerWidth>=900?"cote":""):"dossier");
+$("#b-cote").onclick=()=>{const v=vue==="cote"?"":"cote";loc.ecrire("cote",v==="cote");changerVue(v)};
+$("#d-prec").onclick=()=>dAller(dPage-1);$("#d-suiv").onclick=()=>dAller(dPage+1);
+$("#d-plus").onclick=()=>dZoomer(dZoom+.5);$("#d-moins").onclick=()=>dZoomer(dZoom-.5);
+$("#d-docs").onchange=e=>{const d=(lecon.dossier.docs||[])[+e.target.value];if(!d)return;if(vue==="")changerVue("dossier");
+  dAller(d.p,d.y);const m=$("#d-mark");m.style.top=d.y*100+"%";m.classList.remove("on");void m.offsetWidth;m.classList.add("on")}; // repère mauve à hauteur du titre
+
 /* ---------- taille, loupe ---------- */
 function dimensionner(){
-  if(!lecon)return;const sc=$("#scene"),L=sc.clientWidth-28,H=sc.clientHeight-28;
+  if(!lecon)return;const sc=$("#scene"),L=sc.clientWidth-28,H=sc.clientHeight-28;if(L<=0||H<=0)return; // feuille cachée (vue dossier)
   const r=lecon.type==="tableau"?Math.max(.4,H/L):lecon.pages[nPage].ratio;
   const w=(modeLarg?L:Math.min(L,H/r))*zoom,f=$("#feuille");
   f.style.width=w+"px";f.style.height=w*r+"px";f.style.setProperty("--pas",w/26+"px");
@@ -510,6 +611,12 @@ toile.addEventListener("pointerdown",e=>{toile.setPointerCapture(e.pointerId);en
 toile.addEventListener("pointermove",e=>{if(!enTrait)return;enTrait.p.push(arr(pos(e,toile)));redessiner()});
 const finTrait=()=>{if(enTrait){enTrait=null;garderTraits()}};
 toile.addEventListener("pointerup",finTrait);toile.addEventListener("pointercancel",finTrait);
+toile.addEventListener("pointerdown",()=>surface="f",true);
+const dToile=$("#d-dessin");let dTrait=null;
+dToile.addEventListener("pointerdown",e=>{surface="d";dToile.setPointerCapture(e.pointerId);dTrait={c:couleur,e:epais,p:[arr(pos(e,dToile))]};dTraits.push(dTrait);dRedessiner()});
+dToile.addEventListener("pointermove",e=>{if(!dTrait)return;dTrait.p.push(arr(pos(e,dToile)));dRedessiner()});
+const dFin=()=>{if(dTrait){dTrait=null;dGarder()}};
+dToile.addEventListener("pointerup",dFin);dToile.addEventListener("pointercancel",dFin);
 
 /* ---------- édition des cadres ---------- */
 let debut=null;const feuille=$("#feuille"),trace=$("#trace");
@@ -566,17 +673,20 @@ $("#b-rien").onclick=()=>{vues.clear();majZones();$("#feuille").classList.remove
 $("#b-complet").onclick=e=>{e.currentTarget.classList.toggle("actif",$("#feuille").classList.toggle("complet"))};
 $("#b-crayon").onclick=()=>changerMode("crayon");$("#b-loupe").onclick=()=>changerMode("loupe");
 $("#b-rideau").onclick=e=>{const on=corps.classList.toggle("rideau");e.currentTarget.classList.toggle("actif",on);if(on){rideauY=.12;placerRideau()}};
-$("#b-gomme").onclick=()=>{traits=[];garderTraits();redessiner()};
-$("#b-annul").onclick=()=>{traits.pop();garderTraits();redessiner()};
+// Annuler / Effacer agissent sur la surface où j'ai écrit en dernier (feuille ou dossier)
+const surDossier=()=>aDossier()&&vue!==""&&(vue==="dossier"||surface==="d");
+$("#b-gomme").onclick=()=>{if(surDossier()){dTraits=[];dGarder();dRedessiner()}else{traits=[];garderTraits();redessiner()}};
+$("#b-annul").onclick=()=>{if(surDossier()){dTraits.pop();dGarder();dRedessiner()}else{traits.pop();garderTraits();redessiner()}};
 document.querySelectorAll(".coul").forEach(b=>b.onclick=()=>{document.querySelectorAll(".coul").forEach(x=>x.classList.remove("actif"));b.classList.add("actif");couleur=b.dataset.c;epais=!!b.dataset.epais});
-$("#b-menu").onclick=e=>{e.stopPropagation();$("#menu").classList.toggle("ouvert")};
+$("#b-menu").onclick=e=>{e.stopPropagation();majMenu();$("#menu").classList.toggle("ouvert")};
 document.addEventListener("pointerdown",e=>{if(!e.target.closest("#menu,#b-menu"))$("#menu").classList.remove("ouvert")});
-function majMenu(){$("#m-zoom").textContent=modeLarg?"Page entière":"Largeur de l'écran";$("#m-cadres").textContent=corps.classList.contains("discret")?"Cadres pointillés : cachés":"Cadres pointillés : visibles"}
+function majMenu(){$("#m-dossier").hidden=!lecon||lecon.type==="tableau";$("#m-dossier").textContent=aDossier()?"Changer le dossier documentaire":"Joindre un dossier documentaire";$("#m-zoom").textContent=modeLarg?"Page entière":"Largeur de l'écran";$("#m-cadres").textContent=corps.classList.contains("discret")?"Cadres pointillés : cachés":"Cadres pointillés : visibles"}
 $("#m-zoom").onclick=()=>{modeLarg=!modeLarg;loc.ecrire("largeur",modeLarg);majMenu();dimensionner()};
 $("#m-cadres").onclick=()=>{loc.ecrire("discret",corps.classList.toggle("discret"));majMenu()};
 $("#m-ed").onclick=()=>{$("#menu").classList.remove("ouvert");changerMode("edition")};
 $("#m-auto").onclick=async()=>{$("#menu").classList.remove("ouvert");const p=lecon.pages[nPage];if(!p.auto)return;
   if(await demander("Remettre les cadres automatiques de cette page ? Mes cadres modifiés seront perdus.",{ok:"Remettre"})){const z=p.auto;delete p.auto;p.zones=z;const L=LECONS.find(x=>x.id===lecon.id);if(L)sauverLecon(L);vues=new Set();dessinerZones()}};
+$("#m-dossier").onclick=()=>{$("#menu").classList.remove("ouvert");const L=lecon&&LECONS.find(x=>x.id===lecon.id);if(L)dossierUI.ouvrir(L)};
 $("#b-fond").onclick=()=>{PROG.tableau=PROG.tableau||{};const f=PROG.tableau.fond||"carreaux",k=FONDS.findIndex(x=>x[0]===f);PROG.tableau.fond=FONDS[(k+1)%FONDS.length][0];sauverProg();appliquerFond()};
 $("#b-page").onclick=()=>{PROG.tableau=PROG.tableau||{};PROG.tableau.n=lecon.pages.length+1;sauverProg();lecon=tableau();allerPage(lecon.pages.length-1)};
 $("#b-plein").onclick=()=>{try{const p=document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(()=>{})}catch(e){}};
@@ -584,10 +694,14 @@ document.querySelectorAll("[data-ferme]").forEach(b=>b.onclick=()=>$("#"+b.datas
 addEventListener("keydown",e=>{
   if(e.target.matches("textarea,input,select"))return;
   if($("#v-dlg").classList.contains("ouvert"))return;
+  if($("#v-dos").classList.contains("ouvert")||$("#v-imp").classList.contains("ouvert")){if(e.key==="Escape")document.querySelectorAll("#v-dos,#v-imp").forEach(v=>v.classList.remove("ouvert"));return}
   if(e.key==="Escape"&&$("#v-tir").classList.contains("ouvert")){$("#v-tir").classList.remove("ouvert");return}
   if($("#v-tir").classList.contains("ouvert")){if(e.key===" "||e.key==="Enter"){e.preventDefault();if(!$("#b-tirer").disabled&&!$("#tir-jeu").hidden)tirage.tirer()}return}
   if(!lecon)return;
-  if(e.key==="ArrowRight"||e.key==="PageDown")$("#b-suiv").click();
+  if((e.key==="d"||e.key==="D")&&aDossier())$("#b-dossier").click();
+  else if(vue==="dossier"&&(e.key==="ArrowRight"||e.key==="PageDown"))dAller(dPage+1);
+  else if(vue==="dossier"&&(e.key==="ArrowLeft"||e.key==="PageUp"))dAller(dPage-1);
+  else if(e.key==="ArrowRight"||e.key==="PageDown")$("#b-suiv").click();
   else if(e.key==="ArrowLeft"||e.key==="PageUp")$("#b-prec").click();
   else if(e.key===" "||e.key==="Enter"){e.preventDefault();reponseSuivante()}
   else if(e.key==="Escape"&&zoom>1)zoomer(1);
@@ -680,7 +794,7 @@ const importer={
   ouvrir(){
     const conn=[...new Set(["Histoire","Géographie","FHG","FES","Sciences économiques","Sciences sociales",...LECONS.map(l=>l.matiere)])];
     const dl=$("#mats");dl.innerHTML="";conn.forEach(m=>{const o=document.createElement("option");o.value=m;dl.appendChild(o)});
-    $("#imp-titre").value="";$("#imp-l").value="";$("#imp-c").value="";$("#imp-etat").textContent="";$("#b-imp-ok").disabled=false;
+    $("#imp-titre").value="";$("#imp-l").value="";$("#imp-c").value="";$("#imp-d").value="";$("#imp-etat").textContent="";$("#b-imp-ok").disabled=false;
     this.majType();$("#v-imp").classList.add("ouvert");$("#imp-titre").focus();
   },
   majType(){$("#lg-c").hidden=$("#imp-type").value!=="lecon"},
@@ -711,6 +825,7 @@ const importer={
       }
       try{pdfL.destroy();pdfC&&pdfC.destroy()}catch(e){}
       const o={id:"l"+Date.now().toString(36),titre,matiere,type,ordre:Date.now(),pages};
+      const fd=$("#imp-d").files[0];if(fd)o.dossier=await lireDossier(lib,fd,t=>et("Dossier : "+t));
       LECONS.push(o);et("Enregistrement…");
       if(DB){const d=clone(o);delete d.id;await DB.doc("lecons/"+o.id).set(d)}
       $("#v-imp").classList.remove("ouvert");accueil();
@@ -720,9 +835,66 @@ const importer={
     if(!await demander(`Supprimer « ${l.titre} » ? La leçon disparaît pour toutes les classes (tes PDF d'origine ne sont pas touchés).`,{ok:"Supprimer"}))return;
     LECONS=LECONS.filter(x=>x.id!==l.id);accueil();
     if(DB){try{await DB.doc("lecons/"+l.id).delete()}catch(e){}}
-    if(AS)l.pages.forEach(p=>[p.l,p.c].forEach(id=>{if(id)AS.delete(id).catch(()=>{})}));
+    if(AS)[...l.pages,...((l.dossier||{}).pages||[])].forEach(p=>[p.l,p.c].forEach(id=>{if(id)AS.delete(id).catch(()=>{})}));
   }
 };
+/* Dossier documentaire : chaque page devient une image, et je repère les titres « Document 4 », « Doc. 4 »… */
+async function titresDocs(page,i,docs){
+  try{
+    const tc=await page.getTextContent(),H=page.getViewport({scale:1}).height,lignes={};
+    for(const it of tc.items){if(!it.str||!it.transform)continue;(lignes[Math.round(it.transform[5]/4)]||=[]).push(it)}
+    for(const k of Object.keys(lignes).map(Number).sort((a,b)=>b-a)){ // du haut vers le bas de la page
+      const its=lignes[k].sort((a,b)=>a.transform[4]-b.transform[4]),t=its.map(x=>x.str).join(" ").replace(/\s+/g," ").trim();
+      const m=t.match(/^(?:document|doc\.?)\s*(?:n\s*°|n°|no\.?)?\s*(\d{1,2})\b/i)||t.replace(/\s/g,"").match(/^(?:document|doc\.?)(?:n°)?(\d{1,2})(?!\d)/i);
+      if(!m)continue;const n=+m[1];if(!n||docs.some(d=>d.n===n))continue;
+      const haut=its[0].transform[5]+(its[0].height||Math.abs(its[0].transform[3])||12);
+      docs.push({n,p:i,y:Math.round(Math.min(1,Math.max(0,1-haut/H))*1e3)/1e3});
+    }
+  }catch(e){}
+}
+async function lireDossier(lib,fichier,et){
+  const pdf=await ouvrirPdf(lib,await fichier.arrayBuffer());
+  if(pdf.numPages>60)throw new Error("60 pages maximum pour un dossier");
+  const pages=[],docs=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    et(`page ${i} sur ${pdf.numPages}…`);
+    const pg=await pdf.getPage(i),v=pg.getViewport({scale:1}),net=Math.min(170/72,2600/v.width,Math.sqrt(4e6/(v.width*v.height)));
+    const img=await rendrePage(pg,net);
+    pages.push({ratio:Math.round(v.height/v.width*1e4)/1e4,l:await stocker(await enJpeg(img))});
+    libere(img);await titresDocs(pg,i-1,docs);pg.cleanup&&pg.cleanup();
+  }
+  try{pdf.destroy()}catch(e){}
+  docs.sort((a,b)=>a.n-b.n);return {pages,docs};
+}
+// Joindre, changer ou retirer le dossier d'une leçon déjà importée
+const dossierUI={
+  l:null,
+  ouvrir(l){
+    this.l=l;const n=((l.dossier||{}).pages||[]).length,nd=((l.dossier||{}).docs||[]).length;
+    $("#vdo-titre").textContent=l.titre;$("#vdo-f").value="";$("#vdo-etat").textContent="";$("#vdo-ok").disabled=false;
+    $("#vdo-info").textContent=n?`Dossier joint : ${n} page${n>1?"s":""}`+(nd?`, ${nd} document${nd>1?"s":""} repéré${nd>1?"s":""}.`:".")+" Je peux le remplacer par un autre PDF.":"Je choisis le PDF du dossier. Il s'ouvrira en un clic depuis la leçon, ou à côté.";
+    $("#vdo-ok").textContent=n?"Remplacer":"Joindre";$("#vdo-retirer").hidden=!n;
+    $("#v-dos").classList.add("ouvert");
+  },
+  async enregistrer(l,dossier){
+    const ancien=l.dossier;if(dossier)l.dossier=dossier;else delete l.dossier;
+    if(DB){const o=clone(l);delete o.id;await DB.doc("lecons/"+l.id).set(o)}
+    if(AS&&ancien)(ancien.pages||[]).forEach(p=>{if(p.l)AS.delete(p.l).catch(()=>{})});
+    if(lecon&&lecon.id===l.id){lecon=l;$("#grp-dos").hidden=!aDossier();if(aDossier()){dAller(0);changerVue("dossier")}else changerVue("")}
+    accueil();
+  },
+  async joindre(){
+    const f=$("#vdo-f").files[0],et=t=>$("#vdo-etat").textContent=t;if(!f)return et("Il manque le PDF du dossier.");
+    $("#vdo-ok").disabled=true;
+    try{const lib=await chargerPdf();const d=await lireDossier(lib,f,t=>et("Page "+t));await this.enregistrer(this.l,d);$("#v-dos").classList.remove("ouvert")}
+    catch(e){console.error(e);et(MesDonnees.estPlein(e)?"Plus de place sur l'appareil pour ce dossier.":"Problème : "+((e&&(e.message||e.name))||e));$("#vdo-ok").disabled=false}
+  },
+  async retirer(){
+    if(!await demander(`Retirer le dossier de « ${this.l.titre} » ? Mon PDF d'origine n'est pas touché.`,{ok:"Retirer"}))return;
+    await this.enregistrer(this.l,null);$("#v-dos").classList.remove("ouvert");
+  }
+};
+$("#vdo-ok").onclick=()=>dossierUI.joindre();$("#vdo-retirer").onclick=()=>dossierUI.retirer();
 $("#imp-type").onchange=()=>importer.majType();$("#b-imp-ok").onclick=()=>importer.ajouter();
 
 /* ---------- démarrage ---------- */
@@ -749,7 +921,7 @@ if(loc.lire("discret",false))corps.classList.add("discret");majMenu();
 accueil();
 /* Images des pages : lues sur l'appareil une fois au démarrage */
 async function prechargerImages(ls){
-  const ids=[];ls.forEach(l=>(l.pages||[]).forEach(p=>[p.l,p.c].forEach(id=>{if(id&&!OBJ_URL[id])ids.push(id)})));
+  const ids=[];ls.forEach(l=>[...(l.pages||[]),...((l.dossier||{}).pages||[])].forEach(p=>[p.l,p.c].forEach(id=>{if(id&&!OBJ_URL[id])ids.push(id)})));
   await Promise.all(ids.map(async id=>{try{const b=await MesDonnees.fichiers.lire(id);if(b)OBJ_URL[id]=URL.createObjectURL(b)}catch(e){}}));
 }
 (async()=>{

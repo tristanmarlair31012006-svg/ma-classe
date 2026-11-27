@@ -393,10 +393,14 @@
     const q = t.questions[Q.n];
     const lettres = "ABCDEF";
     const pastilles = `<div class="etapes">${t.questions.map((_, i) => `<i class="${i < Q.n ? "fait" : i === Q.n ? "actuel" : ""}"></i>`).join("")}</div>`;
-    const opts = q.options.map((o, k) => {
+    // Réponses mélangées (toujours de la même façon) : la bonne n'est pas toujours la première. k = numéro d'origine.
+    const h = x => { let v = 7; for (const c of String(x)) v = (v * 31 + c.charCodeAt(0)) % 100003; return v; };
+    const ordreOpts = q.options.map((o, k) => k).sort((a, b) => h(t.id + Q.n + a + fr(q.options[a].label)) - h(t.id + Q.n + b + fr(q.options[b].label)));
+    const opts = ordreOpts.map((k, pos) => {
+      const o = q.options[k];
       let etat = "";
       if (Q.valide) { if (o.correct) etat = "juste"; else if (Q.choix === k) etat = "faux"; }
-      return `<button class="option ${etat}" data-qopt="${k}" aria-pressed="${Q.choix === k}" ${Q.valide ? "disabled" : ""}><span class="symb">${lettres[k]}</span><span>${lab(o.label)}</span></button>`;
+      return `<button class="option ${etat}" data-qopt="${k}" aria-pressed="${Q.choix === k}" ${Q.valide ? "disabled" : ""}><span class="symb">${lettres[pos]}</span><span>${lab(o.label)}</span></button>`;
     }).join("");
     const juste = Q.valide && Q.bonnes[Q.n];
     const bonneRep = q.options.find(o => o.correct);

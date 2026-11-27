@@ -347,14 +347,16 @@
 
   function zoneEtape(e) {
     if (e.type === "choix" || e.type === "partage") {
-      return `<div class="options">${e.options.map(o => {
+      // Choix : les réponses sont mélangées (toujours de la même façon) pour que la bonne ne soit pas toujours en premier.
+      const opts = e.type === "choix" ? [...e.options].sort((x, y) => hash(A.id + x.id + A.etape) - hash(A.id + y.id + A.etape)) : e.options;
+      return `<div class="options">${opts.map(o => {
         let etat = "";
         if (A.resultat && e.type === "choix" && A.choix === o.id) etat = o.correct ? "juste" : "faux";
         return `<button class="option ${etat}" data-option="${o.id}" aria-pressed="${A.choix === o.id}">${o.symbole ? `<span class="symb">${esc(o.symbole)}</span>` : ""}<span>${typeof o.label === "string" ? esc(o.label) : texte(o.label)}${o.pays ? `<small>${esc(o.pays)}</small>` : ""}</span></button>`;
       }).join("")}</div>`;
     }
     if (e.type === "classer") {
-      const restants = e.elements.filter(x => !A.place[x.id]);
+      const restants = e.elements.filter(x => !A.place[x.id]).sort((x, y) => hash(A.id + x.id) - hash(A.id + y.id));
       return `<div class="classer">
         <div class="stock" aria-label="À classer">${restants.map(x => jeton(x, true, `data-element="${x.id}" aria-pressed="${A.selection === x.id}"`)).join("") || `<span class="petit">${ic("ok")}</span>`}</div>
         <div class="bacs">${e.bacs.map(b => `<button class="bac ${A.selection ? "cible" : ""}" data-bac="${b.id}">
